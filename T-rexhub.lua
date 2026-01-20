@@ -1,4 +1,6 @@
--- 🦖 T-REX HUB | FULL UNIVERSAL HUB
+-- 🦖 T-REX HUB | UNIVERSAL CLIENT HUB
+-- Made for learning & fun | Client-side only
+
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 --------------------------------------------------
@@ -27,8 +29,8 @@ gui.Name = "TrexHub"
 -- MAIN FRAME
 --------------------------------------------------
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 600, 0, 360)
-main.Position = UDim2.new(0.5, -300, 0.5, -180)
+main.Size = UDim2.new(0,560,0,330)
+main.Position = UDim2.new(0.5,-280,0.5,-165)
 main.BackgroundColor3 = Color3.fromRGB(18,18,18)
 main.Active = true
 main.Draggable = true
@@ -54,7 +56,7 @@ Instance.new("UICorner", top).CornerRadius = UDim.new(0,14)
 local title = Instance.new("TextLabel", top)
 title.Size = UDim2.new(1,0,1,0)
 title.BackgroundTransparency = 1
-title.Text = "🦖 T-REX HUB | UNIVERSAL"
+title.Text = "🦖 T-REX HUB | CLIENT HUB"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 18
 title.TextColor3 = Color3.fromRGB(255,80,80)
@@ -64,7 +66,7 @@ title.TextColor3 = Color3.fromRGB(255,80,80)
 --------------------------------------------------
 local tabFrame = Instance.new("Frame", main)
 tabFrame.Position = UDim2.new(0,0,0,45)
-tabFrame.Size = UDim2.new(0,140,1,-45)
+tabFrame.Size = UDim2.new(0,120,1,-45)
 tabFrame.BackgroundColor3 = Color3.fromRGB(22,22,22)
 
 local function tabButton(text,y)
@@ -80,9 +82,9 @@ local function tabButton(text,y)
 	return b
 end
 
-local tabMain   = tabButton("MAIN",10)
-local tabFun    = tabButton("FUN",60)
-local tabESP    = tabButton("ESP",110)
+local tabMain = tabButton("MAIN",10)
+local tabFun = tabButton("FUN",60)
+local tabESP = tabButton("ESP",110)
 local tabScript = tabButton("SCRIPT",160)
 
 --------------------------------------------------
@@ -90,8 +92,8 @@ local tabScript = tabButton("SCRIPT",160)
 --------------------------------------------------
 local function content()
 	local f = Instance.new("Frame", main)
-	f.Position = UDim2.new(0,150,0,50)
-	f.Size = UDim2.new(1,-160,1,-60)
+	f.Position = UDim2.new(0,130,0,50)
+	f.Size = UDim2.new(1,-140,1,-60)
 	f.BackgroundTransparency = 1
 	f.Visible = false
 	return f
@@ -133,22 +135,22 @@ local function makeBtn(parent,text,y)
 end
 
 --------------------------------------------------
--- MAIN TAB (SPEED + FULLBRIGHT)
+-- MAIN TAB (SPEED)
 --------------------------------------------------
 local speed = 16
-local MAX_SPEED = 300
+local maxSpeed = 300
 
 local speedLabel = Instance.new("TextLabel", mainTab)
 speedLabel.Size = UDim2.new(0,220,0,30)
 speedLabel.Position = UDim2.new(0,10,0,10)
 speedLabel.BackgroundTransparency = 1
-speedLabel.Text = "Speed: 16"
 speedLabel.TextColor3 = Color3.new(1,1,1)
 speedLabel.Font = Enum.Font.GothamBold
 speedLabel.TextSize = 14
+speedLabel.Text = "Speed: 16"
 
 local function setSpeed(v)
-	speed = math.clamp(v,16,MAX_SPEED)
+	speed = math.clamp(v,16,maxSpeed)
 	if player.Character and player.Character:FindFirstChild("Humanoid") then
 		player.Character.Humanoid.WalkSpeed = speed
 	end
@@ -156,26 +158,17 @@ local function setSpeed(v)
 end
 
 makeBtn(mainTab,"- SPEED",50).MouseButton1Click:Connect(function()
-	setSpeed(speed - 10)
+	setSpeed(speed-10)
 end)
 
 makeBtn(mainTab,"+ SPEED",100).MouseButton1Click:Connect(function()
-	setSpeed(speed + 10)
-end)
-
--- FULLBRIGHT
-local fb = false
-makeBtn(mainTab,"FULLBRIGHT : OFF",150).MouseButton1Click:Connect(function(b)
-	fb = not fb
-	b.Text = "FULLBRIGHT : "..(fb and "ON" or "OFF")
-	game:GetService("Lighting").Brightness = fb and 5 or 1
-	game:GetService("Lighting").ClockTime = fb and 14 or 12
+	setSpeed(speed+10)
 end)
 
 --------------------------------------------------
--- FUN TAB (INF JUMP + NOCLIP + SELF FLING)
+-- FUN TAB
 --------------------------------------------------
--- INFINITE JUMP
+-- Infinite Jump
 local infJump = false
 makeBtn(funTab,"INFINITE JUMP : OFF",10).MouseButton1Click:Connect(function(b)
 	infJump = not infJump
@@ -188,7 +181,7 @@ UIS.JumpRequest:Connect(function()
 	end
 end)
 
--- NOCLIP
+-- Noclip
 local noclip = false
 makeBtn(funTab,"NOCLIP : OFF",60).MouseButton1Click:Connect(function(b)
 	noclip = not noclip
@@ -205,81 +198,89 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
--- SELF FLING (VUI)
-local fling = false
-makeBtn(funTab,"SELF FLING : OFF",110).MouseButton1Click:Connect(function(b)
-	fling = not fling
-	b.Text = "SELF FLING : "..(fling and "ON" or "OFF")
-end)
-
-RunService.Heartbeat:Connect(function()
-	if fling and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-		player.Character.HumanoidRootPart.Velocity = Vector3.new(
-			math.random(-300,300),
-			300,
-			math.random(-300,300)
-		)
-	end
+-- Anti AFK
+local vu = game:GetService("VirtualUser")
+player.Idled:Connect(function()
+	vu:Button2Down(Vector2.new(0,0),camera.CFrame)
+	task.wait(1)
+	vu:Button2Up(Vector2.new(0,0),camera.CFrame)
 end)
 
 --------------------------------------------------
--- ESP TAB (VĨNH VIỄN)
+-- ESP TAB
 --------------------------------------------------
-local ESP_ON = false
-local espFolder = Instance.new("Folder", gui)
-espFolder.Name = "TREX_ESP"
+local espEnabled = false
+local espObjects = {}
 
 local function clearESP()
-	espFolder:ClearAllChildren()
+	for _,v in pairs(espObjects) do
+		if v then v:Destroy() end
+	end
+	espObjects = {}
 end
 
 local function createESP(plr)
 	if plr == player then return end
 	if not plr.Character then return end
-	if not plr.Character:FindFirstChild("HumanoidRootPart") then return end
+	local head = plr.Character:FindFirstChild("Head")
+	if not head then return end
 
-	local hl = Instance.new("Highlight")
-	hl.Adornee = plr.Character
-	hl.FillColor = Color3.fromRGB(255,0,0)
-	hl.OutlineColor = Color3.fromRGB(255,255,255)
-	hl.FillTransparency = 0.5
-	hl.Parent = espFolder
+	local bill = Instance.new("BillboardGui", head)
+	bill.Size = UDim2.new(0,100,0,40)
+	bill.AlwaysOnTop = true
+
+	local txt = Instance.new("TextLabel", bill)
+	txt.Size = UDim2.new(1,0,1,0)
+	txt.BackgroundTransparency = 1
+	txt.Text = plr.Name
+	txt.TextColor3 = Color3.new(1,0,0)
+	txt.Font = Enum.Font.GothamBold
+	txt.TextSize = 14
+
+	table.insert(espObjects,bill)
 end
 
-local function refreshESP()
+makeBtn(espTab,"ESP PLAYER : OFF",10).MouseButton1Click:Connect(function(b)
+	espEnabled = not espEnabled
+	b.Text = "ESP PLAYER : "..(espEnabled and "ON" or "OFF")
 	clearESP()
-	if not ESP_ON then return end
-	for _,p in pairs(Players:GetPlayers()) do
-		createESP(p)
+	if espEnabled then
+		for _,plr in pairs(Players:GetPlayers()) do
+			createESP(plr)
+		end
 	end
-end
+end)
 
-Players.PlayerAdded:Connect(refreshESP)
-Players.PlayerRemoving:Connect(refreshESP)
-
-makeBtn(espTab,"ESP : OFF",10).MouseButton1Click:Connect(function(b)
-	ESP_ON = not ESP_ON
-	b.Text = "ESP : "..(ESP_ON and "ON" or "OFF")
-	refreshESP()
+Players.PlayerAdded:Connect(function(plr)
+	if espEnabled then
+		plr.CharacterAdded:Wait()
+		createESP(plr)
+	end
 end)
 
 --------------------------------------------------
--- SCRIPT TAB (TỔNG HỢP)
+-- SCRIPT TAB
 --------------------------------------------------
-makeBtn(scriptTab,"Teddy Hub",10).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
-end)
-
-makeBtn(scriptTab,"Quantum Onyx",60).MouseButton1Click:Connect(function()
+makeBtn(scriptTab,"LOAD QUANTUM ONYX",10).MouseButton1Click:Connect(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
 end)
 
-makeBtn(scriptTab,"Escape Tsunami",110).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"))()
+makeBtn(scriptTab,"LOAD TEDDY HUB",60).MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
 end)
 
-makeBtn(scriptTab,"Night In Forest",160).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua"))()
+--------------------------------------------------
+-- ANTI KICK (CLIENT)
+--------------------------------------------------
+local mt = getrawmetatable(game)
+setreadonly(mt,false)
+local old = mt.__namecall
+mt.__namecall = newcclosure(function(self,...)
+	local args = {...}
+	if tostring(self) == "Kick" then
+		return
+	end
+	return old(self,...)
 end)
 
 --------------------------------------------------
