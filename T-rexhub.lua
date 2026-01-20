@@ -1,4 +1,4 @@
--- 🦖 T-REXHUB | FULL HUB (MERGED & FIXED)
+-- 🦖 T-REX HUB | FULL UNIVERSAL HUB
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 --------------------------------------------------
@@ -20,16 +20,15 @@ end
 --------------------------------------------------
 -- GUI
 --------------------------------------------------
-local gui = Instance.new("ScreenGui")
+local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "TrexHub"
-gui.Parent = game.CoreGui
 
 --------------------------------------------------
 -- MAIN FRAME
 --------------------------------------------------
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 560, 0, 320)
-main.Position = UDim2.new(0.5, -280, 0.5, -160)
+main.Size = UDim2.new(0, 600, 0, 360)
+main.Position = UDim2.new(0.5, -300, 0.5, -180)
 main.BackgroundColor3 = Color3.fromRGB(18,18,18)
 main.Active = true
 main.Draggable = true
@@ -55,7 +54,7 @@ Instance.new("UICorner", top).CornerRadius = UDim.new(0,14)
 local title = Instance.new("TextLabel", top)
 title.Size = UDim2.new(1,0,1,0)
 title.BackgroundTransparency = 1
-title.Text = "🦖 T-REX HUB"
+title.Text = "🦖 T-REX HUB | UNIVERSAL"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 18
 title.TextColor3 = Color3.fromRGB(255,80,80)
@@ -65,7 +64,7 @@ title.TextColor3 = Color3.fromRGB(255,80,80)
 --------------------------------------------------
 local tabFrame = Instance.new("Frame", main)
 tabFrame.Position = UDim2.new(0,0,0,45)
-tabFrame.Size = UDim2.new(0,120,1,-45)
+tabFrame.Size = UDim2.new(0,140,1,-45)
 tabFrame.BackgroundColor3 = Color3.fromRGB(22,22,22)
 
 local function tabButton(text,y)
@@ -83,34 +82,38 @@ end
 
 local tabMain   = tabButton("MAIN",10)
 local tabFun    = tabButton("FUN",60)
-local tabScript = tabButton("SCRIPT",110)
+local tabESP    = tabButton("ESP",110)
+local tabScript = tabButton("SCRIPT",160)
 
 --------------------------------------------------
 -- CONTENT FRAMES
 --------------------------------------------------
-local function newTab()
+local function content()
 	local f = Instance.new("Frame", main)
-	f.Position = UDim2.new(0,130,0,50)
-	f.Size = UDim2.new(1,-140,1,-60)
+	f.Position = UDim2.new(0,150,0,50)
+	f.Size = UDim2.new(1,-160,1,-60)
 	f.BackgroundTransparency = 1
 	f.Visible = false
 	return f
 end
 
-local mainTab   = newTab()
-local funTab    = newTab()
-local scriptTab = newTab()
+local mainTab = content()
+local funTab = content()
+local espTab = content()
+local scriptTab = content()
 mainTab.Visible = true
 
 local function switch(tab)
 	mainTab.Visible = false
 	funTab.Visible = false
+	espTab.Visible = false
 	scriptTab.Visible = false
 	tab.Visible = true
 end
 
 tabMain.MouseButton1Click:Connect(function() switch(mainTab) end)
 tabFun.MouseButton1Click:Connect(function() switch(funTab) end)
+tabESP.MouseButton1Click:Connect(function() switch(espTab) end)
 tabScript.MouseButton1Click:Connect(function() switch(scriptTab) end)
 
 --------------------------------------------------
@@ -130,7 +133,7 @@ local function makeBtn(parent,text,y)
 end
 
 --------------------------------------------------
--- MAIN TAB (SPEED)
+-- MAIN TAB (SPEED + FULLBRIGHT)
 --------------------------------------------------
 local speed = 16
 local MAX_SPEED = 300
@@ -139,10 +142,10 @@ local speedLabel = Instance.new("TextLabel", mainTab)
 speedLabel.Size = UDim2.new(0,220,0,30)
 speedLabel.Position = UDim2.new(0,10,0,10)
 speedLabel.BackgroundTransparency = 1
+speedLabel.Text = "Speed: 16"
 speedLabel.TextColor3 = Color3.new(1,1,1)
 speedLabel.Font = Enum.Font.GothamBold
 speedLabel.TextSize = 14
-speedLabel.Text = "Speed: 16"
 
 local function setSpeed(v)
 	speed = math.clamp(v,16,MAX_SPEED)
@@ -153,22 +156,30 @@ local function setSpeed(v)
 end
 
 makeBtn(mainTab,"- SPEED",50).MouseButton1Click:Connect(function()
-	setSpeed(speed-10)
+	setSpeed(speed - 10)
 end)
 
 makeBtn(mainTab,"+ SPEED",100).MouseButton1Click:Connect(function()
-	setSpeed(speed+10)
+	setSpeed(speed + 10)
+end)
+
+-- FULLBRIGHT
+local fb = false
+makeBtn(mainTab,"FULLBRIGHT : OFF",150).MouseButton1Click:Connect(function(b)
+	fb = not fb
+	b.Text = "FULLBRIGHT : "..(fb and "ON" or "OFF")
+	game:GetService("Lighting").Brightness = fb and 5 or 1
+	game:GetService("Lighting").ClockTime = fb and 14 or 12
 end)
 
 --------------------------------------------------
--- FUN TAB
+-- FUN TAB (INF JUMP + NOCLIP + SELF FLING)
 --------------------------------------------------
--- Infinite Jump
+-- INFINITE JUMP
 local infJump = false
-local infBtn = makeBtn(funTab,"INFINITE JUMP : OFF",10)
-infBtn.MouseButton1Click:Connect(function()
+makeBtn(funTab,"INFINITE JUMP : OFF",10).MouseButton1Click:Connect(function(b)
 	infJump = not infJump
-	infBtn.Text = "INFINITE JUMP : "..(infJump and "ON" or "OFF")
+	b.Text = "INFINITE JUMP : "..(infJump and "ON" or "OFF")
 end)
 
 UIS.JumpRequest:Connect(function()
@@ -177,17 +188,16 @@ UIS.JumpRequest:Connect(function()
 	end
 end)
 
--- Noclip
+-- NOCLIP
 local noclip = false
-local noclipBtn = makeBtn(funTab,"NOCLIP : OFF",60)
-noclipBtn.MouseButton1Click:Connect(function()
+makeBtn(funTab,"NOCLIP : OFF",60).MouseButton1Click:Connect(function(b)
 	noclip = not noclip
-	noclipBtn.Text = "NOCLIP : "..(noclip and "ON" or "OFF")
+	b.Text = "NOCLIP : "..(noclip and "ON" or "OFF")
 end)
 
 RunService.Stepped:Connect(function()
 	if noclip and player.Character then
-		for _,v in ipairs(player.Character:GetDescendants()) do
+		for _,v in pairs(player.Character:GetDescendants()) do
 			if v:IsA("BasePart") then
 				v.CanCollide = false
 			end
@@ -195,25 +205,81 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
+-- SELF FLING (VUI)
+local fling = false
+makeBtn(funTab,"SELF FLING : OFF",110).MouseButton1Click:Connect(function(b)
+	fling = not fling
+	b.Text = "SELF FLING : "..(fling and "ON" or "OFF")
+end)
+
+RunService.Heartbeat:Connect(function()
+	if fling and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+		player.Character.HumanoidRootPart.Velocity = Vector3.new(
+			math.random(-300,300),
+			300,
+			math.random(-300,300)
+		)
+	end
+end)
+
+--------------------------------------------------
+-- ESP TAB (VĨNH VIỄN)
+--------------------------------------------------
+local ESP_ON = false
+local espFolder = Instance.new("Folder", gui)
+espFolder.Name = "TREX_ESP"
+
+local function clearESP()
+	espFolder:ClearAllChildren()
+end
+
+local function createESP(plr)
+	if plr == player then return end
+	if not plr.Character then return end
+	if not plr.Character:FindFirstChild("HumanoidRootPart") then return end
+
+	local hl = Instance.new("Highlight")
+	hl.Adornee = plr.Character
+	hl.FillColor = Color3.fromRGB(255,0,0)
+	hl.OutlineColor = Color3.fromRGB(255,255,255)
+	hl.FillTransparency = 0.5
+	hl.Parent = espFolder
+end
+
+local function refreshESP()
+	clearESP()
+	if not ESP_ON then return end
+	for _,p in pairs(Players:GetPlayers()) do
+		createESP(p)
+	end
+end
+
+Players.PlayerAdded:Connect(refreshESP)
+Players.PlayerRemoving:Connect(refreshESP)
+
+makeBtn(espTab,"ESP : OFF",10).MouseButton1Click:Connect(function(b)
+	ESP_ON = not ESP_ON
+	b.Text = "ESP : "..(ESP_ON and "ON" or "OFF")
+	refreshESP()
+end)
+
 --------------------------------------------------
 -- SCRIPT TAB (TỔNG HỢP)
 --------------------------------------------------
-makeBtn(scriptTab,"Quantum Onyx Hub",10).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet(
-		"https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"
-	))()
+makeBtn(scriptTab,"Teddy Hub",10).MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
 end)
 
-makeBtn(scriptTab,"Teddy Hub",60).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet(
-		"https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"
-	))()
+makeBtn(scriptTab,"Quantum Onyx",60).MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
 end)
 
-makeBtn(scriptTab,"Escape Tsunami Script",110).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet(
-		"https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"
-	))()
+makeBtn(scriptTab,"Escape Tsunami",110).MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"))()
+end)
+
+makeBtn(scriptTab,"Night In Forest",160).MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua"))()
 end)
 
 --------------------------------------------------
@@ -222,7 +288,7 @@ end)
 local toggle = Instance.new("TextButton", gui)
 toggle.Size = UDim2.new(0,60,0,60)
 toggle.Position = UDim2.new(0,15,0.5,-30)
-toggle.Text = "TREX"
+toggle.Text = "RED"
 toggle.Font = Enum.Font.GothamBold
 toggle.TextSize = 16
 toggle.TextColor3 = Color3.new(1,1,1)
