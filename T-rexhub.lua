@@ -1,40 +1,30 @@
--- 🦖 T-REXHUB | FULL HUB (CLEAN)
+-- 🦖 T-REXHUB | FIXED + CLEAN
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
---------------------------------------------------
 -- SERVICES
---------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
 
---------------------------------------------------
--- ANTI DUPLICATE
---------------------------------------------------
+-- ANTI DUP
 if game.CoreGui:FindFirstChild("TrexHub") then
-    game.CoreGui.TrexHub:Destroy()
+	game.CoreGui.TrexHub:Destroy()
 end
 
---------------------------------------------------
 -- GUI
---------------------------------------------------
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "TrexHub"
 
---------------------------------------------------
--- MAIN FRAME
---------------------------------------------------
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 560, 0, 320)
-main.Position = UDim2.new(0.5, -280, 0.5, -160)
+main.Size = UDim2.new(0,560,0,320)
+main.Position = UDim2.new(0.5,-280,0.5,-160)
 main.BackgroundColor3 = Color3.fromRGB(18,18,18)
 main.Active = true
 main.Draggable = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
 
--- 🌈 RAINBOW BORDER
+-- RAINBOW BORDER
 local stroke = Instance.new("UIStroke", main)
 stroke.Thickness = 3
 local h = 0
@@ -43,31 +33,23 @@ RunService.RenderStepped:Connect(function()
 	stroke.Color = Color3.fromHSV(h,1,1)
 end)
 
---------------------------------------------------
--- TOP BAR
---------------------------------------------------
-local top = Instance.new("Frame", main)
+-- TOP
+local top = Instance.new("TextLabel", main)
 top.Size = UDim2.new(1,0,0,40)
 top.BackgroundColor3 = Color3.fromRGB(25,25,25)
+top.Text = "🦖 T-REX HUB"
+top.Font = Enum.Font.GothamBold
+top.TextSize = 18
+top.TextColor3 = Color3.fromRGB(255,80,80)
 Instance.new("UICorner", top).CornerRadius = UDim.new(0,14)
 
-local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1,0,1,0)
-title.BackgroundTransparency = 1
-title.Text = "🦖 T-REX HUB"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
-title.TextColor3 = Color3.fromRGB(255,80,80)
-
---------------------------------------------------
--- TAB BUTTONS
---------------------------------------------------
+-- TAB FRAME
 local tabFrame = Instance.new("Frame", main)
 tabFrame.Position = UDim2.new(0,0,0,45)
 tabFrame.Size = UDim2.new(0,120,1,-45)
 tabFrame.BackgroundColor3 = Color3.fromRGB(22,22,22)
 
-local function tabButton(text,y)
+local function tabBtn(text,y)
 	local b = Instance.new("TextButton", tabFrame)
 	b.Size = UDim2.new(1,-10,0,40)
 	b.Position = UDim2.new(0,5,0,y)
@@ -76,17 +58,14 @@ local function tabButton(text,y)
 	b.TextSize = 14
 	b.TextColor3 = Color3.new(1,1,1)
 	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	Instance.new("UICorner", b).CornerRadius = UDim.new(0,8)
+	Instance.new("UICorner", b)
 	return b
 end
 
-local tabMain = tabButton("MAIN",10)
-local tabFun  = tabButton("FUN",60)
-local tabScript = tabButton("SCRIPT",110)
+local tabMain = tabBtn("MAIN",10)
+local tabFun = tabBtn("FUN",60)
+local tabScript = tabBtn("SCRIPT",110)
 
---------------------------------------------------
--- CONTENT FRAMES
---------------------------------------------------
 local function content()
 	local f = Instance.new("Frame", main)
 	f.Position = UDim2.new(0,130,0,50)
@@ -112,9 +91,7 @@ tabMain.MouseButton1Click:Connect(function() switch(mainTab) end)
 tabFun.MouseButton1Click:Connect(function() switch(funTab) end)
 tabScript.MouseButton1Click:Connect(function() switch(scriptTab) end)
 
---------------------------------------------------
 -- BUTTON MAKER
---------------------------------------------------
 local function makeBtn(parent,text,y)
 	local b = Instance.new("TextButton", parent)
 	b.Size = UDim2.new(0,200,0,40)
@@ -124,31 +101,26 @@ local function makeBtn(parent,text,y)
 	b.TextSize = 14
 	b.TextColor3 = Color3.new(1,1,1)
 	b.BackgroundColor3 = Color3.fromRGB(45,45,45)
-	Instance.new("UICorner", b).CornerRadius = UDim.new(0,8)
+	Instance.new("UICorner", b)
 	return b
 end
 
---------------------------------------------------
--- MAIN TAB (SPEED)
---------------------------------------------------
+-- SPEED
 local speed = 16
-local maxSpeed = 300
-
-local speedLabel = Instance.new("TextLabel", mainTab)
-speedLabel.Size = UDim2.new(0,200,0,30)
-speedLabel.Position = UDim2.new(0,10,0,10)
-speedLabel.BackgroundTransparency = 1
-speedLabel.TextColor3 = Color3.new(1,1,1)
-speedLabel.Font = Enum.Font.GothamBold
-speedLabel.TextSize = 14
-speedLabel.Text = "Speed: 16"
+local label = Instance.new("TextLabel", mainTab)
+label.Size = UDim2.new(0,200,0,30)
+label.Position = UDim2.new(0,10,0,10)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.new(1,1,1)
+label.Font = Enum.Font.GothamBold
+label.Text = "Speed: 16"
 
 local function setSpeed(v)
-	speed = math.clamp(v,16,maxSpeed)
+	speed = math.clamp(v,16,300)
 	if player.Character and player.Character:FindFirstChild("Humanoid") then
 		player.Character.Humanoid.WalkSpeed = speed
 	end
-	speedLabel.Text = "Speed: "..speed
+	label.Text = "Speed: "..speed
 end
 
 makeBtn(mainTab,"- SPEED",50).MouseButton1Click:Connect(function()
@@ -159,14 +131,12 @@ makeBtn(mainTab,"+ SPEED",100).MouseButton1Click:Connect(function()
 	setSpeed(speed+10)
 end)
 
---------------------------------------------------
--- FUN TAB
---------------------------------------------------
--- Infinite Jump
+-- FUN
 local infJump = false
-makeBtn(funTab,"INFINITE JUMP",10).MouseButton1Click:Connect(function(b)
+local jumpBtn = makeBtn(funTab,"INFINITE JUMP : OFF",10)
+jumpBtn.MouseButton1Click:Connect(function()
 	infJump = not infJump
-	b.Text = "INFINITE JUMP : "..(infJump and "ON" or "OFF")
+	jumpBtn.Text = "INFINITE JUMP : "..(infJump and "ON" or "OFF")
 end)
 
 UIS.JumpRequest:Connect(function()
@@ -175,11 +145,11 @@ UIS.JumpRequest:Connect(function()
 	end
 end)
 
--- Noclip
 local noclip = false
-makeBtn(funTab,"NOCLIP",60).MouseButton1Click:Connect(function(b)
+local noclipBtn = makeBtn(funTab,"NOCLIP : OFF",60)
+noclipBtn.MouseButton1Click:Connect(function()
 	noclip = not noclip
-	b.Text = "NOCLIP : "..(noclip and "ON" or "OFF")
+	noclipBtn.Text = "NOCLIP : "..(noclip and "ON" or "OFF")
 end)
 
 RunService.Stepped:Connect(function()
@@ -192,24 +162,7 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
---------------------------------------------------
--- SCRIPT TỔNG HỢP
---------------------------------------------------
-makeBtn(scriptTab,"LOAD QUANTUM ONYX",10).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet(
-		"https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"
-	))()
-end)
-
-makeBtn(scriptTab,"LOAD TEDDY HUB",60).MouseButton1Click:Connect(function()
-	loadstring(game:HttpGet(
-		"https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"
-	))()
-end)
-
---------------------------------------------------
--- TOGGLE BUTTON
---------------------------------------------------
+-- TOGGLE
 local toggle = Instance.new("TextButton", gui)
 toggle.Size = UDim2.new(0,60,0,60)
 toggle.Position = UDim2.new(0,15,0.5,-30)
@@ -220,7 +173,7 @@ toggle.TextColor3 = Color3.new(1,1,1)
 toggle.BackgroundColor3 = Color3.fromRGB(180,0,0)
 toggle.Active = true
 toggle.Draggable = true
-Instance.new("UICorner", toggle).CornerRadius = UDim.new(0,12)
+Instance.new("UICorner", toggle)
 
 toggle.MouseButton1Click:Connect(function()
 	main.Visible = not main.Visible
