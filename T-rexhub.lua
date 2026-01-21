@@ -118,17 +118,19 @@ RunService.RenderStepped:Connect(function()
 end)
 
 --------------------------------------------------
--- TAB SCRIPT (LOAD)
+-- TAB SCRIPT (LOAD)  ⬅️ CHỈ THÊM 1 SCRIPT
 --------------------------------------------------
 local Scripts = {
-    Quantum = "https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua",
-    Teddy = "https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua",
-    DeadRails = "https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader",
-    Tsunami = "https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"
+    Quantum   = "https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua",
+    Teddy     = "https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua",
+    DeadRails = "https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader", -- 👈 THÊM
+    Tsunami   = "https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"
 }
 
--- Cách gọi:
+--------------------------------------------------
+-- CÁCH GỌI SCRIPT
+--------------------------------------------------
 -- loadstring(game:HttpGet(Scripts.Quantum))()
 -- loadstring(game:HttpGet(Scripts.Teddy))()
--- loadstring(game:HttpGet(Scripts.DeadRails))()
+-- loadstring(game:HttpGet(Scripts.DeadRails))() -- 👈 NULL-FIRE / DEAD RAILS
 -- loadstring(game:HttpGet(Scripts.Tsunami))()
