@@ -1,181 +1,171 @@
---// T-REXHUB | FULL FIX | KEY SYSTEM
-repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+-- T-REXHUB | FULL FIX MENU VERSION
+repeat task.wait() until game:IsLoaded()
 
---------------------------------------------------
 -- SERVICES
---------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
-local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
-
 local Player = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 --------------------------------------------------
--- AUTO FUNCTION (LUÔN BẬT)
+-- AUTO FUNCTION
 --------------------------------------------------
--- Anti AFK
+-- AntiKick
+pcall(function()
+    local mt = getrawmetatable(game)
+    setreadonly(mt,false)
+    local old = mt.__namecall
+    mt.__namecall = newcclosure(function(self,...)
+        if getnamecallmethod()=="Kick" then return end
+        return old(self,...)
+    end)
+end)
+
+-- AntiAFK
 Player.Idled:Connect(function()
     VirtualUser:Button2Down(Vector2.new(0,0),Camera.CFrame)
     task.wait(1)
     VirtualUser:Button2Up(Vector2.new(0,0),Camera.CFrame)
 end)
 
--- Anti Kick
-local mt = getrawmetatable(game)
-setreadonly(mt,false)
-local old = mt.__namecall
-mt.__namecall = newcclosure(function(self,...)
-    if getnamecallmethod()=="Kick" then
-        return
-    end
-    return old(self,...)
-end)
-
 -- FullBright
 Lighting.Brightness = 3
 Lighting.ClockTime = 12
-Lighting.FogEnd = 1e6
-
---------------------------------------------------
--- KEY SYSTEM
---------------------------------------------------
-local KEY = "TREX-2026"
-local Unlocked = false
+Lighting.FogEnd = 1e9
 
 --------------------------------------------------
 -- GUI
 --------------------------------------------------
-local gui = Instance.new("ScreenGui",Player.PlayerGui)
+local gui = Instance.new("ScreenGui", Player.PlayerGui)
 gui.Name = "TREXHUB"
 
-local KeyFrame = Instance.new("Frame",gui)
-KeyFrame.Size = UDim2.fromScale(0.25,0.2)
-KeyFrame.Position = UDim2.fromScale(0.38,0.35)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-KeyFrame.BorderSizePixel = 0
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.fromOffset(420,300)
+main.Position = UDim2.fromScale(0.3,0.3)
+main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+main.Active, main.Draggable = true, true
 
-local KeyBox = Instance.new("TextBox",KeyFrame)
-KeyBox.Size = UDim2.fromScale(0.8,0.3)
-KeyBox.Position = UDim2.fromScale(0.1,0.25)
-KeyBox.PlaceholderText = "Nhập KEY"
-KeyBox.Text = ""
-KeyBox.TextScaled = true
-KeyBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
-KeyBox.TextColor3 = Color3.new(1,1,1)
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,30)
+title.Text = "🦖 T-REX HUB | FULL FIX"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundColor3 = Color3.fromRGB(40,40,40)
 
-local KeyBtn = Instance.new("TextButton",KeyFrame)
-KeyBtn.Size = UDim2.fromScale(0.5,0.25)
-KeyBtn.Position = UDim2.fromScale(0.25,0.6)
-KeyBtn.Text = "UNLOCK"
-KeyBtn.TextScaled = true
-KeyBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
-KeyBtn.TextColor3 = Color3.new(1,1,1)
+local tabFrame = Instance.new("Frame", main)
+tabFrame.Position = UDim2.fromOffset(0,30)
+tabFrame.Size = UDim2.fromOffset(120,270)
+tabFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
 
---------------------------------------------------
--- MAIN MENU
---------------------------------------------------
-local Menu = Instance.new("Frame",gui)
-Menu.Size = UDim2.fromScale(0.35,0.45)
-Menu.Position = UDim2.fromScale(0.32,0.25)
-Menu.BackgroundColor3 = Color3.fromRGB(25,25,25)
-Menu.Visible = false
+local content = Instance.new("Frame", main)
+content.Position = UDim2.fromOffset(120,30)
+content.Size = UDim2.fromOffset(300,270)
+content.BackgroundColor3 = Color3.fromRGB(30,30,30)
 
-local Title = Instance.new("TextLabel",Menu)
-Title.Size = UDim2.fromScale(1,0.12)
-Title.Text = "🦖 T-REX HUB"
-Title.TextScaled = true
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1,1,1)
-
---------------------------------------------------
--- STATES
---------------------------------------------------
-local InfiniteJump = false
-local Noclip = false
-local ESP = false
-
---------------------------------------------------
--- BUTTON MAKER
---------------------------------------------------
-local function Button(text,pos,callback)
-    local b = Instance.new("TextButton",Menu)
-    b.Size = UDim2.fromScale(0.9,0.1)
-    b.Position = UDim2.fromScale(0.05,pos)
+local function newButton(text,parent,y)
+    local b = Instance.new("TextButton",parent)
+    b.Size = UDim2.new(1,0,0,35)
+    b.Position = UDim2.fromOffset(0,y)
     b.Text = text
-    b.TextScaled = true
-    b.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    b.BackgroundColor3 = Color3.fromRGB(50,50,50)
     b.TextColor3 = Color3.new(1,1,1)
-    b.MouseButton1Click:Connect(callback)
     return b
 end
 
 --------------------------------------------------
--- BUTTONS
+-- PLAYER MOD
 --------------------------------------------------
-Button("Infinite Jump",0.15,function()
-    InfiniteJump = not InfiniteJump
-end)
+local infJump, noclip, esp = false,false,false
 
-Button("Noclip",0.27,function()
-    Noclip = not Noclip
-end)
-
-Button("ESP Player",0.39,function()
-    ESP = not ESP
-end)
-
-Button("Quantum Hub",0.55,function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
-end)
-
-Button("Teddy Hub",0.67,function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
-end)
-
-Button("Null Fire",0.79,function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader"))()
-end)
-
---------------------------------------------------
--- FUNCTIONS
---------------------------------------------------
-UserInputService.JumpRequest:Connect(function()
-    if InfiniteJump then
+UIS.JumpRequest:Connect(function()
+    if infJump and Player.Character then
         Player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
     end
 end)
 
 RunService.Stepped:Connect(function()
-    if Noclip and Player.Character then
+    if noclip and Player.Character then
         for _,v in pairs(Player.Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
+            if v:IsA("BasePart") then v.CanCollide=false end
+        end
+    end
+end)
+
+--------------------------------------------------
+-- ESP
+--------------------------------------------------
+local espDraw = {}
+local function clearESP()
+    for _,v in pairs(espDraw) do v:Remove() end
+    espDraw={}
+end
+
+RunService.RenderStepped:Connect(function()
+    clearESP()
+    if not esp then return end
+    for _,p in pairs(Players:GetPlayers()) do
+        if p~=Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local pos,vis = Camera:WorldToViewportPoint(p.Character.HumanoidRootPart.Position)
+            if vis then
+                local t = Drawing.new("Text")
+                t.Text = p.Name
+                t.Position = Vector2.new(pos.X,pos.Y)
+                t.Size = 13
+                t.Color = Color3.fromRGB(255,80,80)
+                t.Center = true
+                espDraw[#espDraw+1]=t
             end
         end
     end
 end)
 
 --------------------------------------------------
--- KEY CHECK
+-- TABS
 --------------------------------------------------
-KeyBtn.MouseButton1Click:Connect(function()
-    if KeyBox.Text == KEY then
-        KeyFrame.Visible = false
-        Menu.Visible = true
-        Unlocked = true
-    else
-        KeyBox.Text = "SAI KEY"
-    end
+local y=0
+newButton("Player",tabFrame,y).MouseButton1Click:Connect(function()
+    content:ClearAllChildren()
+    local b1=newButton("Infinite Jump",content,10)
+    b1.MouseButton1Click:Connect(function()
+        infJump=not infJump
+        b1.Text="Infinite Jump : "..(infJump and "ON" or "OFF")
+    end)
+
+    local b2=newButton("Noclip",content,50)
+    b2.MouseButton1Click:Connect(function()
+        noclip=not noclip
+        b2.Text="Noclip : "..(noclip and "ON" or "OFF")
+    end)
+
+    local b3=newButton("ESP Player",content,90)
+    b3.MouseButton1Click:Connect(function()
+        esp=not esp
+        b3.Text="ESP : "..(esp and "ON" or "OFF")
+    end)
 end)
 
---------------------------------------------------
--- TOGGLE MENU (RightCtrl)
---------------------------------------------------
-UserInputService.InputBegan:Connect(function(i,g)
-    if not g and i.KeyCode == Enum.KeyCode.RightControl and Unlocked then
-        Menu.Visible = not Menu.Visible
-    end
+newButton("Script",tabFrame,40).MouseButton1Click:Connect(function()
+    content:ClearAllChildren()
+
+    newButton("Quantum Hub",content,10).MouseButton1Click:Connect(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
+    end)
+
+    newButton("Teddy Hub",content,50).MouseButton1Click:Connect(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
+    end)
+
+    newButton("Dead Rails (Null Fire)",content,90).MouseButton1Click:Connect(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader"))()
+    end)
+
+    newButton("Sống Thần Baranrot",content,130).MouseButton1Click:Connect(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"))()
+    end)
 end)
+
+-- OPEN TAB MẶC ĐỊNH
+task.wait(0.1)
+tabFrame:GetChildren()[1].MouseButton1Click:Fire()
