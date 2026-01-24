@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "🦖 T-rex X | Multi-Hub",
    LoadingTitle = "T-rex X System Loading...",
-   LoadingSubtitle = "Sư đệ đã săn được hàng ngon!",
+   LoadingSubtitle = "Đã thêm Dead Rails cho sư đệ!",
    ConfigurationSaving = {
       Enabled = true,
       FolderName = "TrexX_Data",
@@ -14,7 +14,6 @@ local Window = Rayfield:CreateWindow({
 
 --- [ TAB BLOX FRUIT ] ---
 local TabBlox = Window:CreateTab("🍍 Blox Fruit", 4483362458)
-
 TabBlox:CreateSection("Script Hubs Tổng Hợp")
 
 TabBlox:CreateButton({
@@ -49,35 +48,35 @@ TabBlox:CreateButton({
 
 --- [ TAB 99 NIGHT ] ---
 local TabNight = Window:CreateTab("🌙 99 Night", 4483362458)
-
-TabNight:CreateSection("Hàng Mới Sư Đệ Săn")
+TabNight:CreateSection("Script 99 Night")
 
 TabNight:CreateButton({
-   Name = "🛡️ Kích hoạt H4x Loader",
+   Name = "🛡️ Kích hoạt H4x Loader (VIP)",
    Callback = function()
-       loadstring(game:HttpGet("https://raw.githubusercontent.com/H4xScripts/Loader/refs/heads/main/loader2.lua", true))()
+       loadstring(game:HttpGet("https://H4xScripts.xyz/loader"))()
    end,
 })
 
 TabNight:CreateButton({
-   Name = "🌲 Kích hoạt Vape Voidware (Forest)",
+   Name = "🌲 Kích hoạt Vape Voidware",
    Callback = function()
        loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))()
    end,
 })
 
-TabNight:CreateSection("Script Cũ")
+--- [ TAB DEAD RAILS ] ---
+local TabDead = Window:CreateTab("💀 Dead Rails", 4483362458)
+TabDead:CreateSection("Script Dead Rails")
 
-TabNight:CreateButton({
-   Name = "🌑 Kích hoạt TDT 99 Night",
+TabDead:CreateButton({
+   Name = "🔥 Kích hoạt Null-Fire (Infernus)",
    Callback = function()
-       loadstring(game:HttpGet("https://raw.githubusercontent.com/DuyThinhNek12/Script/refs/heads/main/TDT99Night.lua.txt"))()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader"))()
    end,
 })
 
 --- [ TAB HỆ THỐNG ] ---
 local TabSys = Window:CreateTab("⚙️ Hệ Thống", 4483345906)
-
 TabSys:CreateSection("Cài Đặt Menu")
 
 TabSys:CreateKeybind({
@@ -96,7 +95,7 @@ TabSys:CreateButton({
 })
 
 Rayfield:Notify({
-   Title = "Cập Nhật Thành Công!",
-   Content = "Đã thêm 2 vũ khí mới vào Tab 99 Night cho sư đệ!",
+   Title = "Cập Nhật T-rex X",
+   Content = "Đã thêm Tab Dead Rails thành công!",
    Duration = 5,
 })
