@@ -1,6 +1,6 @@
--- [[ 🦖 T-REX X | MULTI-HUB FULL VERSION 2026 ]] --
+-- [[ 🦖 T-REX X | MULTI-HUB FULL FIXED 2026 ]] --
 -- Tác giả: Nguyen van thai
--- Link: https://raw.githubusercontent.com/dienmayxanhrg2647-sys/T-rexhub/refs/heads/main/T-rexX.lua
+-- Loadstring: loadstring(game:HttpGet("https://raw.githubusercontent.com/dienmayxanhrg2647-sys/T-rexhub/refs/heads/main/T-rexX.lua"))()
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -48,6 +48,15 @@ TabDead:CreateButton({Name = "🔥 Null-Fire (InfernusScripts)", Callback = func
 
 --- [[ TAB HỆ THỐNG ]] ---
 local TabSys = Window:CreateTab("⚙️ Hệ Thống", 4483345906)
+
+TabSys:CreateSection("Chức Năng Di Chuyển")
+TabSys:CreateButton({
+    Name = "🕊️ FlyV3 (Bật/Tắt Bay)", 
+    Callback = function() 
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() 
+    end
+})
+
 TabSys:CreateSection("Thông Số Real-time")
 local LPing = TabSys:CreateLabel("Ping: Đang tính...")
 local LPlas = TabSys:CreateLabel("Người chơi: ...")
@@ -61,6 +70,7 @@ TabSys:CreateToggle({
    Callback = function(Value) 
       ESP_Enabled = Value 
       if not Value then
+         -- Xóa sạch ESP khi tắt
          for _, p in pairs(game.Players:GetPlayers()) do
             pcall(function() if p.Character.HumanoidRootPart:FindFirstChild("TrexESP") then p.Character.HumanoidRootPart.TrexESP:Destroy() end end)
          end
@@ -88,30 +98,27 @@ TabSys:CreateButton({
                         return
                     end
                 end
+            else
+                Rayfield:Notify({Title = "Lỗi", Content = "Không lấy được danh sách server!", Duration = 3})
             end
-            Rayfield:Notify({Title = "Hệ Thống", Content = "Không tìm thấy server phù hợp, thử lại sau!", Duration = 3})
         end
         Hop()
     end,
 })
 
-TabSys:CreateButton({
-    Name = "🔄 Vào Lại Server (Rejoin)", 
-    Callback = function() 
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId) 
-    end
-})
+TabSys:CreateButton({Name = "🔄 Vào Lại Server (Rejoin)", Callback = function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId) end})
 
-TabSys:CreateSection("Cài Đặt Menu")
+TabSys:CreateSection("Cài Đặt")
 TabSys:CreateKeybind({Name = "Phím Đóng/Mở Menu", CurrentKeybind = "LeftControl", Callback = function() end})
 
 TabSys:CreateSection("Tác Giả")
 TabSys:CreateLabel("By Nguyen van thai")
 
--- [ LOGIC CHẠY NGẦM ] --
+-- [ LOGIC CHẠY NGẦM - ĐÃ FIX BUG ] --
 local start = os.time()
 task.spawn(function()
     while task.wait(1) do
+        -- Cập nhật Label an toàn
         pcall(function()
             local p = tonumber(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString():match("%d+"))
             LPing:Set("Ping: " .. (p or 0) .. " ms")
@@ -120,20 +127,34 @@ task.spawn(function()
             LTime:Set(string.format("Thời gian chơi: %02d:%02d:%02d", math.floor(d/3600), math.floor((d%3600)/60), d%60))
         end)
         
+        -- ESP Logic
         if ESP_Enabled then
             for _, player in pairs(game.Players:GetPlayers()) do
-                pcall(function()
-                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    pcall(function()
                         local hrp = player.Character.HumanoidRootPart
                         local myHrp = game.Players.LocalPlayer.Character.HumanoidRootPart
-                        if not hrp:FindFirstChild("TrexESP") then
-                            local b = Instance.new("BillboardGui", hrp); b.Name = "TrexESP"; b.AlwaysOnTop = true; b.Size = UDim2.new(0, 100, 0, 30); b.ExtentsOffset = Vector3.new(0, 3, 0)
-                            local l = Instance.new("TextLabel", b); l.BackgroundTransparency = 1; l.Size = UDim2.new(1, 0, 1, 0); l.TextColor3 = Color3.fromRGB(255, 50, 50); l.TextStrokeTransparency = 0; l.TextSize = 13; l.Font = Enum.Font.GothamBold
+                        local esp = hrp:FindFirstChild("TrexESP")
+                        
+                        if not esp then
+                            esp = Instance.new("BillboardGui", hrp)
+                            esp.Name = "TrexESP"
+                            esp.AlwaysOnTop = true
+                            esp.Size = UDim2.new(0, 100, 0, 30)
+                            esp.ExtentsOffset = Vector3.new(0, 3, 0)
+                            local l = Instance.new("TextLabel", esp)
+                            l.BackgroundTransparency = 1
+                            l.Size = UDim2.new(1, 0, 1, 0)
+                            l.TextColor3 = Color3.fromRGB(255, 50, 50)
+                            l.TextStrokeTransparency = 0
+                            l.TextSize = 13
+                            l.Font = Enum.Font.GothamBold
                         end
+                        
                         local dist = math.floor((myHrp.Position - hrp.Position).Magnitude)
-                        hrp.TrexESP.TextLabel.Text = player.Name .. "\n[" .. dist .. "m]"
-                    end
-                end)
+                        esp.TextLabel.Text = player.Name .. "\n[" .. dist .. "m]"
+                    end)
+                end
             end
         end
     end
