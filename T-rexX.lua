@@ -1,17 +1,21 @@
+-- [[ 🦖 T-REX X | MULTI-HUB FULL VERSION 2026 ]] --
+-- Tác giả: Nguyen van thai
+-- Link: https://raw.githubusercontent.com/dienmayxanhrg2647-sys/T-rexhub/refs/heads/main/T-rexX.lua
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "🦖 T-rex X | Multi-Hub Full",
    LoadingTitle = "Đang Khởi Chạy T-rex X...",
-   LoadingSubtitle = "By dienmayxanhrg2647-sys",
+   LoadingSubtitle = "By Nguyen van thai",
    ConfigurationSaving = {Enabled = true, FolderName = "TrexX_Data", FileName = "MainConfig"},
-   KeySystem = false -- Tắt hệ thống Key theo ý sư đệ
+   KeySystem = false 
 })
 
--- [ THÔNG BÁO TỔNG HỢP ] --
+-- [ THÔNG BÁO CHÀO HỎI ] --
 Rayfield:Notify({
-   Title = "KÍCH HOẠT THÀNH CÔNG",
-   Content = "Đã load: Blox Fruit, 99 Night, Dead Rails, ESP & System.",
+   Title = "🦖 T-Rex X chào", 
+   Content = "Chào mừng bạn! Script đã load đầy đủ chức năng.",
    Duration = 5,
 })
 
@@ -22,6 +26,16 @@ TabBlox:CreateButton({Name = "🔵 Quantum Onyx", Callback = function() loadstri
 TabBlox:CreateButton({Name = "🧸 Teddy Hub", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))() end})
 TabBlox:CreateButton({Name = "⚡ Luarmor Script (VIP)", Callback = function() loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/20f318386e3fbf069ee3fa797cfc9f34.lua"))() end})
 TabBlox:CreateButton({Name = "🔥 Xeter Hub (Marines)", Callback = function() getgenv().Team = "Marines" loadstring(game:HttpGet("https://raw.githubusercontent.com/TlDinhKhoi/Xeter/refs/heads/main/Main.lua"))() end})
+
+--- [[ TAB BARANROT ]] ---
+local TabBaran = Window:CreateTab("🌊 Baranrot", 7734068321)
+TabBaran:CreateSection("Siêu Phẩm Brainrot")
+TabBaran:CreateButton({
+    Name = "🌊 Escape Tsunami (Brainrot Edition)", 
+    Callback = function() 
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"))() 
+    end
+})
 
 --- [[ TAB 99 NIGHT ]] ---
 local TabNight = Window:CreateTab("🌙 99 Night", 4483362458)
@@ -39,7 +53,7 @@ local LPing = TabSys:CreateLabel("Ping: Đang tính...")
 local LPlas = TabSys:CreateLabel("Người chơi: ...")
 local LTime = TabSys:CreateLabel("Thời gian chơi: 00:00:00")
 
-TabSys:CreateSection("Chức Năng ESP")
+TabSys:CreateSection("Hack Visuals")
 local ESP_Enabled = false
 TabSys:CreateToggle({
    Name = "Bật ESP (Hiện Tên + Khoảng Cách)",
@@ -54,31 +68,47 @@ TabSys:CreateToggle({
    end,
 })
 
-TabSys:CreateSection("Tiện Ích Server")
+TabSys:CreateSection("Tiện Ích Server (Fixed)")
 TabSys:CreateButton({
     Name = "🚀 Đổi Server (Server Hop)",
     Callback = function()
         local Http = game:GetService("HttpService")
         local TPS = game:GetService("TeleportService")
-        local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
-        local function NextServer()
-            local Servers = Http:JSONDecode(game:HttpGet(Api)).data
-            for i,v in pairs(Servers) do
-                if v.playing < v.maxPlayers and v.id ~= game.JobId then
-                    TPS:TeleportToPlaceInstance(game.PlaceId, v.id)
+        local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        
+        local function Hop()
+            local success, result = pcall(function()
+                return Http:JSONDecode(game:HttpGet(Api))
+            end)
+            
+            if success and result and result.data then
+                for _, v in pairs(result.data) do
+                    if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                        TPS:TeleportToPlaceInstance(game.PlaceId, v.id)
+                        return
+                    end
                 end
             end
+            Rayfield:Notify({Title = "Hệ Thống", Content = "Không tìm thấy server phù hợp, thử lại sau!", Duration = 3})
         end
-        NextServer()
+        Hop()
     end,
 })
-TabSys:CreateButton({Name = "🔄 Vào Lại Server (Rejoin)", Callback = function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId) end})
+
+TabSys:CreateButton({
+    Name = "🔄 Vào Lại Server (Rejoin)", 
+    Callback = function() 
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId) 
+    end
+})
 
 TabSys:CreateSection("Cài Đặt Menu")
 TabSys:CreateKeybind({Name = "Phím Đóng/Mở Menu", CurrentKeybind = "LeftControl", Callback = function() end})
-TabSys:CreateButton({Name = "🚪 Đóng Hub Hoàn Toàn", Callback = function() Rayfield:Destroy() end})
 
--- [ VÒNG LẶP HỆ THỐNG & ESP ] --
+TabSys:CreateSection("Tác Giả")
+TabSys:CreateLabel("By Nguyen van thai")
+
+-- [ LOGIC CHẠY NGẦM ] --
 local start = os.time()
 task.spawn(function()
     while task.wait(1) do
