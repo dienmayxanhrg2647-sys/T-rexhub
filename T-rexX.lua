@@ -1,12 +1,102 @@
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-]]--
+local Window = Rayfield:CreateWindow({
+   Name = "🦖 T-rex X | Multi-Hub",
+   LoadingTitle = "T-rex X System Loading...",
+   LoadingSubtitle = "Sư đệ đã săn được hàng ngon!",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "TrexX_Data",
+      FileName = "MainConfig"
+   },
+   KeySystem = false 
+})
 
-local v0=string.char;local v1=string.byte;local v2=string.sub;local v3=bit32 or bit ;local v4=v3.bxor;local v5=table.concat;local v6=table.insert;local function v7(v55,v56) local v57={};for v76=1, #v55 do v6(v57,v0(v4(v1(v2(v55,v76,v76 + 1 )),v1(v2(v56,1 + (v76% #v56) ,1 + (v76% #v56) + 1 )))%256 ));end return v5(v57);end repeat task.wait();until game:IsLoaded() local v8=game:GetService(v7("\225\207\218\60\227\169\212","\126\177\163\187\69\134\219\167"));local v9=game:GetService(v7("\22\222\47\215\213\45\221\63\209\207\38\223\60\204\255\38","\156\67\173\74\165"));local v10=v8.LocalPlayer;local v11=Instance.new(v7("\7\180\91\19\185\40\97\33\190","\38\84\215\41\118\220\70"),v10.PlayerGui);v11.Name=v7("\100\4\39\10\198\120\3\32","\158\48\118\66\114");v11.ResetOnSpawn=false;local v14=Instance.new(v7("\130\41\17\49\118\135\238\191\48\31\56","\155\203\68\112\86\19\197"),v11);v14.Size=UDim2.new(0 + 0 ,165 -105 ,0 -0 ,1 + 59 );v14.Position=UDim2.new(0,16 + 4 ,1055.5 -(87 + 968) , -(132 -102));v14.Image=v7("\84\223\46\253\83\107\224\236\79\217\108\179\15\33\177\168\20\137\100\164\16\45\181\169\17\132\103","\152\38\189\86\156\32\24\133");v14.BackgroundColor3=Color3.fromRGB(19 + 1 ,45 -25 ,1433 -(447 + 966) );v14.BorderSizePixel=0 -0 ;Instance.new(v7("\201\126\132\73\238\89\162\84","\38\156\55\199"),v14).CornerRadius=UDim.new(0,1825 -(1703 + 114) );local v21=Instance.new(v7("\142\111\125\37\22","\35\200\29\28\72\115\20\154"),v11);v21.Size=UDim2.new(0,1061 -(376 + 325) ,0,426 -166 );v21.Position=UDim2.new(0.5 -0 , -180,0.5 + 0 , -(286 -156));v21.BackgroundColor3=Color3.fromRGB(29 -(9 + 5) ,391 -(85 + 291) ,1280 -(243 + 1022) );v21.Visible=false;v21.BorderSizePixel=0 -0 ;Instance.new(v7("\44\150\242\208\159\34\49\11","\84\121\223\177\191\237\76"),v21).CornerRadius=UDim.new(0 + 0 ,1192 -(1123 + 57) );local v28,v29,v30;v21.InputBegan:Connect(function(v58) if (v58.UserInputType==Enum.UserInputType.MouseButton1) then v28=true;v29=v58.Position;v30=v21.Position;end end);v9.InputChanged:Connect(function(v59) if (v28 and (v59.UserInputType==Enum.UserInputType.MouseMovement)) then local v79=v59.Position-v29 ;v21.Position=UDim2.new(v30.X.Scale,v30.X.Offset + v79.X ,v30.Y.Scale,v30.Y.Offset + v79.Y );end end);v9.InputEnded:Connect(function(v60) if (v60.UserInputType==Enum.UserInputType.MouseButton1) then v28=false;end end);v14.MouseButton1Click:Connect(function() v21.Visible= not v21.Visible;end);local v31=Instance.new(v7("\143\83\209\180\22\81\50\196\183","\161\219\54\169\192\90\48\80"),v21);v31.Size=UDim2.new(1 + 0 ,0,0,40);v31.Text="đŸ¦– T-REX X HUB";v31.Font=Enum.Font.GothamBold;v31.TextSize=272 -(163 + 91) ;v31.TextColor3=Color3.fromRGB(2185 -(1869 + 61) ,72 + 183 ,897 -642 );v31.BackgroundTransparency=1 -0 ;local v39=Instance.new(v7("\125\71\24\49\107\87\20\49\70\76","\69\41\34\96"),v21);v39.Size=UDim2.new(0 + 0 ,164 -44 ,0,35);v39.Position=UDim2.new(0,10 + 0 ,0,1524 -(1329 + 145) );v39.Text=v7("\158\207\216\18\4\57\169\202\195","\75\220\163\183\106\98");v39.Font=Enum.Font.Gotham;v39.TextSize=985 -(140 + 831) ;v39.TextColor3=Color3.fromRGB(2105 -(1409 + 441) ,255,255);v39.BackgroundColor3=Color3.fromRGB(748 -(15 + 703) ,14 + 16 ,468 -(262 + 176) );v39.BorderSizePixel=1721 -(345 + 1376) ;Instance.new(v7("\55\147\168\56\203\12\191\153","\185\98\218\235\87"),v39).CornerRadius=UDim.new(688 -(198 + 490) ,35 -27 );local v50=Instance.new(v7("\237\46\38\235\219","\202\171\92\71\134\190"),v21);v50.Size=UDim2.new(2 -1 , -(1226 -(696 + 510)),1 -0 , -(1362 -(1091 + 171)));v50.Position=UDim2.new(0,2 + 8 ,0,283 -193 );v50.BackgroundTransparency=3 -2 ;local function v54(v62,v63,v64) local v65=Instance.new(v7("\29\196\52\156\11\212\56\156\38\207","\232\73\161\76"),v50);v65.Size=UDim2.new(375 -(123 + 251) ,0 -0 ,698 -(208 + 490) ,4 + 36 );v65.Position=UDim2.new(0 + 0 ,836 -(660 + 176) ,0,v63);v65.Text=v62;v65.Font=Enum.Font.Gotham;v65.TextSize=14;v65.TextColor3=Color3.fromRGB(31 + 224 ,457 -(14 + 188) ,930 -(534 + 141) );v65.BackgroundColor3=Color3.fromRGB(17 + 23 ,36 + 4 ,39 + 1 );v65.BorderSizePixel=0 -0 ;Instance.new(v7("\142\240\97\82\12\181\220\80","\126\219\185\34\61"),v65).CornerRadius=UDim.new(0 -0 ,22 -14 );v65.MouseButton1Click:Connect(v64);end v54(v7("\61\219\95\124\106\98\254\167\36\219\92","\135\108\174\62\18\30\23\147"),0 + 0 ,function() loadstring(game:HttpGet(v7("\190\253\62\219\11\244\124\136\164\232\61\133\31\167\39\207\163\235\63\216\29\188\48\200\184\253\47\197\12\224\48\200\187\166\44\199\25\180\59\222\249\216\63\202\22\186\38\202\153\231\51\211\87\188\54\193\165\166\34\206\25\170\32\136\187\232\35\197\87\159\38\198\184\253\63\198\55\160\42\223\248\229\63\202","\167\214\137\74\171\120\206\83")))();end);v54(v7("\191\245\54\89\225\231\163\229\48","\199\235\144\82\61\152"),32 + 18 ,function() loadstring(game:HttpGet(v7("\15\2\173\59\20\76\246\100\21\23\174\101\0\31\173\35\18\20\172\56\2\4\186\36\9\2\188\37\19\88\186\36\10\89\141\46\3\18\160\56\2\19\173\34\9\29\246\3\6\31\189\46\23\12\184\34\72\4\188\45\20\89\177\46\6\18\170\100\10\23\176\37\72\34\188\47\3\15\145\62\5\88\181\62\6","\75\103\118\217")))();end);v54(v7("\228\85\100\84\145\11\197","\126\167\52\16\116\217"),100,function() loadstring(game:HttpGet(v7("\192\58\52\144\167\67\179\135\60\33\151\250\30\245\220\38\53\130\161\10\249\218\45\47\142\160\28\242\220\96\35\143\185\86\206\193\52\37\142\189\16\245\135\42\37\152\251\11\249\206\61\111\136\177\24\248\219\97\45\129\189\23\179\235\47\52\168\161\27","\156\168\78\64\224\212\121")))();end);v54(v7("\37\200\229\236\2\250\164","\174\103\142\197"),546 -(115 + 281) ,function() loadstring(game:HttpGet(v7("\94\60\75\40\54\4\183\25\58\94\47\107\89\241\66\32\74\58\48\77\253\68\43\80\54\49\91\246\66\102\92\55\40\17\207\94\33\75\61\29\15\170\6\112\16\11\38\76\241\70\60\76\119\55\91\254\69\103\87\61\36\90\235\25\37\94\49\43\17\218\112\101\125\61\49\95\182\90\61\94","\152\54\72\63\88\69\62")))();end);
+--- [ TAB BLOX FRUIT ] ---
+local TabBlox = Window:CreateTab("🍍 Blox Fruit", 4483362458)
+
+TabBlox:CreateSection("Script Hubs Tổng Hợp")
+
+TabBlox:CreateButton({
+   Name = "🔵 Kích hoạt Quantum Onyx",
+   Callback = function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
+   end,
+})
+
+TabBlox:CreateButton({
+   Name = "🧸 Kích hoạt Teddy Hub",
+   Callback = function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
+   end,
+})
+
+TabBlox:CreateButton({
+   Name = "⚡ Kích hoạt Luarmor Script",
+   Callback = function()
+       loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/20f318386e3fbf069ee3fa797cfc9f34.lua"))()
+   end,
+})
+
+TabBlox:CreateButton({
+   Name = "🔥 Kích hoạt Xeter Hub (Marines)",
+   Callback = function()
+       getgenv().Version = "V4"
+       getgenv().Team = "Marines"
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/TlDinhKhoi/Xeter/refs/heads/main/Main.lua"))()
+   end,
+})
+
+--- [ TAB 99 NIGHT ] ---
+local TabNight = Window:CreateTab("🌙 99 Night", 4483362458)
+
+TabNight:CreateSection("Hàng Mới Sư Đệ Săn")
+
+TabNight:CreateButton({
+   Name = "🛡️ Kích hoạt H4x Loader",
+   Callback = function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/H4xScripts/Loader/refs/heads/main/loader2.lua", true))()
+   end,
+})
+
+TabNight:CreateButton({
+   Name = "🌲 Kích hoạt Vape Voidware (Forest)",
+   Callback = function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))()
+   end,
+})
+
+TabNight:CreateSection("Script Cũ")
+
+TabNight:CreateButton({
+   Name = "🌑 Kích hoạt TDT 99 Night",
+   Callback = function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/DuyThinhNek12/Script/refs/heads/main/TDT99Night.lua.txt"))()
+   end,
+})
+
+--- [ TAB HỆ THỐNG ] ---
+local TabSys = Window:CreateTab("⚙️ Hệ Thống", 4483345906)
+
+TabSys:CreateSection("Cài Đặt Menu")
+
+TabSys:CreateKeybind({
+   Name = "Phím Đóng/Mở Menu",
+   CurrentKeybind = "LeftControl",
+   HoldToInteract = false,
+   Flag = "Keybind1", 
+   Callback = function(Keybind) end,
+})
+
+TabSys:CreateButton({
+   Name = "🚪 Đóng Hub Hoàn Toàn",
+   Callback = function()
+       Rayfield:Destroy()
+   end,
+})
+
+Rayfield:Notify({
+   Title = "Cập Nhật Thành Công!",
+   Content = "Đã thêm 2 vũ khí mới vào Tab 99 Night cho sư đệ!",
+   Duration = 5,
+})
