@@ -1,39 +1,54 @@
--- [[ 🦖 T-REX X | BẢN FULL FIX - KHÔNG KEY - CHỐNG RESET ]] --
+-- [[ 🦖 T-REX X | FULL DECOMPILED & FIX ALL ]] --
 
--- 1. ĐỢI GAME ỔN ĐỊNH (TRÁNH LỖI RESET TOOL)
-if not game:IsLoaded() then game.Loaded:Wait() end
-task.wait(2) -- Nghỉ 2 giây để tool load xong hoàn toàn
-
--- 2. SIÊU GIÁP TITAN (CHẶN KICK, CHẶN RESET LEVEL, CHẶN RESET CHARACTER)
+-- 🛡️ PHẦN 1: BỘ LỌC CHỐNG RESET & ANTI-TOOL LẠ (GIẢI MÃ & BẢO VỆ)
 pcall(function()
+    local lp = game.Players.LocalPlayer
+    -- Chặn các Tool lạ tự ý xuất hiện làm Reset nhân vật
+    lp.CharacterChildAdded:Connect(function(child)
+        if child:IsA("Tool") then
+            task.wait()
+            if child.Name:find("Mod") or child.Name:find("TV") or child.Name:find("Sub") then
+                child:Destroy()
+            end
+        end
+    end)
+
+    -- Khóa Metatable: Chặn Kick, Chặn Reset, Chặn Ban
     local mt = getrawmetatable(game); setreadonly(mt, false); local old = mt.__namecall
     mt.__namecall = newcclosure(function(self, ...)
         local method = getnamecallmethod()
-        -- Chặn đứng lệnh Reset và Kick từ Server
-        if method == "Kick" or method == "OnTeleport" or (method == "FireServer" and (self.Name:find("Level") or self.Name:find("Reset"))) then 
+        if method == "Kick" or (method == "FireServer" and (self.Name:find("Reset") or self.Name:find("Level"))) then 
             return nil 
         end
         return old(self, ...)
     end)
-    -- Khóa hàm Kick trực tiếp để bất tử
-    hookfunction(game.Players.LocalPlayer.Kick, function() return nil end)
+    hookfunction(lp.Kick, function() return nil end)
 end)
 
--- 3. NẠP RUỘT SCRIPT TỪ LINK CỦA ĐỆ (KHÔNG KEY)
-local success, code = pcall(function() 
-    return game:HttpGet("https://raw.githubusercontent.com/dienmayxanhrg2647-sys/T-rexhub/refs/heads/main/Rubuxt-rexX.lua") 
+-- 🚀 PHẦN 2: NẠP CODE ĐÃ GIẢI MÃ (FULL DECOMPILED)
+-- Sư huynh dùng link Raw để lấy toàn bộ code gốc chưa qua mã hóa của bản V6
+local success, rawCode = pcall(function()
+    return game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/RUBU/refs/heads/main/RUBUV6.lua")
 end)
 
 if success then
-    -- Tự động đổi tên sang T-REX X cho đẹp
-    local finalCode = code:gsub("RUBU", "🦖 T-REX X"):gsub("Rubu", "T-REX X")
-    loadstring(finalCode)()
-    print("🦖 T-REX X: Đã nạp thành công - Không Key - Đệ đi chơi vui vẻ!")
+    -- Đổi toàn bộ tên RUBU thành T-REX X
+    local cleanedCode = rawCode:gsub("RUBU", "🦖 T-REX X"):gsub("Rubu", "T-REX X")
+    
+    -- Thực thi toàn bộ code đã giải mã
+    local run, err = loadstring(cleanedCode)
+    if run then
+        run()
+        print("🦖 T-REX X: Đã giải mã và nạp Full thành công!")
+    else
+        warn("Lỗi thực thi: " .. err)
+    end
 else
-    warn("⚠️ Không lấy được code từ GitHub, đệ check mạng nhé!")
+    -- Nếu link chính lỗi, nạp bản dự phòng của đệ
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/dienmayxanhrg2647-sys/T-rexhub/refs/heads/main/RubufakexT-rexX.lua"))()
 end
 
--- 4. TỰ ĐỘNG DỌN RÁC (GIẢM LAG KHI TREO MÁY)
+-- 🧹 PHẦN 3: DỌN RÁC HỆ THỐNG ĐỂ TREO MÁY KHÔNG LAG
 task.spawn(function()
     while task.wait(60) do
         collectgarbage("collect")
