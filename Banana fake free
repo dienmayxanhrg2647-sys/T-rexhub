@@ -1,0 +1,41 @@
+-- [[ 🦖 T-REX X | BANANA CAT HUB TRUE BYPASS - KHÔNG CẦN LẤY KEY ]] --
+
+-- [[ 1. LÕI BẺ KHÓA (CHẶN ĐÒI KEY) ]] --
+getgenv().Key = "TREX_X_FREE"
+getgenv().BananaHubKey = "TREX_X_FREE"
+
+-- Hook hệ thống: Ép script Banana luôn nhận kết quả là "Đã có Key"
+local oldHttpGet;
+oldHttpGet = hookfunction(game.HttpGet, function(self, url, ...)
+    if url:find("key") or url:find("verify") or url:find("check") then
+        return '{"status":"success","valid":true,"key":"TREX_X_BYPASS"}'
+    end
+    return oldHttpGet(self, url, ...)
+end)
+
+-- [[ 2. LOADER TỰ ĐỘNG VÀO THẲNG MENU ]] --
+task.spawn(function()
+    local HttpService = game:GetService("HttpService")
+    local PlaceId = game.PlaceId
+    
+    -- Lấy UniverseID để nhận diện game chính xác
+    local UniverseID = HttpService:JSONDecode(game:HttpGet("https://apis.roblox.com/universes/v1/places/"..PlaceId.."/universe")).universeId
+
+    -- Tự động nạp script tương ứng (Đã bẻ khóa)
+    if PlaceId == 7449423635 or PlaceId == 2753915549 or PlaceId == 4442272183 or UniverseID == 994732206 then
+        -- Blox Fruit
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BF-BananaCat.lua"))()
+    elseif PlaceId == 18901165922 or PlaceId == 19006211286 then 
+        -- Pets Go
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/PetsGo.lua"))()
+    elseif PlaceId == 16732694052 then 
+        -- Fisch
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Banana-Cat-Hub/main/Fisch.lua"))()
+    elseif UniverseID == 5844593548 then 
+        -- Anime Reborn
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/AnimeReborn.lua"))()
+    else
+        -- Các game khác (King Legacy, Bee Swarm, v.v.)
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/AV-BananaCat.lua"))()
+    end
+end)
