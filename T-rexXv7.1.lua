@@ -1,6 +1,6 @@
 -- [[ 🦖 T-REX X | VERSION 7.0 - OFFICIAL FINAL ]] --
 -- Đạo chủ: Nguyen van thai | Link: dienmayxanhrg2647-sys
--- Status: NO KEY | FULL FIX | ALL FEATURES INTEGRATED
+-- Status: NO KEY | FULL FIX | ONE HIT E PICKUP INTEGRATED
 
 -- [ 🛡️ HỆ THỐNG BẢO VỆ & ANTI-AFK ] --
 local Success, Error = pcall(function()
@@ -62,6 +62,24 @@ TabSys:CreateSection("📊 Thông Số Server")
 local LTime = TabSys:CreateLabel("Thời gian chơi: 00:00:00")
 local LPing = TabSys:CreateLabel("Ping: ...")
 local LPlayer = TabSys:CreateLabel("Người chơi: ...")
+
+TabSys:CreateSection("⚡ Tính Năng Nhặt Đồ Nhanh")
+TabSys:CreateToggle({
+    Name = "One Hit E Pickup (Bỏ thời gian giữ)",
+    CurrentValue = false,
+    Callback = function(Value)
+        getgenv().OneHitE = Value
+        if Value then
+            -- Tối ưu hóa: Chỉ chạy khi bật
+            game:GetService("ProximityPromptService").PromptShown:Connect(function(prompt)
+                if getgenv().OneHitE then
+                    prompt.HoldDuration = 0
+                end
+            end)
+            Rayfield:Notify({Title = "Hệ Thống", Content = "Đã kích hoạt Nhặt đồ siêu tốc!", Duration = 2})
+        end
+    end
+})
 
 TabSys:CreateSection("👁️ Thần Nhãn (ESP Player)")
 getgenv().ESP_Enabled = false
@@ -137,22 +155,6 @@ TabSys:CreateButton({
     end
 })
 
-TabSys:CreateButton({
-    Name = "Low Server Hop (Tìm server vắng)",
-    Callback = function()
-        local Http = game:GetService("HttpService")
-        local TPS = game:GetService("TeleportService")
-        local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
-        local Result = Http:JSONDecode(game:HttpGet(Api))
-        for _, server in pairs(Result.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                TPS:TeleportToPlaceInstance(game.PlaceId, server.id)
-                break
-            end
-        end
-    end
-})
-
 TabSys:CreateSection("🛠️ Tiện Ích Khác")
 TabSys:CreateButton({Name = "Fly V3", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() end})
 TabSys:CreateButton({Name = "Rejoin Server (Vào lại)", Callback = function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId) end})
@@ -162,19 +164,15 @@ local startTime = os.time()
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
-            -- Thời gian chơi
             local diff = os.time() - startTime
             LTime:Set(string.format("Thời gian chơi: %02d:%02d:%02d", math.floor(diff/3600), math.floor((diff%3600)/60), diff%60))
-            -- Ping
             local p = tonumber(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString():match("%d+"))
             LPing:Set("Ping: " .. (p or 0) .. " ms")
-            -- Player Count
             LPlayer:Set("Người chơi: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers)
         end)
     end
 end)
 
--- [ THÔNG BÁO CHÀO MỪNG ] --
 Rayfield:Notify({
     Title = "T-rex X v7.0 Hub",
     Content = "Chào mừng bạn đến với T-rex X!",
