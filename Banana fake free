@@ -1,82 +1,65 @@
--- [[ BANANA HUB - FULL OPTIMIZED BY GEMINI ]] --
--- Chỉ tập trung vào Logic Banana và Fix Lag cực mạnh --
+-- [[ WAKE HUB - BANANA LOADER + SUPER ANTI-LAG ]] --
 
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
--- 1. SIÊU CẤP FIX LAG (Dọn sạch tài nguyên dư thừa)
-local function SuperFixLag()
-    local decalsyeeted = true -- Tắt ảnh dán tường cho nhẹ
+-- 1. HỆ THỐNG SIÊU CẤP ANTI-LAG (Hủy diệt lag)
+local function ActivateAntiLag()
     local g = game
     local w = g.Workspace
     local l = g.Lighting
-    local t = w:FindFirstChildOfClass("Terrain")
-    t.WaterWaveSize = 0
-    t.WaterWaveSpeed = 0
-    t.WaterReflectance = 0
-    t.WaterTransparency = 0
+    
+    -- Tối ưu Lighting
     l.GlobalShadows = false
     l.FogEnd = 9e9
     l.Brightness = 0
-    settings().Rendering.QualityLevel = "Level01"
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
     
+    -- Xử lý Object để tăng FPS
     for _, v in pairs(g:GetDescendants()) do
-        if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-            v.Material = "Plastic"
+        if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") then
+            v.Material = Enum.Material.Plastic
             v.Reflectance = 0
-        elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
+        elseif v:IsA("Decal") or v:IsA("Texture") then
             v.Transparency = 1
         elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
             v.Enabled = false
+        elseif v:IsA("Explosion") then
+            v.Visible = false
         end
+    end
+    
+    -- Giảm tải xử lý địa hình
+    local terrain = w:FindFirstChildOfClass("Terrain")
+    if terrain then
+        terrain.WaterWaveSize = 0
+        terrain.WaterWaveSpeed = 0
+        terrain.WaterReflectance = 0
+        terrain.WaterTransparency = 0
+    end
+    
+    print("WAKE HUB: Anti-Lag Activated! FPS Boosted.")
+end
+
+-- Chạy Anti-Lag trước
+task.spawn(ActivateAntiLag)
+
+-- 2. THÔNG BÁO GIAO DIỆN
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "🦖 T-REX X WAKE",
+    Text = "Anti-Lag On! Loading Banana Gốc...",
+    Duration = 5
+})
+
+-- 3. KÍCH HOẠT BANANA GỐC (Link chính chủ)
+local function LoadBanana()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kimprobloxdz/Banana-Free/refs/heads/main/Protected_5609200582002947.lua.txt"))()
+    end)
+    
+    if not success then
+        warn("Lỗi tải Banana: " .. tostring(err))
     end
 end
 
--- Chạy Fix Lag ngay lập tức
-task.spawn(SuperFixLag)
-
--- 2. "HÚT" FULL LOGIC BANANA (Auto Attack & Farm)
-local BananaLogic = {
-    FastAttack = true,
-    Distance = 7,
-    Target = nil
-}
-
-local function GetEnemy()
-    local dist = math.huge
-    local target = nil
-    for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") then
-            local mag = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-            if mag < dist then
-                dist = mag
-                target = v
-            end
-        end
-    end
-    return target
-end
-
--- 3. HÀNH ĐỘNG (Bypass Animation & Attack)
-task.spawn(function()
-    while task.wait() do
-        local enemy = GetEnemy()
-        if enemy then
-            pcall(function()
-                -- Teleport giữ khoảng cách an toàn (Hút từ Banana)
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, BananaLogic.Distance, 0)
-                
-                -- Fast Attack Bypass
-                if BananaLogic.FastAttack then
-                    local vim = game:GetService("VirtualUser")
-                    vim:CaptureController()
-                    vim:ClickButton1(Vector2.new(9e9, 9e9))
-                end
-            end)
-        end
-    end
-end)
-
--- 4. TỐI ƯU HÓA NETWORK (Giảm Ping)
-settings().Network.IncomingReplicationLag = 0
-
-print("WAKE HUB: Banana Hub fully sucked and Lag-fixed! 🦖🔥")
+-- Đợi 1 chút cho Anti-Lag ổn định rồi load script
+task.delay(1, LoadBanana)
