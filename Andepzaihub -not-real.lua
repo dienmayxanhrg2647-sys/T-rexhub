@@ -1,25 +1,65 @@
--- [[ T-REX X WAKE - POWERED BY ANDEPZAI ]] --
--- Bản quyền thuộc về T-Rex X Wake
+-- [[ T-REX X WAKE - REBUILT FROM ANDEPZAI ]] --
+-- No Key | No Banana | Pure Farming
 
-repeat task.wait() until game:IsLoaded()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHub/refs/heads/main/MobileLib.lua"))()
+local Window = Library:CreateWindow("🦖 T-REX X WAKE", "V1.0 - NO KEY")
 
--- 1. Bật Siêu Anti-Lag (Hệ thống Banana của đệ)
-task.spawn(function()
-    print("T-Rex X Wake: Loading Anti-Lag...")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/dienmayxanhrg2647-sys/T-rexhub/refs/heads/main/Banana%20fake%20free"))()
+local MainTab = Window:CreateTab("Main Farming")
+
+-- [[ BIẾN ĐIỀU KHIỂN ]] --
+_G.AutoFarm = false
+_G.FastAttack = false
+
+-- [[ CHỨC NĂNG FARM LEVEL CHUẨN ]] --
+MainTab:CreateToggle("Auto Farm Level", function(state)
+    _G.AutoFarm = state
+    task.spawn(function()
+        while _G.AutoFarm do
+            task.wait()
+            pcall(function()
+                local player = game.Players.LocalPlayer
+                local level = player.Data.Level.Value
+                
+                -- Kiểm tra nhiệm vụ
+                if not player.PlayerGui.Main.Quest.Visible then
+                    -- Tự động nhận Quest (Sư huynh để ví dụ bãi đầu, đệ có thể thêm đủ 2800)
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", "BanditQuest1", 1)
+                else
+                    -- Đi săn quái nhiệm vụ
+                    for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
+                        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            -- Teleport tới quái
+                            player.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0)
+                            
+                            -- Cầm Võ (Melee)
+                            for _, tool in pairs(player.Backpack:GetChildren()) do
+                                if tool.ToolTip == "Melee" then
+                                    player.Character.Humanoid:EquipTool(tool)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end)
 end)
 
--- 2. Thông báo khởi động uy tín
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "🦖 T-REX X WAKE",
-    Text = "Đang tích hợp hệ thống AnDepZai Hub Beta...",
-    Duration = 5
-})
+-- [[ KILL AURA / FAST ATTACK ]] --
+MainTab:CreateToggle("Super Fast Attack", function(state)
+    _G.FastAttack = state
+    task.spawn(function()
+        while _G.FastAttack do
+            task.wait()
+            pcall(function()
+                -- Sử dụng Framework của Blox Fruits để đánh không delay
+                local CombatFramework = require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework)
+                local CombatFrameworkLib = getupvalue(CombatFramework, 2)
+                CombatFrameworkLib.activeController:attack()
+            end)
+        end
+    end)
+end)
 
--- 3. Bật Script AnDepZai Hub Beta (Cái ruột đệ chọn)
-task.wait(1) -- Chờ 1 giây để Anti-Lag chạy trước cho mượt
-print("T-Rex X Wake: Injecting Core Script...")
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubBeta.lua"))()
-
--- 4. Ghi chú cho bản thân (Sư huynh lồng vào code luôn)
--- Logic: Sử dụng sức mạnh của AnDepZai trên nền tảng Anti-Lag của T-Rex
+-- [[ THÔNG BÁO KHI LOAD ]] --
+print("🦖 T-REX X WAKE: Script Loaded Successfully!")
