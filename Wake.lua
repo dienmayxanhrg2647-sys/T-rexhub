@@ -1,65 +1,110 @@
--- [[ WAKE HUB: GHOST PROTOCOL ]]
--- [[ KEY PROTECTION: ACTIVE ]]
+-- [[ WAKE HUB: APEX PROTOCOL ]]
+-- [[ LICENSED TO: THAI ]]
+-- [[ SECURITY STATUS: MAXIMUM ]]
 
--- The key "Free_wake" is stored here in a shifted format
-local _0xSECRET_HASH = "Kwjij_|fpj" 
-local _0xCACHE_FILE = "WakeHub_System_Cache.txt"
+local _ENV_CORE = {
+    ["_STORE"] = "Wake_V3_Cache.dat",
+    ["_TOKEN"] = "Kwjij_|fpj", -- Obfuscated: "Free_wake"
+    ["_ROOT"] = "https://rise-evo.xyz/apiv3/main.lua"
+}
 
--- INTERNAL DECODER & ENCODER
-local function _0xPROTECT(_0xSTR, _0xOFFSET)
-    local _0xRES = ""
-    for i = 1, #_0xSTR do
-        _0xRES = _0xRES .. string.char(string.byte(_0xSTR, i) + _0xOFFSET)
+-- [[ CRITICAL ENGINE: STRING RECONSTRUCTION ]]
+local function _PARSE_STREAM(_INPUT, _SEED)
+    local _OUT = ""
+    for i = 1, #_INPUT do
+        _OUT = _OUT .. string.char(string.byte(_INPUT, i) + _SEED)
     end
-    return _0xRES
+    return _OUT
 end
 
--- ENCRYPTED CORE LOGIC (Shifted by 5)
-local _0xCORE = "qxfmmp!\\nsjGv!<!mptetlsjoh(hbnf;IuuqHfu(#iuuqt;00hjuivc/dpn0Gppubhftvt0\\nsjGv0sfmfbtft0mbuftu0epxompbe0nbjo/mub#)))\nqdbmm(gvodujpo()\nmpdbm!gvodujpo!Iomq(p)\nqdbmm(gvodujpo()\njg!p;JtB(#UfyuMbcfm#)!ps!p;JtB(#UfyuCvuupo#)!uifo\njg!p/Ufyu;gjoe(#Sjtf#)!ps!p;JtB(#SJTf#)!uifo\np/Ufyu!<!p/Ufyu;htvc(#Sjtf#-#Xblf#);htvc(#SJTf#-#XBLf#);htvc(#sfbmsjtf#-#uibj#)\nfoe\nfoe\njg!p/Obnf;mpxfs();gjoe(#bvui#)!ps!p;Obnf;mpxfs();gjoe(#sjtf#)!uifo\njg!p;JtB(#Gsbnf#)!ps!p;JtB(#DbowbtHspvq#)!uifo!p;Eftuspz()!foe\nfoe\nfoe)\nfoe\nhbnf;HfuTfswjdf(#DpsfHvj#)/EftdfoebouBeefe;Dpoofdu(Iomq)\ngps!_!v!jo!qbjst(hbnf;IuuqHfu(#iuuqt;00sjtf/fwp/xyz0bqjw40nbjo/mub#)!foe)\njg!t!uifo\nmpdbm!gjobm!<!s;htvc(#Sjtf!Fwp#-#Xblf!Ivc#);htvc(#SJTf!IVC#-#XBLf!IVC#);htvc(#sfbmsjtf#-#uibj#);htvc(#jtQsfnjvn!<!gbmtf#-#jtQsfnjvn!<!usvf#)\nloadstring(final)()\nfoe"
+local function _BOOT_SEQUENCE()
+    -- Injecting VIP/Premium status into Global Environment
+    local _GLOBALS = getgenv()
+    _GLOBALS.isPremium = true
+    _GLOBALS.IsVip = true
+    _GLOBALS.WakeLoaded = true
 
-local function _0xEXECUTE()
-    local _0xDECODED = ""
-    for i = 1, #_0xCORE do
-        _0xDECODED = _0xDECODED .. string.char(string.byte(_0xCORE, i) - 5)
+    -- ACTIVE IDENTITY REPLACEMENT ENGINE
+    task.spawn(function()
+        while task.wait(0.2) do
+            pcall(function()
+                for _, obj in ipairs(game:GetService("CoreGui"):GetDescendants()) do
+                    -- Clean Text Branding
+                    if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                        local _TXT = obj.Text
+                        if _TXT:find("Rise") or _TXT:find("realrise") then
+                            obj.Text = _TXT:gsub("Rise Auth", "Wake Hub")
+                                          :gsub("RISE HUB", "WAKE HUB")
+                                          :gsub("Rise", "Wake")
+                                          :gsub("realrise", "thai")
+                        end
+                    end
+                    -- Eliminate Original Auth Overlays
+                    if obj.Name:find("Rise") or obj.Name:find("Auth") then
+                        if obj:IsA("Frame") or obj:IsA("CanvasGroup") then
+                            obj:Destroy()
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+
+    -- DATA FETCH & SOURCE SURGERY
+    local _STATUS, _DATA = pcall(function() return game:HttpGet(_ENV_CORE._ROOT) end)
+    if _STATUS then
+        local _MODIFIED = _DATA:gsub("Rise Evo", "Wake Hub")
+                               :gsub("RISE HUB", "WAKE HUB")
+                               :gsub("realrise", "thai")
+                               :gsub("isPremium = false", "isPremium = true")
+                               :gsub("setclipboard", "--")
+        
+        local _RUNTIME = loadstring(_MODIFIED)
+        if _RUNTIME then task.spawn(_RUNTIME) end
     end
-    loadstring(_0xDECODED)()
 end
 
--- SECURE UI
-local _0xUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-local _0xMAIN = _0xUI:CreateWindow({
-    Title = "Wake Hub | Security",
+-- [[ INTERFACE ARCHITECTURE ]]
+local _UI_LIB = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local _WINDOW = _UI_LIB:CreateWindow({
+    Title = "Wake Hub | Internal Access",
     Author = "by thai",
     Icon = "rbxassetid://18835624458"
 })
 
-local _0xTAB = _0xMAIN:Tab({ Title = "Access", Icon = "lock" })
+local _ACCESS = _WINDOW:Tab({ Title = "Authentication", Icon = "shield-check" })
 
-_0xTAB:Input({
-    Title = "Enter Security Key",
-    Placeholder = "Contact owner for key",
-    Callback = function(_0xINPUT)
-        -- It checks if the entered key, when shifted, matches the hidden hash
-        if _0xPROTECT(_0xINPUT, 5) == _0xSECRET_HASH then
-            writefile(_0xCACHE_FILE, _0xINPUT)
-            _0xMAIN:Destroy()
-            _0xEXECUTE()
+local _BUFFER = ""
+_ACCESS:Input({
+    Title = "Security Token",
+    Placeholder = "Enter access key...",
+    Callback = function(_VAL) _BUFFER = _VAL end
+})
+
+_ACCESS:Button({
+    Title = "Authenticate System",
+    Callback = function()
+        if _PARSE_STREAM(_BUFFER, 5) == _ENV_CORE._TOKEN then
+            writefile(_ENV_CORE._STORE, _BUFFER)
+            _UI_LIB:Notify({Title = "Authorized", Content = "Identity verified. Initializing Apex Protocol..."})
+            _WINDOW:Destroy()
+            _BOOT_SEQUENCE()
+        else
+            _UI_LIB:Notify({Title = "Access Denied", Content = "Invalid Security Token provided."})
         end
     end
 })
 
-_0xTAB:Button({
-    Title = "Copy Key (Free_wake)",
-    Callback = function()
-        setclipboard("Free_wake")
+_ACCESS:Button({
+    Title = "Retrieve Token",
+    Callback = function() 
+        setclipboard("Free_wake") 
+        _UI_LIB:Notify({Title = "Clipboard", Content = "Token copied to system."})
     end
 })
 
--- AUTO-AUTH
-if isfile(_0xCACHE_FILE) then
-    local _0xSAVED = readfile(_0xCACHE_FILE)
-    if _0xPROTECT(_0xSAVED, 5) == _0xSECRET_HASH then
-        _0xMAIN:Destroy()
-        _0xEXECUTE()
-    end
+-- [[ PERSISTENCE CHECK ]]
+if isfile(_ENV_CORE._STORE) and _PARSE_STREAM(readfile(_ENV_CORE._STORE), 5) == _ENV_CORE._TOKEN then
+    _WINDOW:Destroy()
+    _BOOT_SEQUENCE()
 end
