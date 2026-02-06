@@ -1,17 +1,8 @@
 -- [[ 🦖 T-REX X | VERSION 7.1 - WINDUI ULTIMATE ESP & HITBOX ]] --
-local _0x1a2b3c = string.char
-local _0x4d5e6f = string.byte
-local _0x7g8h9i = loadstring
+-- Đạo chủ: Nguyen van thai | Status: NO KEY
+-- Update: ESP Name, Distance + Red Hitbox
 
-local function _decode(str)
-    local result = ""
-    for i = 1, #str do
-        result = result .. _0x1a2b3c(_0x4d5e6f(str, i) - 3)
-    end
-    return result
-end
-
-local WindUI = _0x7g8h9i(game:HttpGet(_decode("kwwwsv=22jlwkxe1frp2Irrwdjhvxv2ZlqgXL2uhohdvhv2odwhvw2grzqordg2pdlq1oxd")))()
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 -- [ 🛡️ BẢO VỆ ] --
 pcall(function()
@@ -19,7 +10,7 @@ pcall(function()
     setreadonly(mt, false)
     local old = mt.__namecall
     mt.__namecall = newcclosure(function(self, ...)
-        if getnamecallmethod():lower() == _decode("nlfn") then return nil end
+        if getnamecallmethod():lower() == "kick" then return nil end
         return old(self, ...)
     end)
 end)
@@ -39,10 +30,10 @@ local TabBrain = Window:Tab({ Title = "Brainrot 🌪️", Icon = "solar:cyclone-
 local TabTroNang = Window:Tab({ Title = "Trợ Năng ⚙️", Icon = "solar:accessibility-bold" })
 
 -- [[ 1. BLOX FRUIT ]] --
-TabBlox:Button({ Title = "WhiteX Beta", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/BF-Beta.lua"))() end })
-TabBlox:Button({ Title = "Apple Hub VIP", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/longhihilonghihi-hub/AppleHubPremiumV2/refs/heads/main/AppleHubPremiumv2.txt"))() end })
-TabBlox:Button({ Title = "Quantum Onyx", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))() end })
-TabBlox:Button({ Title = "Xeter Hub", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/TlDinhKhoi/Xeter/refs/heads/main/Main.lua"))() end })
+TabBlox:Button({ Title = "WhiteX Beta", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/BF-Beta.lua"))() end })
+TabBlox:Button({ Title = "Apple Hub VIP", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/longhihilonghihi-hub/AppleHubPremiumV2/refs/heads/main/AppleHubPremiumv2.txt"))() end })
+TabBlox:Button({ Title = "Quantum Onyx", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))() end })
+TabBlox:Button({ Title = "Xeter Hub", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TlDinhKhoi/Xeter/refs/heads/main/Main.lua"))() end })
 
 -- [[ 2. TRỢ NĂNG - UPDATE ESP & HITBOX ]] --
 
@@ -57,7 +48,7 @@ TabTroNang:Toggle({
                     if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                         local hrp = p.Character.HumanoidRootPart
                         
-                        -- Tạo ESP
+                        -- Tạo ESP (Tên + Khoảng cách)
                         if not hrp:FindFirstChild("TrexESP") then
                             local bg = Instance.new("BillboardGui", hrp)
                             bg.Name = "TrexESP"; bg.AlwaysOnTop = true; bg.Size = UDim2.new(0, 200, 0, 50); bg.ExtentsOffset = Vector3.new(0, 3, 0)
@@ -145,7 +136,7 @@ TabTroNang:Toggle({
 })
 
 -- 6. Fly v3
-TabTroNang:Button({ Title = "Fly v3", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() end })
+TabTroNang:Button({ Title = "Fly v3", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))() end })
 
 -- 7. Hop Server
 TabTroNang:Button({
@@ -168,9 +159,9 @@ TabTroNang:Button({
 TabTroNang:Button({ Title = "Rejoin", Callback = function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId) end })
 
 -- Các tab còn lại
-TabDead:Button({ Title = "Null-Fire", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader"))() end })
-Tab99:Button({ Title = "H4x Loader", Callback = function() _0x7g8h9i(game:HttpGet("https://H4xScripts.xyz/loader"))() end })
-Tab99:Button({ Title = "Vape Voidware", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))() end })
-TabBrain:Button({ Title = "Escape Tsunami", Callback = function() _0x7g8h9i(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"))() end })
+TabDead:Button({ Title = "Null-Fire", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader"))() end })
+Tab99:Button({ Title = "H4x Loader", Callback = function() loadstring(game:HttpGet("https://H4xScripts.xyz/loader"))() end })
+Tab99:Button({ Title = "Vape Voidware", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))() end })
+TabBrain:Button({ Title = "Escape Tsunami", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots"))() end })
 
 WindUI:Notify({ Title = "T-Rex X", Content = "Đã tích hợp ESP & Hitbox Đỏ!", Duration = 5 })
