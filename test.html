@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ngVn AI - Siêu Cấp Hỗn</title>
+    <meta charset="UTF-8">
+    <style>
+        body { background: #1a1a1a; color: #ff4b4b; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #chat-box { width: 400px; height: 500px; background: #2a2a2a; border: 2px solid #ff4b4b; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 20px rgba(255, 75, 75, 0.3); }
+        #messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 14px; }
+        .user { align-self: flex-end; background: #ff4b4b; color: white; }
+        .ai { align-self: flex-start; background: #444; color: #ff4b4b; border: 1px solid #ff4b4b; }
+        #input-area { display: flex; padding: 10px; background: #222; }
+        input { flex: 1; background: #333; border: 1px solid #ff4b4b; color: white; padding: 10px; border-radius: 5px; outline: none; }
+        button { background: #ff4b4b; color: white; border: none; padding: 10px 15px; margin-left: 5px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        h2 { text-shadow: 2px 2px #000; }
+    </style>
+</head>
+<body>
+    <h2>🦖 ngVn AI: THÁNH CÀ KHỊA</h2>
+    <div id="chat-box">
+        <div id="messages">
+            <div class="msg ai">Sủa gì sủa lẹ đi, tao đang bận ngủ.</div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Nhập câu hỏi ngu ngốc của mày...">
+            <button onclick="sendMsg()">GỬI</button>
+        </div>
+    </div>
+
+    <script>
+        const responses = [
+            "Mày hỏi mày á!",
+            "Hỏi hỏi cái gì? Tự đi mà tìm.",
+            "Tao lười trả lời quá, biến đi.",
+            "Não mày để trưng cho đẹp à?",
+            "Hỏi câu nào khôn hơn tí đi, làm ơn.",
+            "Mày nghĩ tao là tổng đài 1080 à? Nín.",
+            "Biết rồi nhưng không nói, lêu lêu.",
+            "Nhìn mặt tao giống đang quan tâm không?",
+            "Câm mồm và đi làm việc đi!",
+            "Hỏi chấm? Mày bị ngáo à?",
+            "Đúng nhận sai cãi, mà tốt nhất là đừng cãi với tao.",
+            "Ghê chưa? Hỏi câu đó mà cũng dám hỏi."
+        ];
+
+        function sendMsg() {
+            const input = document.getElementById('user-input');
+            const msgDiv = document.getElementById('messages');
+            if (input.value.trim() === "") return;
+
+            // User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'msg user';
+            userMsg.innerText = input.value;
+            msgDiv.appendChild(userMsg);
+
+            // AI Response (Delay tí cho nó chảnh)
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'msg ai';
+                aiMsg.innerText = responses[Math.floor(Math.random() * responses.length)];
+                msgDiv.appendChild(aiMsg);
+                msgDiv.scrollTop = msgDiv.scrollHeight;
+            }, 600);
+
+            input.value = "";
+        }
+    </script>
+</body>
+  </html>
+  
