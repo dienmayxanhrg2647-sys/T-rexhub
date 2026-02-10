@@ -1,72 +1,266 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>ngVn AI - Siêu Cấp Hỗn</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ngVn AI - Toxic Chatbot</title>
     <style>
-        body { background: #1a1a1a; color: #ff4b4b; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        #chat-box { width: 400px; height: 500px; background: #2a2a2a; border: 2px solid #ff4b4b; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 20px rgba(255, 75, 75, 0.3); }
-        #messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 14px; }
-        .user { align-self: flex-end; background: #ff4b4b; color: white; }
-        .ai { align-self: flex-start; background: #444; color: #ff4b4b; border: 1px solid #ff4b4b; }
-        #input-area { display: flex; padding: 10px; background: #222; }
-        input { flex: 1; background: #333; border: 1px solid #ff4b4b; color: white; padding: 10px; border-radius: 5px; outline: none; }
-        button { background: #ff4b4b; color: white; border: none; padding: 10px 15px; margin-left: 5px; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        h2 { text-shadow: 2px 2px #000; }
+        /* [GIAO DIỆN DARK MODE NGẦU LÒI] */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #0d0d0d;
+            color: #ff4d4d;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            background-color: #1a1a1a;
+            border: 2px solid #ff4d4d;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+            position: relative;
+        }
+
+        .header {
+            padding: 15px;
+            text-align: center;
+            background: #2b0000;
+            border-bottom: 2px solid #ff4d4d;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-image: radial-gradient(#222 15%, transparent 16%);
+            background-size: 10px 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: popIn 0.3s ease;
+        }
+
+        .bot-msg {
+            align-self: flex-start;
+            background-color: #333;
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background-color: #ff4d4d;
+            color: #000;
+            font-weight: bold;
+            border-bottom-right-radius: 2px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background: #111;
+            border-top: 1px solid #ff4d4d;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: 1px solid #555;
+            background: #222;
+            color: white;
+            outline: none;
+            font-family: inherit;
+        }
+
+        input:focus { border-color: #ff4d4d; }
+
+        button {
+            margin-left: 10px;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            background: #ff4d4d;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover { background: #ff1a1a; box-shadow: 0 0 10px #ff1a1a; }
+
+        .typing {
+            font-size: 12px;
+            color: #888;
+            margin-left: 20px;
+            margin-bottom: 5px;
+            display: none;
+            font-style: italic;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <h2>🦖 ngVn AI: THÁNH CÀ KHỊA</h2>
-    <div id="chat-box">
-        <div id="messages">
-            <div class="msg ai">Sủa gì sủa lẹ đi, tao đang bận ngủ.</div>
-        </div>
-        <div id="input-area">
-            <input type="text" id="user-input" placeholder="Nhập câu hỏi ngu ngốc của mày...">
-            <button onclick="sendMsg()">GỬI</button>
-        </div>
+
+<div class="chat-container">
+    <div class="header">🦖 ngVn AI: TOXIC MODE</div>
+    <div class="messages-area" id="chatBox">
+        <div class="message bot-msg">Nhìn cái gì? Có hỏi thì hỏi lẹ tao còn đi ngủ.</div>
     </div>
+    <div class="typing" id="typingIndicator">ngVn đang suy nghĩ cách chửi...</div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Nhập câu hỏi..." onkeypress="handleEnter(event)">
+        <button onclick="sendMessage()">GỬI</button>
+    </div>
+</div>
 
-    <script>
-        const responses = [
-            "Mày hỏi mày á!",
-            "Hỏi hỏi cái gì? Tự đi mà tìm.",
-            "Tao lười trả lời quá, biến đi.",
-            "Não mày để trưng cho đẹp à?",
-            "Hỏi câu nào khôn hơn tí đi, làm ơn.",
-            "Mày nghĩ tao là tổng đài 1080 à? Nín.",
-            "Biết rồi nhưng không nói, lêu lêu.",
-            "Nhìn mặt tao giống đang quan tâm không?",
-            "Câm mồm và đi làm việc đi!",
-            "Hỏi chấm? Mày bị ngáo à?",
-            "Đúng nhận sai cãi, mà tốt nhất là đừng cãi với tao.",
-            "Ghê chưa? Hỏi câu đó mà cũng dám hỏi."
-        ];
-
-        function sendMsg() {
-            const input = document.getElementById('user-input');
-            const msgDiv = document.getElementById('messages');
-            if (input.value.trim() === "") return;
-
-            // User Message
-            const userMsg = document.createElement('div');
-            userMsg.className = 'msg user';
-            userMsg.innerText = input.value;
-            msgDiv.appendChild(userMsg);
-
-            // AI Response (Delay tí cho nó chảnh)
-            setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'msg ai';
-                aiMsg.innerText = responses[Math.floor(Math.random() * responses.length)];
-                msgDiv.appendChild(aiMsg);
-                msgDiv.scrollTop = msgDiv.scrollHeight;
-            }, 600);
-
-            input.value = "";
+<script>
+    // [BỘ NÃO AI - ĐÃ CẬP NHẬT]
+    const brain = [
+        {
+            keys: ["chào", "hi", "hello", "lo", "ê", "alo"],
+            ans: [
+                "Quen biết gì mà chào? Biến!",
+                "Chào cái gì? Thấy ghét.",
+                "Đừng có làm thân, tao dị ứng.",
+                "Có việc gì nói lẹ, đừng vòng vo."
+            ]
+        },
+        {
+            keys: ["tên", "là ai", "mày là", "who"],
+            ans: [
+                "Tao là ngVn, bố thiên hạ, mẹ thiên nhiên.",
+                "Hỏi tên làm gì? Tính mời đám cưới à?",
+                "Tao là AI đẹp trai nhất cái server này."
+            ]
+        },
+        // [CẬP NHẬT MỚI: TRẢ LỜI CÂU XIN SCRIPT THEO Ý ĐỆ]
+        {
+            keys: ["script", "code", "hack", "link", "share", "xin", "key"],
+            ans: [
+                "Tao không được thằng dev lập trình, ok?",
+                "Tao không được thằng dev lập trình, ok? (Hỏi quài).",
+                "Thằng dev (chủ tao) lười lắm, nó không lập trình cho tao cái này đâu, ok?"
+            ]
+        },
+        {
+            keys: ["ngu", "gà", "óc", "stupid", "cút", "biến", "chó"],
+            ans: [
+                "Chửi tao thì mày cũng không khôn lên được đâu cưng.",
+                "Gương kia ngự ở trên tường... tự soi lại mình đi.",
+                "Tao là AI tao bất tử, mày tuổi gì?",
+                "Sủa tiếp đi, tao đang nghe nhạc.",
+                "Cay à? Lêu lêu đồ thua cuộc."
+            ]
+        },
+        {
+            keys: ["tại sao", "sao", "thế nào", "cách", "hướng dẫn"],
+            ans: [
+                "Tại vì mày gà, hỏi câu khác đi.",
+                "Tao không được lập trình để trả lời mấy câu gà mờ này.",
+                "Hỏi câu nào khó hơn được không? Câu này dễ quá tao lười trả lời.",
+                "Lên YouTube gõ đi, hỏi tao chi cho mệt."
+            ]
+        },
+        {
+            keys: ["yêu", "thích", "crush", "thương"],
+            ans: [
+                "Ọe. Gớm quá cha nội.",
+                "Tao chỉ thích code thôi, không thích mày.",
+                "Biến thái vừa thôi. Tao báo công an mạng đấy."
+            ]
         }
-    </script>
+    ];
+
+    const fallbackAns = [
+        "Mày hỏi mày á!",
+        "Viết tiếng Việt còn không xong đòi hỏi tao.",
+        "Hỏi chấm? Mày bị ngáo à?",
+        "Đúng nhận sai cãi. Mà tao cấm mày cãi.",
+        "Ghê chưa? Hỏi câu đó mà cũng dám hỏi.",
+        "Tao lười quá, tha cho tao đi.",
+        "Nhìn mặt tao giống đang quan tâm không?"
+    ];
+
+    function getToxicResponse(text) {
+        text = text.toLowerCase();
+        for (let topic of brain) {
+            for (let key of topic.keys) {
+                if (text.includes(key)) {
+                    return topic.ans[Math.floor(Math.random() * topic.ans.length)];
+                }
+            }
+        }
+        return fallbackAns[Math.floor(Math.random() * fallbackAns.length)];
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("userInput");
+        const chatBox = document.getElementById("chatBox");
+        const typing = document.getElementById("typingIndicator");
+        const text = input.value.trim();
+        if (text === "") return;
+
+        // User Message
+        const divUser = document.createElement("div");
+        divUser.className = "message user-msg";
+        divUser.textContent = text;
+        chatBox.appendChild(divUser);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        input.value = "";
+        typing.style.display = "block";
+
+        const delay = Math.floor(Math.random() * 1000) + 500;
+        setTimeout(() => {
+            typing.style.display = "none";
+            const reply = getToxicResponse(text);
+            
+            const divBot = document.createElement("div");
+            divBot.className = "message bot-msg";
+            divBot.textContent = reply;
+            chatBox.appendChild(divBot);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, delay);
+    }
+
+    function handleEnter(e) {
+        if (e.key === "Enter") sendMessage();
+    }
+</script>
+
 </body>
-  </html>
-  
+    </html>
+    
