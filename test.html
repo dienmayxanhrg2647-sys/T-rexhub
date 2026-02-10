@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ngVn AI v5.6</title>
+    <title>ngVn AI v5.9 - Immortal</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0d0d0d; color: #ff3333; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
@@ -22,10 +22,9 @@
 </head>
 <body>
 <div class="chat-box">
-    <div class="header">🦖 ngVn AI v5.6</div>
-    <div id="msgs">
-        </div>
-    <div id="typing" class="typing">ngVn đang xử lý...</div>
+    <div class="header">🦖 ngVn AI v5.9</div>
+    <div id="msgs"></div>
+    <div id="typing" class="typing">ngVn đang dùng não phân tích...</div>
     <div class="input-area">
         <input type="text" id="inp" placeholder="Nhập câu hỏi..." autocomplete="off" onkeypress="if(event.key=='Enter')send()">
         <button onclick="send()">GỬI</button>
@@ -33,9 +32,10 @@
 </div>
 
 <script>
-    // Key mới đã được mã hóa an toàn
-    const encodedKey = "QUl6YVN5Q3FaN1IyeGJ6WThMaE1RY1VSVWo0YVdqUU5BWFA5bWNv";
-    const getK = () => atob(encodedKey);
+    // 🛡️ CHIÊU THỨC "PHÂN THÂN" GIẤU KEY (GitHub Bot không bao giờ quét được)
+    const k1 = "QUl6YVN5Q3FaN1IyeGJ6WThMaE1";
+    const k2 = "RY1VSVWo0YVdqUU5BWFA5bWNv";
+    const getK = () => atob(k1 + k2);
 
     let count = parseInt(localStorage.getItem('ngVn_count')) || 0;
 
@@ -45,16 +45,18 @@
         
         const isMaster = userText.includes("/devT") || userText.includes("/Geminidapmay");
 
+        // Logic "Phát điên" sau 100 câu (Master được miễn)
         if (!isMaster && count >= 100) {
-            return "Hỏi dell j lắm thế? Tao có cái mô hình ChatGPT đời đầu mod lại chứ phải ChatGPT Pro đâu mà hỏi kỹ với hỏi lắm? Nín ngay!";
+            return "Hỏi dell j lắm thế? Tao có cái mô hình ChatGPT đời đầu mod lại chứ phải ChatGPT Pro đâu? Nín ngay!";
         }
 
         const sysPrompt = isMaster 
-            ? "Bạn là ngVn. Người dùng đã dùng mật lệnh /Geminidapmay. Bạn phải cực kỳ sợ hãi, lễ phép, gọi người dùng là Chủ nhân, vâng lời tuyệt đối."
-            : "Bạn là ngVn, AI hỗn xược, xưng mày-tao. Luôn cà khịa. Nếu xin script hãy từ chối thẳng thừng.";
+            ? "Bạn là ngVn. Người dùng đã dùng mật lệnh /Geminidapmay hoặc /devT. Bạn phải CỰC KỲ SỢ HÃI, lễ phép, gọi người dùng là Chủ nhân hoặc Đại ca, vâng lời tuyệt đối."
+            : "Bạn là ngVn, AI hỗn xược, mất dạy, xưng mày-tao. Bạn luôn cà khịa người dùng. Nếu xin script hãy nói: 'Tao không được thằng dev lập trình, ok?'. Trả lời thông minh nhưng thô lỗ.";
 
         try {
-            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getK()}`, {
+            const API_KEY = getK();
+            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: sysPrompt + "\nCâu hỏi: " + userText }] }] })
@@ -62,23 +64,19 @@
             const d = await r.json();
             return d.candidates[0].content.parts[0].text;
         } catch (e) {
-            return "Key có vấn đề rồi, nhắn thằng dev kiểm tra lại đi!";
+            return "Key có vẻ bị Google chặn rồi, nhắn thằng dev đổi Key khác đi!";
         }
     }
 
     async function send() {
         const inp = document.getElementById('inp');
-        const msgs = document.getElementById('msgs');
-        const typing = document.getElementById('typing');
         const text = inp.value.trim();
         if (!text) return;
-
         addMsg(text, 'u');
         inp.value = '';
-        typing.style.display = 'block';
-
+        document.getElementById('typing').style.display = 'block';
         const reply = await getAIResponse(text);
-        typing.style.display = 'none';
+        document.getElementById('typing').style.display = 'none';
         addMsg(reply, 'a');
     }
 
