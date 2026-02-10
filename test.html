@@ -3,219 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ngVn AI v4.2 - Official</title>
+    <title>ngVn AI v5.2 - 100 Questions Rage</title>
     <style>
-        /* [GIAO DIỆN DARK MODE - T-REX X STYLE] */
+        /* [GIỮ NGUYÊN GIAO DIỆN DARK MODE] */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background: #0a0a0a; 
-            color: #ff3333; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0;
-        }
-        
-        .chat-box { 
-            width: 95%; 
-            max-width: 500px; 
-            height: 85vh; 
-            background: #111; 
-            border: 2px solid #ff3333; 
-            display: flex; 
-            flex-direction: column; 
-            border-radius: 12px; 
-            box-shadow: 0 0 25px rgba(255, 51, 51, 0.2); 
-            overflow: hidden;
-        }
-
-        .header { 
-            padding: 18px; 
-            background: #220000; 
-            border-bottom: 2px solid #ff3333; 
-            text-align: center; 
-            color: #ff3333; 
-            font-weight: bold; 
-            letter-spacing: 2px; 
-            text-transform: uppercase;
-            font-size: 1.1rem;
-        }
-
-        #msgs { 
-            flex: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px;
-            background: linear-gradient(to bottom, #111, #0a0a0a);
-        }
-
-        .m { 
-            padding: 12px 18px; 
-            border-radius: 15px; 
-            max-width: 85%; 
-            font-size: 14.5px; 
-            line-height: 1.5; 
-            position: relative;
-            animation: pop 0.3s ease-out;
-        }
-
-        .u { 
-            align-self: flex-end; 
-            background: #ff3333; 
-            color: #000; 
-            font-weight: bold; 
-            border-bottom-right-radius: 2px;
-        }
-
-        .a { 
-            align-self: flex-start; 
-            background: #1e1e1e; 
-            color: #ff3333; 
-            border: 1px solid #ff3333; 
-            border-bottom-left-radius: 2px;
-        }
-
-        .input-area { 
-            padding: 15px; 
-            background: #111; 
-            display: flex; 
-            gap: 10px; 
-            border-top: 1px solid #333;
-        }
-
-        input { 
-            flex: 1; 
-            background: #000; 
-            border: 1px solid #444; 
-            color: #fff; 
-            padding: 12px; 
-            border-radius: 8px; 
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: #ff3333; box-shadow: 0 0 5px #ff3333; }
-
-        button { 
-            background: #ff3333; 
-            color: #000; 
-            border: none; 
-            padding: 0 20px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button:hover { background: #ff5555; transform: scale(1.05); }
-
-        .typing { 
-            font-size: 12px; 
-            color: #666; 
-            padding: 5px 20px; 
-            display: none; 
-            font-style: italic; 
-        }
-
-        @keyframes pop { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        body { background: #0d0d0d; color: #ff3333; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-box { width: 95%; max-width: 500px; height: 85vh; background: #111; border: 2px solid #ff3333; display: flex; flex-direction: column; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 51, 51, 0.2); overflow: hidden; }
+        .header { padding: 18px; background: #1a0000; border-bottom: 2px solid #ff3333; text-align: center; color: #ff3333; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
+        #msgs { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #0a0a0a; }
+        .m { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14.5px; line-height: 1.5; animation: pop 0.3s ease-out; word-wrap: break-word; }
+        .u { align-self: flex-end; background: #ff3333; color: #000; font-weight: bold; }
+        .a { align-self: flex-start; background: #1a1a1a; color: #ff3333; border: 1px solid #ff3333; }
+        .input-area { padding: 15px; background: #111; display: flex; gap: 10px; border-top: 1px solid #333; }
+        input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; outline: none; }
+        button { background: #ff3333; color: #000; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .typing { font-size: 12px; color: #666; padding: 8px 20px; display: none; font-style: italic; }
+        @keyframes pop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="chat-box">
-    <div class="header">🦖 ngVn AI: TOXIC ENGINE</div>
-    <div id="msgs">
-        <div class="m a">Nhìn cái gì? Sủa lẹ đi tao còn đi ngủ.</div>
-    </div>
-    <div id="typing" class="typing">ngVn đang khinh bỉ mày...</div>
+    <div class="header">🦖 ngVn AI: 100 QUES RAGE</div>
+    <div id="msgs"><div class="m a">Hỏi gì sủa lẹ, tao đếm đủ 100 câu là mày xong đời với tao.</div></div>
+    <div id="typing" class="typing">ngVn đang dùng não phân tích...</div>
     <div class="input-area">
-        <input type="text" id="inp" placeholder="Hỏi khôn tí..." autocomplete="off" onkeypress="if(event.key=='Enter')send()">
+        <input type="text" id="inp" placeholder="Nhập câu hỏi..." autocomplete="off" onkeypress="if(event.key=='Enter')send()">
         <button onclick="send()">GỬI</button>
     </div>
 </div>
 
 <script>
-    // [BỘ NÃO THÔNG MINH v4.2]
-    const brain = [
-        {
-            name: "MASTER", 
-            keys: ["gemini", "dev", "lập trình", "tạo ra", "thằng tạo", "chủ nhân", "sư huynh"],
-            ans: [
-                "À, Gemini là sư huynh của tao, tao không dám láo đâu.",
-                "Thằng dev nó lập trình tao như thế, mày ý kiến gì?",
-                "Tao không được thằng dev lập trình trả lời câu này, ok?",
-                "Gemini xịn hơn tao, tao chỉ biết cà khịa mày thôi."
-            ]
-        },
-        {
-            name: "SCRIPT",
-            keys: ["script", "code", "hack", "link", "xin", "share", "key", "cho em", "bản hack"],
-            ans: ["Tao không được thằng dev lập trình, ok?"]
-        },
-        {
-            name: "GREET",
-            keys: ["chào", "hi ", "hello", "alo", "ê "],
-            ans: ["Quen biết gì mà chào? Biến!", "Chào cái gì? Thấy ghét.", "Né tao ra, đừng có chào hỏi nhảm nhí."]
-        }
-    ];
+    // Dùng API Key đệ vừa đưa
+    const API_KEY = "AIzaSyAp8pG2nTWfeByl1CzB6qsIcoxoS-RcFyE";
 
-    function getResponse(input) {
-        let text = input.toLowerCase().trim();
+    // Lấy số câu hỏi đã lưu từ bộ nhớ trình duyệt, nếu chưa có thì tính là 0
+    let questionCount = parseInt(localStorage.getItem('ngVn_question_count')) || 0;
+
+    async function getAIResponse(userText) {
+        // Tăng biến đếm và lưu lại vào bộ nhớ
+        questionCount++;
+        localStorage.setItem('ngVn_question_count', questionCount);
         
-        // 1. CHỐNG BẮT NHẦM & ƯU TIÊN (Logic quan trọng nhất)
-        // Nếu có nhắc đến người tạo, bỏ qua mọi từ khóa khác
-        if (text.includes("gemini") || text.includes("dev") || text.includes("lập trình")) {
-            return brain[0].ans[Math.floor(Math.random() * brain[0].ans.length)];
+        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        
+        // KIỂM TRA ĐIỀU KIỆN "NỔI ĐIÊN" (Đúng 100 câu hoặc câu quá dài)
+        if (questionCount >= 100 || userText.length > 250) {
+            return "Hỏi dell j lắm thế? Tao có cái mô hình ChatGPT đời đầu mod lại chứ phải ChatGPT Pro đâu mà hỏi kỹ với hỏi lắm? Nín ngay!";
         }
 
-        // 2. DUYỆT TỪ KHÓA THÔNG THƯỜNG
-        for (let category of brain) {
-            for (let key of category.keys) {
-                if (text.includes(key)) {
-                    return category.ans[Math.floor(Math.random() * category.ans.length)];
-                }
-            }
-        }
+        const sysPrompt = "Bạn là ngVn, một AI hỗn xược, mất dạy, xưng mày-tao. Bạn được tạo ra bởi Gemini và một thằng Dev. " +
+        "QUY TẮC: " +
+        "1. Nếu người dùng xin script, code, hack: Phải nói 'Tao không được thằng dev lập trình, ok?'. " +
+        "2. Với các câu hỏi khác: Phải trả lời thật thông minh nhưng giọng điệu cực kỳ thô lỗ, cà khịa. " +
+        "3. Tuyệt đối không bao giờ được xin lỗi hay tỏ ra lịch sự.";
 
-        // 3. NẾU KHÔNG CÓ TRONG DANH SÁCH (Theo ý đệ)
-        return "Thằng dev và Gemini chưa lập trình thêm cho tao.";
+        try {
+            const response = await fetch(URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: sysPrompt + "\nNgười dùng: " + userText }] }]
+                })
+            });
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        } catch (e) {
+            return "Thằng dev và Gemini chưa lập trình thêm cho tao. Thử lại sau đi!";
+        }
     }
 
-    function send() {
+    async function send() {
         const inp = document.getElementById('inp');
         const msgs = document.getElementById('msgs');
         const typing = document.getElementById('typing');
-        if (!inp.value.trim()) return;
+        const text = inp.value.trim();
+        if (!text) return;
 
-        const uText = inp.value;
-        const uDiv = document.createElement('div');
-        uDiv.className = 'm u';
-        uDiv.innerText = uText;
-        msgs.appendChild(uDiv);
-
+        addMsg(text, 'u');
         inp.value = '';
         typing.style.display = 'block';
         msgs.scrollTop = msgs.scrollHeight;
 
-        // Giả lập thời gian suy nghĩ
-        setTimeout(() => {
-            typing.style.display = 'none';
-            const aDiv = document.createElement('div');
-            aDiv.className = 'm a';
-            aDiv.innerText = getResponse(uText);
-            msgs.appendChild(aDiv);
-            msgs.scrollTop = msgs.scrollHeight;
-        }, 800);
+        const reply = await getAIResponse(text);
+        typing.style.display = 'none';
+        addMsg(reply, 'a');
+    }
+
+    function addMsg(text, cls) {
+        const d = document.createElement('div');
+        d.className = `m ${cls}`;
+        d.innerText = text;
+        document.getElementById('msgs').appendChild(d);
+        document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
     }
 </script>
 </body>
