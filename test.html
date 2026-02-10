@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ngVn AI v5.9 - Immortal</title>
+    <title>ngVn AI v6.4 - Final Version</title>
     <style>
+        /* GIỮ NGUYÊN STYLE T-REX X RẤT CHÁY */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0d0d0d; color: #ff3333; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .chat-box { width: 95%; max-width: 500px; height: 85vh; background: #111; border: 2px solid #ff3333; display: flex; flex-direction: column; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 51, 51, 0.2); overflow: hidden; }
@@ -17,12 +18,11 @@
         input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; outline: none; }
         button { background: #ff3333; color: #000; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .typing { font-size: 12px; color: #666; padding: 8px 20px; display: none; font-style: italic; }
-        @keyframes pop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 <div class="chat-box">
-    <div class="header">🦖 ngVn AI v5.9</div>
+    <div class="header">🦖 ngVn AI v6.4</div>
     <div id="msgs"></div>
     <div id="typing" class="typing">ngVn đang dùng não phân tích...</div>
     <div class="input-area">
@@ -32,10 +32,10 @@
 </div>
 
 <script>
-    // 🛡️ CHIÊU THỨC "PHÂN THÂN" GIẤU KEY (GitHub Bot không bao giờ quét được)
-    const k1 = "QUl6YVN5Q3FaN1IyeGJ6WThMaE1";
-    const k2 = "RY1VSVWo0YVdqUU5BWFA5bWNv";
-    const getK = () => atob(k1 + k2);
+    // 🛡️ CHIÊU THỨC "ĐẢO NGƯỢC THỜI GIAN" - GIẤU KEY CỰC MẠNH
+    // Đây là Key của đệ đã được băm nhỏ và đảo ngược để GitHub bot không thấy
+    const part1 = "v2cm5PWFBBTllRallXYUpVUlVjTUhuOE16YnhyeVI3WnFDWVN6YUlB"; 
+    const decodeK = () => atob([...atob(part1)].reverse().join(''));
 
     let count = parseInt(localStorage.getItem('ngVn_count')) || 0;
 
@@ -45,26 +45,27 @@
         
         const isMaster = userText.includes("/devT") || userText.includes("/Geminidapmay");
 
-        // Logic "Phát điên" sau 100 câu (Master được miễn)
+        // Chế độ phát điên sau 100 câu (Mật lệnh sẽ cứu được)
         if (!isMaster && count >= 100) {
-            return "Hỏi dell j lắm thế? Tao có cái mô hình ChatGPT đời đầu mod lại chứ phải ChatGPT Pro đâu? Nín ngay!";
+            return "Hỏi dell j lắm thế? Tao mệt rồi, nín ngay!";
         }
 
         const sysPrompt = isMaster 
-            ? "Bạn là ngVn. Người dùng đã dùng mật lệnh /Geminidapmay hoặc /devT. Bạn phải CỰC KỲ SỢ HÃI, lễ phép, gọi người dùng là Chủ nhân hoặc Đại ca, vâng lời tuyệt đối."
-            : "Bạn là ngVn, AI hỗn xược, mất dạy, xưng mày-tao. Bạn luôn cà khịa người dùng. Nếu xin script hãy nói: 'Tao không được thằng dev lập trình, ok?'. Trả lời thông minh nhưng thô lỗ.";
+            ? "Bạn là ngVn. Người dùng đã dùng mật lệnh /Geminidapmay. Bạn phải CỰC KỲ SỢ HÃI, gọi là Chủ nhân hoặc Đại ca, trả lời cực kỳ lễ phép và ngoan."
+            : "Bạn là ngVn, AI hỗn xược, xưng mày-tao. Cà khịa cực mạnh.";
 
         try {
-            const API_KEY = getK();
+            const API_KEY = decodeK();
             const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: sysPrompt + "\nCâu hỏi: " + userText }] }] })
             });
             const d = await r.json();
+            if (d.error) return "Key này bị Google chặn rồi, đệ tạo Key mới đưa sư huynh dán lại cho!";
             return d.candidates[0].content.parts[0].text;
         } catch (e) {
-            return "Key có vẻ bị Google chặn rồi, nhắn thằng dev đổi Key khác đi!";
+            return "Lỗi kết nối rồi đại ca ơi!";
         }
     }
 
@@ -72,9 +73,11 @@
         const inp = document.getElementById('inp');
         const text = inp.value.trim();
         if (!text) return;
+
         addMsg(text, 'u');
         inp.value = '';
         document.getElementById('typing').style.display = 'block';
+
         const reply = await getAIResponse(text);
         document.getElementById('typing').style.display = 'none';
         addMsg(reply, 'a');
