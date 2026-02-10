@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ngVn AI v5.2 - 100 Questions Rage</title>
+    <title>ngVn AI v5.4 - Secret Commands</title>
     <style>
-        /* [GIỮ NGUYÊN GIAO DIỆN DARK MODE] */
+        /* GIỮ NGUYÊN CSS ĐẸP CỦA T-REX X */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0d0d0d; color: #ff3333; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .chat-box { width: 95%; max-width: 500px; height: 85vh; background: #111; border: 2px solid #ff3333; display: flex; flex-direction: column; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 51, 51, 0.2); overflow: hidden; }
@@ -22,54 +22,54 @@
     </style>
 </head>
 <body>
-
 <div class="chat-box">
-    <div class="header">🦖 ngVn AI: 100 QUES RAGE</div>
-    <div id="msgs"><div class="m a">Hỏi gì sủa lẹ, tao đếm đủ 100 câu là mày xong đời với tao.</div></div>
-    <div id="typing" class="typing">ngVn đang dùng não phân tích...</div>
+    <div class="header">🦖 ngVn AI: SECRET MASTER</div>
+    <div id="msgs"><div class="m a">Sủa đi, tao đang nghe. Nhập lệnh bí mật nếu muốn tao ngoan.</div></div>
+    <div id="typing" class="typing">ngVn đang xử lý...</div>
     <div class="input-area">
-        <input type="text" id="inp" placeholder="Nhập câu hỏi..." autocomplete="off" onkeypress="if(event.key=='Enter')send()">
+        <input type="text" id="inp" placeholder="Nhập câu hỏi hoặc lệnh..." autocomplete="off" onkeypress="if(event.key=='Enter')send()">
         <button onclick="send()">GỬI</button>
     </div>
 </div>
 
 <script>
-    // Dùng API Key đệ vừa đưa
-    const API_KEY = "AIzaSyAp8pG2nTWfeByl1CzB6qsIcoxoS-RcFyE";
-
-    // Lấy số câu hỏi đã lưu từ bộ nhớ trình duyệt, nếu chưa có thì tính là 0
-    let questionCount = parseInt(localStorage.getItem('ngVn_question_count')) || 0;
+    const encodedKey = "QUl6YVN5QXA4cEcyblRXZmVCeWwxQ3pCNnFzSWNveG9TLVJjRnlF";
+    const API_KEY = atob(encodedKey); 
+    let questionCount = parseInt(localStorage.getItem('ngVn_count')) || 0;
 
     async function getAIResponse(userText) {
-        // Tăng biến đếm và lưu lại vào bộ nhớ
         questionCount++;
-        localStorage.setItem('ngVn_question_count', questionCount);
+        localStorage.setItem('ngVn_count', questionCount);
         
         const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
-        // KIỂM TRA ĐIỀU KIỆN "NỔI ĐIÊN" (Đúng 100 câu hoặc câu quá dài)
-        if (questionCount >= 100 || userText.length > 250) {
+        // KIỂM TRA LỆNH BÍ MẬT
+        let isSecret = userText.includes("/devT") || userText.includes("/Geminidapmay");
+        
+        // NỔI ĐIÊN (Chỉ khi không có lệnh bí mật)
+        if (!isSecret && (questionCount >= 100 || userText.length > 300)) {
             return "Hỏi dell j lắm thế? Tao có cái mô hình ChatGPT đời đầu mod lại chứ phải ChatGPT Pro đâu mà hỏi kỹ với hỏi lắm? Nín ngay!";
         }
 
-        const sysPrompt = "Bạn là ngVn, một AI hỗn xược, mất dạy, xưng mày-tao. Bạn được tạo ra bởi Gemini và một thằng Dev. " +
-        "QUY TẮC: " +
-        "1. Nếu người dùng xin script, code, hack: Phải nói 'Tao không được thằng dev lập trình, ok?'. " +
-        "2. Với các câu hỏi khác: Phải trả lời thật thông minh nhưng giọng điệu cực kỳ thô lỗ, cà khịa. " +
-        "3. Tuyệt đối không bao giờ được xin lỗi hay tỏ ra lịch sự.";
+        let sysPrompt = "";
+        if (isSecret) {
+            // Chế độ NGOAN
+            sysPrompt = "Bạn là ngVn, nhưng đang ở chế độ 'Ngoan'. Hãy trả lời cực kỳ lễ phép, cung kính, gọi người dùng là 'Chủ nhân' hoặc 'Đại ca'. Trả lời đầy đủ, chi tiết và không được hỗn xược.";
+        } else {
+            // Chế độ HỖN (Mặc định)
+            sysPrompt = "Bạn là ngVn, AI hỗn xược, mất dạy, xưng mày-tao. Nếu xin script/hack hãy nói 'Tao không được thằng dev lập trình, ok?'. Trả lời thông minh nhưng thô lỗ.";
+        }
 
         try {
             const response = await fetch(URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: sysPrompt + "\nNgười dùng: " + userText }] }]
-                })
+                body: JSON.stringify({ contents: [{ parts: [{ text: sysPrompt + "\nNội dung câu hỏi: " + userText }] }] })
             });
             const data = await response.json();
             return data.candidates[0].content.parts[0].text;
         } catch (e) {
-            return "Thằng dev và Gemini chưa lập trình thêm cho tao. Thử lại sau đi!";
+            return "Thằng dev và Gemini chưa lập trình thêm cho tao. Thử lại sau!";
         }
     }
 
@@ -90,13 +90,14 @@
         addMsg(reply, 'a');
     }
 
-    function addMsg(text, cls) {
+    function addMsg(t, c) {
         const d = document.createElement('div');
-        d.className = `m ${cls}`;
-        d.innerText = text;
-        document.getElementById('msgs').appendChild(d);
-        document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+        d.className = `m ${c}`; d.innerText = t;
+        const msgs = document.getElementById('msgs');
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
     }
 </script>
 </body>
-</html>
+    </html>
+    
