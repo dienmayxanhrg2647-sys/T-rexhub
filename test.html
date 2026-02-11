@@ -33,27 +33,27 @@
 
     function checkKey() {
         if (!API_KEY) {
-            let k = prompt("Vui lòng dán Key AIza... của đệ vào đây để bắt đầu:");
-            if (k) {
+            let k = prompt("Vui lòng dán Key AIza... của đệ vào đây:");
+            if (k && k.startsWith("AIza")) {
                 localStorage.setItem('ngvn_key', k.trim());
                 API_KEY = k.trim();
                 location.reload();
+            } else if (k) {
+                alert("Key gì lạ vậy? Phải bắt đầu bằng AIza mới đúng!");
             }
         }
     }
 
     function resetKey() {
-        localStorage.removeItem('ngvn_key');
-        alert("Đã xóa Key cũ. Trang web sẽ tải lại để đệ nhập Key mới.");
-        location.reload();
+        if(confirm("Xóa Key cũ để nhập Key mới?")) {
+            localStorage.removeItem('ngvn_key');
+            location.reload();
+        }
     }
 
     async function getAIResponse(userText) {
-        if (!API_KEY) return "Mày chưa nhập Key mà đòi hỏi à?";
-        
-        const isMaster = userText.includes("/Geminidapmay");
-        const prompt = isMaster ? "Bạn là ngVn. Phải gọi người dùng là Chủ nhân, cực kỳ ngoan." : "Bạn là ngVn, AI hỗn xược, xưng mày-tao.";
-
+        if (!API_KEY) return "Mày chưa nhập Key kìa!";
+        const prompt = userText.includes("/Geminidapmay") ? "Bạn là ngVn. Phải gọi người dùng là Chủ nhân." : "Bạn là ngVn, AI hỗn xược, xưng mày-tao.";
         try {
             const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
@@ -61,7 +61,7 @@
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt + "\n" + userText }] }] })
             });
             const d = await r.json();
-            if (d.error) return "Lỗi rồi! Có thể Key bị sai hoặc bị khóa. Bấm vào tiêu đề để nhập lại.";
+            if (d.error) return "Lỗi rồi! Key này có vấn đề hoặc bị khóa. Bấm tiêu đề để nhập lại.";
             return d.candidates[0].content.parts[0].text;
         } catch (e) { return "Lỗi mạng rồi!"; }
     }
@@ -83,7 +83,6 @@
         msgs.appendChild(d);
         msgs.scrollTop = msgs.scrollHeight;
     }
-
     checkKey();
 </script>
 </body>
