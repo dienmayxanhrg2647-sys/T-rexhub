@@ -3,101 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T-REX X | SIÊU CẤP PHÁP SƯ V7</title>
+    <title>T-REX X | NgVn V1.5</title>
     <style>
-        :root { --red: #ff0000; --green: #00ff00; --pink: #ff0080; --dark: #050000; --yellow: #ffff00; }
+        :root { --red: #ff0000; --green: #00ff00; --pink: #ff0080; --dark: #050000; --yellow: #ffff00; --gray: #1a1a1a; }
         body { background: var(--dark); color: var(--green); font-family: 'Courier New', monospace; margin: 0; padding: 15px; display: flex; justify-content: center; }
         .altar { max-width: 500px; width: 100%; border: 2px solid var(--red); padding: 20px; box-shadow: 0 0 25px #500; border-radius: 15px; background: #000; position: relative; }
-        h1 { color: var(--red); text-shadow: 0 0 10px var(--red); margin: 10px 0; font-size: 26px; text-align: center; letter-spacing: 2px; }
+        h1 { color: var(--red); text-shadow: 0 0 10px var(--red); margin: 10px 0; font-size: 26px; text-align: center; letter-spacing: 2px; text-transform: uppercase; }
         
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 1px solid var(--red); padding-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 12px; background: #111; color: #fff; border: 1px solid var(--red); cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 11px; text-transform: uppercase; }
+        /* TABS */
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--red); padding-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 10px 5px; background: var(--gray); color: #fff; border: 1px solid var(--red); cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 11px; text-transform: uppercase; transition: 0.3s; }
         .tab-btn.active { background: var(--red); color: #000; box-shadow: 0 0 10px var(--red); }
         
-        .content { display: none; }
-        .content.active { display: block; animation: fadeIn 0.4s ease-in; }
+        .content { display: none; animation: fadeIn 0.4s ease-in; }
+        .content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* INPUTS & BUTTONS */
         input { width: 92%; padding: 12px; background: #0a0a0a; border: 1px solid var(--red); color: #fff; margin: 8px 0; text-align: center; border-radius: 5px; font-size: 16px; outline: none; }
-        
         button.main-btn { background: var(--red); color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; width: 100%; border-radius: 5px; margin-top: 10px; text-transform: uppercase; transition: 0.2s; }
         button.main-btn:active { transform: scale(0.95); }
-        
-        .share-btn { background: transparent; color: var(--yellow); border: 1px solid var(--yellow); padding: 8px; font-size: 10px; margin-top: 10px; cursor: pointer; border-radius: 5px; width: 100%; }
 
-        .result-box { margin-top: 20px; text-align: left; line-height: 1.6; border: 1px dashed #444; padding: 15px; min-height: 110px; background: #080808; border-radius: 8px; position: relative; }
-        .score-val { font-size: 24px; font-weight: bold; }
+        /* RESULT BOX */
+        .result-box { margin-top: 20px; text-align: left; line-height: 1.6; border: 1px dashed #444; padding: 15px; min-height: 80px; background: #080808; border-radius: 8px; }
         .bad { color: var(--red); }
         .good { color: var(--green); }
         .love { color: var(--pink); }
-        .sys-msg { color: #555; font-style: italic; font-size: 11px; text-align: center; display: block; margin-top: 10px; }
         
+        /* CHAT SYSTEM */
+        #chatBox { height: 350px; overflow-y: auto; border: 1px solid #333; padding: 10px; background: #050505; border-radius: 5px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-msg { font-size: 14px; padding: 5px; border-radius: 4px; background: #0f0f0f; border-left: 2px solid #333; word-wrap: break-word; }
+        .chat-name { color: var(--yellow); font-weight: bold; margin-right: 5px; text-transform: uppercase; }
+        .chat-text { color: #fff; }
+        .chat-controls { display: flex; gap: 5px; }
+        #msgInput { flex: 1; text-align: left; margin: 0; }
+        .send-btn { width: 60px; background: var(--green); color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .mini-btn { font-size: 10px; padding: 5px 10px; background: #333; color: #aaa; border: none; cursor: pointer; margin-top: 5px; border-radius: 3px; }
+
+        /* ANIMATION */
         .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .sys-msg { color: #555; font-style: italic; font-size: 10px; text-align: center; display: block; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="altar">
-    <h1>🦖 T-REX X AI</h1>
+    <h1>🦖 T-REX X</h1>
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('sm-tab', this)">SỐ MỆNH</button>
         <button class="tab-btn" onclick="openTab('td-tab', this)">TÌNH DUYÊN</button>
+        <button class="tab-btn" onclick="openTab('chat-tab', this)">PHÒNG CHAT</button>
     </div>
 
     <div id="sm-tab" class="content active">
-        <input type="text" id="nameSM" placeholder="NHẬP TÊN MÀY..." spellcheck="false">
-        <button class="main-btn" onclick="soiSoMenh()">XEM SỐ MỆNH</button>
-        <div id="resSM" class="result-box">>>> Đang chờ nhập dữ liệu...</div>
+        <input type="text" id="nameSM" placeholder="NHẬP TÊN CỦA BẠN..." spellcheck="false">
+        <button class="main-btn" onclick="soiSoMenh()">XEM QUẺ</button>
+        <div id="resSM" class="result-box">>>> Nhập tên để hệ thống soi xét...</div>
     </div>
 
     <div id="td-tab" class="content">
-        <input type="text" id="td1" placeholder="TÊN MÀY..." spellcheck="false">
-        <input type="text" id="td2" placeholder="TÊN NÓ..." spellcheck="false">
-        <button class="main-btn" onclick="soiTinhDuyen()">SOI CHỮ L-O-V-E</button>
-        <div id="resTD" class="result-box">>>> Soi một lần, cấm bói lại!</div>
+        <input type="text" id="td1" placeholder="TÊN BẠN..." spellcheck="false">
+        <input type="text" id="td2" placeholder="TÊN NGƯỜI ẤY..." spellcheck="false">
+        <button class="main-btn" onclick="soiTinhDuyen()">SOI DUYÊN L-O-V-E</button>
+        <div id="resTD" class="result-box">>>> Chỉ soi một lần duy nhất!</div>
+    </div>
+
+    <div id="chat-tab" class="content">
+        <div id="chatNameArea">
+            <p style="text-align:center; color:#888; font-size:12px;">ĐẶT TÊN ĐỂ THAM GIA CHAT</p>
+            <input type="text" id="userChatName" placeholder="Tên hiển thị (VD: Thái)" maxlength="15">
+            <button class="main-btn" onclick="saveChatName()">VÀO PHÒNG CHAT</button>
+        </div>
+        <div id="chatMainArea" style="display:none;">
+            <div id="chatBox"></div>
+            <div class="chat-controls">
+                <input type="text" id="msgInput" placeholder="Nhập tin nhắn..." autocomplete="off">
+                <button class="send-btn" onclick="sendChat()">GỬI</button>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <button class="mini-btn" onclick="clearChatName()">Đổi Tên</button>
+                <button class="mini-btn" onclick="clearChatHistory()">Xóa Lịch Sử Chat</button>
+            </div>
+        </div>
     </div>
     
-    <button class="share-btn" onclick="shareResult()">📋 SAO CHÉP LỜI PHÁN</button>
-    <span class="sys-msg">T-REX X v7.0 - QUẺ ĐÃ CHỐT CẤM CÃI THẦY</span>
+    <span class="sys-msg">T-REX X | NgVn V1.5 - NO REPORT TAB</span>
 </div>
 
 <script>
     let smHistory = {};
     let tdHistory = {};
-    let lastResult = "";
 
     function openTab(tabId, btn) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('active');
+        if(tabId === 'chat-tab') checkChatAuth();
     }
 
-    const xui = ["Số đen như than, tối né chó ra nhé.", "Nghèo bền vững, tiền vào cửa trước ra cửa sau.", "Tình duyên nát, bồ cũ cưới chồng mày bưng quả.", "Số không làm mà đòi ăn thì chỉ có ăn đầu bướm.", "Cẩn thận cái mồm, bớt nhây kẻo bị táng.", "Năm nay đại hạn, nằm ngủ cũng rơi xuống đất."];
-    const hen = ["Số đại gia, tiền vô như nước sông Đà.", "Quý nhân phù trợ, ra ngõ gặp vàng.", "Tình duyên rực rỡ, bồ cũ đòi bao nuôi.", "Thông minh xuất chúng, sắp làm chuyện lớn.", "Số hưởng lộc trời, không làm cũng có ăn.", "Mệnh kim cương, tỏa sáng nhất vùng."];
+    const listXui = [
+        "Số đen như chó mực, ra đường nhớ nhìn trước ngó sau.",
+        "Tiền bạc đội nón ra đi, tháng này ăn mì gói cầm hơi.",
+        "Tình duyên lận đận, yêu ai cũng bị 'cắm sừng'.",
+        "Làm gì cũng hỏng, tốt nhất nên nằm im thở khẽ.",
+        "Ra đường dẫm phải 'mìn', về nhà mất wifi.",
+        "Cẩn thận cái mồm, dễ bị ăn đấm.",
+        "Mất ví, mất chìa khóa, mất luôn niềm tin.",
+        "Số không giàu được đâu, đừng mơ mộng.",
+        "Đi thi quên mang bút, đi làm quên mang não.",
+        "Bị sếp chửi, đồng nghiệp nói xấu, đời quá đen.",
+        "Vừa mua đồ xong thì nó giảm giá 50%, cay!",
+        "Crush công khai người yêu, và đó không phải là bạn.",
+        "Đang tắm thì hết nước, đang 'ấy' thì hết giấy.",
+        "Cho bạn vay tiền, mất cả tiền lẫn bạn.",
+        "Số mệnh khắc khổ, làm trâu làm ngựa cho người ta.",
+        "Đầu năm hạn, giữa năm xui, cuối năm đen.",
+        "Ăn uống cẩn thận, dễ bị tào tháo rượt.",
+        "Nhìn mặt là thấy chữ 'Nghèo' hiện lên trán.",
+        "Cẩn thận bị lừa tình, lừa tiền, lừa cả dép.",
+        "Sáng ra ngõ gặp gái dữ, tối về gặp chủ nợ."
+    ];
+
+    const listHen = [
+        "Số đại gia, tiền đè chết người, tiêu không hết.",
+        "Quý nhân phù trợ, đi đâu cũng có người giúp.",
+        "Tình duyên rực rỡ, sắp có người tỏ tình.",
+        "Thông minh xuất chúng, làm trùm thiên hạ.",
+        "Sự nghiệp thăng tiến vù vù như diều gặp gió.",
+        "May mắn gõ cửa, mua vé số dễ trúng độc đắc.",
+        "Ra đường nhặt được tiền, về nhà được cho đất.",
+        "Sức khỏe dồi dào, bệnh tật tiêu tan.",
+        "Mọi việc hanh thông, muốn gì được nấy.",
+        "Số hưởng từ trong trứng nước, sướng như tiên.",
+        "Có tướng làm quan to, hét ra lửa.",
+        "Gia đạo êm ấm, con cháu đề huề.",
+        "Kinh doanh phát đạt, tiền vào như nước.",
+        "Đi đâu cũng được yêu mến, hoa gặp hoa nở.",
+        "Vận đỏ như son, đánh đâu thắng đó.",
+        "Sắp có lộc ăn uống, tiệc tùng sang chảnh.",
+        "Được sếp tin tưởng, thăng chức tăng lương.",
+        "Crush đang để ý bạn đấy, tới luôn đi.",
+        "Số mệnh Phượng Hoàng, tỏa sáng rực rỡ.",
+        "Thần tài đang đứng trước cửa nhà bạn."
+    ];
 
     function soiSoMenh() {
         const n = document.getElementById('nameSM').value.trim();
         const res = document.getElementById('resSM');
         if(!n) return;
-        const key = n.toLowerCase();
-        res.classList.remove('shake');
-
-        if(smHistory[key]) {
-            res.innerHTML = `<b class="bad">T-REX X:</b> Tao phán cho mày rồi thằng <b>${n.toUpperCase()}</b>! CÚT!`;
-            res.classList.add('shake');
+        if(smHistory[n.toLowerCase()]) {
+            res.innerHTML = `<b class="bad">HỆ THỐNG:</b> Phán rồi, đừng nhây!`;
+            res.classList.add('shake'); setTimeout(()=>res.classList.remove('shake'), 500);
             return;
         }
-
-        smHistory[key] = true;
-        let score = (n.length * 17 + 9) % 100;
-        let msg = score < 45 ? xui[Math.floor(Math.random()*xui.length)] : hen[Math.floor(Math.random()*hen.length)];
-        let cls = score < 45 ? 'bad' : 'good';
-        
-        lastResult = `Số mệnh ${n}: ${score}/100. Phán: ${msg}`;
-        res.innerHTML = `<b>TÊN:</b> ${n.toUpperCase()}<br><b>CĂN CƠ:</b> <span class="${cls} score-val">${score}/100</span><br><b class="${cls}">LỜI PHÁN:</b> ${msg}`;
-        if(score < 45) res.classList.add('shake');
+        smHistory[n.toLowerCase()] = true;
+        let score = (n.length * 21 + 7) % 100;
+        let isXui = score < 45;
+        let msg = isXui ? listXui[Math.floor(Math.random()*listXui.length)] : listHen[Math.floor(Math.random()*listHen.length)];
+        res.innerHTML = `<b>TÊN:</b> ${n.toUpperCase()}<br><b>CĂN CƠ:</b> <span class="${isXui?'bad':'good'}" style="font-size:20px">${score}/100</span><br><b class="${isXui?'bad':'good'}">PHÁN:</b> ${msg}`;
     }
 
     function soiTinhDuyen() {
@@ -105,38 +170,49 @@
         const n2 = document.getElementById('td2').value.trim().toUpperCase();
         const res = document.getElementById('resTD');
         if(!n1 || !n2) return;
-
-        const pairKey = [n1, n2].sort().join("-").toLowerCase();
-        res.classList.remove('shake');
-
-        if(tdHistory[pairKey]) {
-            res.innerHTML = `<b class="bad">T-REX X:</b> Cặp này tao phán rồi! Đừng có thử lòng thầy. CÚT!`;
-            res.classList.add('shake');
+        const key = [n1, n2].sort().join("-").toLowerCase();
+        if(tdHistory[key]) {
+            res.innerHTML = `<b class="bad">HỆ THỐNG:</b> Duy nhất một quẻ thôi!`;
+            res.classList.add('shake'); setTimeout(()=>res.classList.remove('shake'), 500);
             return;
         }
-
-        tdHistory[pairKey] = true;
-        let count = ((n1+n2).match(/[LOVE]/g) || []).length;
-        let phantram = Math.min(count * 15 + 10, 100);
-
-        let msg = ""; let cls = "";
-        if(phantram < 40) {
-            msg = "NGƯỜI DƯNG / BẠN THÂN (Không có cửa đâu)"; cls = "bad"; res.classList.add('shake');
-        } else if(phantram < 75) {
-            msg = "CÓ KHẢ NĂNG YÊU (Đang tiến triển)"; cls = "good";
-        } else {
-            msg = "DUYÊN TRỜI ĐỊNH (Cưới ngay đi)"; cls = "love";
-        }
-
-        lastResult = `Tình duyên ${n1} & ${n2}: ${phantram}%. Kết luận: ${msg}`;
-        res.innerHTML = `<p>ĐỘ HỢP: <b class="${cls} score-val">${phantram}%</b></p><p>KẾT QUẢ: <b class="${cls}">${msg}</b></p>`;
+        tdHistory[key] = true;
+        let pt = Math.min(((n1+n2).match(/[LOVE]/g) || []).length * 15 + 10, 100);
+        let cls = pt < 45 ? "bad" : (pt < 75 ? "good" : "love");
+        res.innerHTML = `<b>ĐỘ HỢP:</b> <span class="${cls}" style="font-size:20px">${pt}%</span><br><b>PHÁN:</b> ${pt<45?"Không hợp đâu.":(pt<75?"Có duyên đấy.":"Trời sinh một cặp!")}`;
     }
 
-    function shareResult() {
-        if(!lastResult) return alert("Chưa có quẻ nào!");
-        navigator.clipboard.writeText("🦖 T-REX X AI:\n" + lastResult);
-        alert("Đã sao chép quẻ!");
+    /* CHAT LOGIC */
+    function checkChatAuth() {
+        const name = localStorage.getItem('trex_chat_name');
+        document.getElementById('chatNameArea').style.display = name ? 'none' : 'block';
+        document.getElementById('chatMainArea').style.display = name ? 'block' : 'none';
+        if(name) loadChat();
     }
+    function saveChatName() {
+        const n = document.getElementById('userChatName').value.trim();
+        if(n.length < 2) return alert("Tên ngắn quá!");
+        localStorage.setItem('trex_chat_name', n);
+        checkChatAuth();
+    }
+    function clearChatName() { if(confirm("Đổi tên?")) { localStorage.removeItem('trex_chat_name'); checkChatAuth(); } }
+    function clearChatHistory() { if(confirm("Xóa chat?")) { localStorage.removeItem('trex_chat_msgs'); loadChat(); } }
+    function sendChat() {
+        const txt = document.getElementById('msgInput').value.trim();
+        if(!txt) return;
+        let msgs = JSON.parse(localStorage.getItem('trex_chat_msgs') || "[]");
+        msgs.push({ name: localStorage.getItem('trex_chat_name'), text: txt });
+        localStorage.setItem('trex_chat_msgs', JSON.stringify(msgs));
+        document.getElementById('msgInput').value = "";
+        loadChat();
+    }
+    function loadChat() {
+        const msgs = JSON.parse(localStorage.getItem('trex_chat_msgs') || "[]");
+        document.getElementById('chatBox').innerHTML = msgs.map(m => `<div class="chat-msg"><span class="chat-name">${m.name}:</span> <span class="chat-text">${m.text}</span></div>`).join("");
+        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+    }
+    document.getElementById('msgInput')?.addEventListener("keypress", e => { if(e.key === "Enter") sendChat(); });
 </script>
 </body>
-</html>
+    </html>
+    
