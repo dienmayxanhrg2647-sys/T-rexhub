@@ -3,69 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ngVn AI v7.0 - Hybrid System</title>
+    <title>T-REX X | PHÁP SƯ TIÊN TRI</title>
     <style>
-        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; padding: 10px; }
-        .container { max-width: 600px; margin: auto; border: 1px solid #00ff00; height: 90vh; display: flex; flex-direction: column; box-shadow: 0 0 20px #004400; }
-        #chat { flex: 1; overflow-y: auto; padding: 15px; border-bottom: 1px solid #00ff00; }
-        .msg { margin-bottom: 15px; border-left: 3px solid #00ff00; padding-left: 10px; }
-        .user { color: #fff; }
-        .ai { color: #00ff00; }
-        input { background: #000; border: none; color: #00ff00; padding: 15px; outline: none; width: 100%; border-top: 1px solid #00ff00; }
-        .status { font-size: 10px; text-align: center; color: #444; }
+        :root { --main: #ff0000; --bg: #050000; --text: #00ff00; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .altar { max-width: 500px; width: 100%; border: 3px double var(--main); padding: 20px; box-shadow: 0 0 30px #500; border-radius: 20px; background: #000; border-top: 10px solid var(--main); }
+        h1 { color: var(--main); text-shadow: 0 0 15px var(--main); font-size: 28px; margin: 10px 0; }
+        .smoke { font-size: 10px; color: #444; letter-spacing: 5px; animation: wave 2s infinite; }
+        @keyframes wave { 50% { opacity: 0.3; transform: translateY(-5px); } }
+        input { width: 90%; padding: 15px; background: #0a0a0a; border: 1px solid var(--main); color: #fff; margin: 20px 0; text-align: center; font-size: 18px; outline: none; box-shadow: inset 0 0 10px #300; }
+        button { background: var(--main); color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; border-radius: 5px; }
+        button:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+        #output { margin-top: 25px; text-align: left; border-top: 1px solid #333; padding-top: 20px; min-height: 150px; font-size: 15px; }
+        .bad { color: #ff4444; animation: shake 0.2s ease-in-out infinite; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+        .good { color: #00ff00; text-shadow: 0 0 5px #0f0; }
+        .warning { color: yellow; font-weight: bold; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div style="text-align:center; padding: 10px; border-bottom: 1px solid #00ff00;">🦖 SYSTEM: ngVn v7.0 | <span onclick="reset()" style="cursor:pointer; text-decoration: underline;">RESET KEY</span></div>
-    <div id="chat"></div>
-    <div class="status">Type '/search [vấn đề]' để tìm TikTok/YT</div>
-    <input type="text" id="inp" placeholder="Nhập lệnh hoặc chat..." onkeypress="if(event.key=='Enter')run()">
+
+<div class="altar" id="mainBox">
+    <div class="smoke">~~~~~~~~~~~~~~~</div>
+    <h1>🦖 T-REX X</h1>
+    <p style="font-size: 12px; color: var(--main);">BÁT TỰ - CĂN CƠ - GIANG HỒ CHI THUẬT</p>
+    
+    <input type="text" id="targetName" placeholder="NHẬP TÊN ĐỐI TƯỢNG..." spellcheck="false">
+    <button onclick="batQue()">BẤM QUẺ LINH ỨNG</button>
+
+    <div id="output">
+        <p style="color:#444">>>> Chờ lệnh từ đệ...</p>
+    </div>
 </div>
 
 <script>
-    let key = localStorage.getItem('ngvn_key');
-    if(!key) {
-        key = prompt("Nhập Key AIza... để kích hoạt:");
-        if(key) localStorage.setItem('ngvn_key', key);
-    }
+    let history = {};
 
-    async function run() {
-        const inp = document.getElementById('inp');
-        const txt = inp.value.trim();
-        if(!txt) return;
-        
-        addMsg("Bạn: " + txt, 'user');
-        inp.value = '';
+    const listXui = [
+        "Số đen như nhọ nồi, tối nay ra đường nhớ né mấy con chó ra nhé.",
+        "Tiền bạc như lá mùa thu, gió thổi một phát là bay sang túi thằng khác.",
+        "Tình duyên lận đận, bồ cũ cưới chồng, bồ mới thì chưa sinh ra.",
+        "Năm nay đại hạn, làm đâu hỏng đó, ngủ trưa cũng bị rơi xuống đất.",
+        "Cẩn thận cái mồm, họa từ miệng mà ra, bớt nhây kẻo bị táng.",
+        "Số không làm mà muốn có ăn thì chỉ có ăn... đầu bướm.",
+        "Mặt sáng vận tối, bớt ảo tưởng sức mạnh lại cho đời nó tươi.",
+        "Đời như bản nhạc buồn, mà lại còn bị đứt dây đàn đúng khúc cao trào.",
+        "Tiền vào cửa trước, chủ nợ đứng cửa sau, không còn một xu dính túi.",
+        "Số hưởng sái, người ta ăn ốc mình đổ vỏ, người ta ăn cỗ mình rửa bát.",
+        "Năm nay coi chừng mất tiền, mà mất cái gì quý lắm, như mất... danh dự chẳng hạn.",
+        "Số có căn làm hacker, nhưng toàn hack pass wifi rồi bị đổi mật khẩu.",
+        "Tình duyên như cái hố ga, vừa bước vào đã thấy bốc mùi.",
+        "Sắp có biến to, biến này khiến túi tiền đệ thành hư không.",
+        "Đừng tin lời ai nói, nhất là lời hứa của người yêu cũ nhé đệ.",
+        "Vận khí suy giảm, tốt nhất là trùm chăn ngủ hết năm nay.",
+        "Số mày đen đến mức mua vé số mà trúng... giải khuyến khích cũng không có.",
+        "Cẩn thận tháng cô hồn, nó theo mày từ giờ đến cuối năm đấy.",
+        "Sự nghiệp lẹt đẹt như pháo xịt, nổ không ra tiếng mà chỉ ra khói thôi.",
+        "Đệ có tướng 'phá gia chi tử', tiền bao nhiêu cũng không đủ xài.",
+        "Gương mặt này, cái tên này... thôi xong, kiếp trước chắc là quân lính đào ngũ.",
+        "Tướng này sắp tới có người bao ăn... tát.",
+        "Số hẻo, đi tắm cũng bị mất nước, đi ị cũng hết giấy.",
+        "Cẩn thận bạn bè, tụi nó sắp mượn tiền mày rồi trốn luôn đó.",
+        "Năm nay đừng đầu tư gì cả, đầu tư vào giấc ngủ là an toàn nhất.",
+        "Đệ có số đào hoa, nhưng toàn hoa héo với hoa sứt môi.",
+        "Mệnh bạc như vôi, bôi không hết cái nghèo đâu đệ.",
+        "Sắp tới có hạn về xe cộ, nhớ kiểm tra xăng kẻo dẫn bộ mệt nghỉ.",
+        "Tính cách nóng nảy, coi chừng bị ăn vả sưng mỏ.",
+        "Đời mày như cái rổ, tiền vào nhiêu rớt bấy nhiêu.",
+        "Cái tên này nghe là thấy tương lai... tăm tối rồi.",
+        "Số hận, yêu ai người đó bỏ, bỏ ai người đó giàu.",
+        "Hôm nay là ngày xấu, đi đứng cẩn thận kẻo dẫm phải shit.",
+        "Sao quả tạ đang rơi xuống đầu đệ, nhớ đội mũ bảo hiểm.",
+        "Quẻ này phán đệ sắp... già thêm một tuổi, thế thôi.",
+        "Hạn nặng về đường ăn uống, coi chừng ngộ độc trà sữa.",
+        "Mặt mày lanh lợi mà cái vận nó lờ đờ như cá chết.",
+        "Số mày chỉ giàu... trí tưởng tượng thôi.",
+        "Coi chừng tháng tới, có người hỏi mượn tiền mà không trả.",
+        "Đệ sắp nổi tiếng... vì độ nhây và độ lầy.",
+        "Số này sinh ra để làm nền cho đứa khác tỏa sáng.",
+        "Đại hạn đang tới, trốn kỹ đi đệ!",
+        "Tình cảm sứt mẻ, bồ nó sắp đá mày vì mày quá nghèo.",
+        "Sự nghiệp như mây khói, thổi nhẹ phát là tan biến.",
+        "Đừng hy vọng gì nhiều, thất vọng sẽ ít đi.",
+        "Số này hợp với nghề... bán muối, vì nó quá mặn mòi.",
+        "Vận mệnh lênh đênh như thuyền không bến, trôi hoài không tới đâu.",
+        "Cái tên này ứng với quẻ 'Trắng Tay', chúc mừng đệ!",
+        "Năm nay mà cưới là sang năm ly dị nhé đệ.",
+        "Hết tiền, hết tình, còn mỗi cái nịt thôi!"
+    ];
 
-        let systemPrompt = "Bạn là ngVn AI. Nếu người dùng yêu cầu tìm TikTok/YouTube, hãy phân tích và giả lập kết quả tìm kiếm thông minh. Luôn xưng mày-tao.";
-        
-        try {
-            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({contents: [{parts: [{text: systemPrompt + "\nCâu hỏi: " + txt}]}]})
-            });
-            const d = await r.json();
-            const res = d.candidates[0].content.parts[0].text;
-            addMsg("ngVn: " + res, 'ai');
-        } catch(e) {
-            addMsg("Lỗi: Key của mày tèo rồi hoặc chưa nhập đúng!", 'ai');
+    const listHen = [
+        "Số đại gia, tiền vô như nước sông Đà, tiền ra nhỏ giọt như cà phê.",
+        "Quý nhân phù trợ, ra ngõ gặp vàng, về nhà gặp hên.",
+        "Tình duyên rực rỡ, người yêu cũ đòi quay lại bao nuôi.",
+        "Thông minh xuất chúng, sắp tới làm chuyện lớn lừng lẫy.",
+        "Số hưởng từ bé, không làm cũng có ăn, mà toàn đặc sản.",
+        "Vận may đang tới, đánh bài toàn tới trắng, đánh lô toàn trúng.",
+        "Có tướng làm quan to, ngồi rung đùi cũng có tiền dâng tận miệng.",
+        "Hào quang rực rỡ, đi đến đâu gái theo đến đó như kiến bu đường.",
+        "Sức khỏe như trâu mộng, cày đêm cày ngày tiền vẫn đầy kho.",
+        "Số rồng bay phượng múa, tương lai huy hoàng không ai bằng.",
+        "Sắp tới có lộc lá lớn, nhớ chuẩn bị bao tải mà đựng tiền nhé.",
+        "Đệ có căn đại gia, tiêu tiền như rác mà tiền vẫn cứ đẻ ra.",
+        "Mệnh này là mệnh vua, sinh ra đã ở vạch đích rồi.",
+        "Cầu được ước thấy, tối nay mơ con gì mai đánh con đó là trúng.",
+        "Đệ sắp gặp được chân ái của đời mình, giàu và đẹp!",
+        "Công danh thăng tiến thần tốc, sếp cưng đồng nghiệp nể.",
+        "Số được người đẹp bao nuôi, cả đời không lo chết đói.",
+        "Nhà xe đầy đủ, chỉ thiếu mỗi cái máy đếm tiền thôi.",
+        "Tướng mạo phi phàm, sắp tới có người mời đi đóng phim.",
+        "Vận may bao vây, làm bừa cũng ra tiền, nói bậy cũng có người khen.",
+        "Mệnh kim cương, cứng cáp và tỏa sáng lấp lánh.",
+        "Số này làm chủ, thiên hạ phải ngước nhìn.",
+        "Tương lai rộng mở, đi đâu cũng có người rước người đưa.",
+        "Số trúng độc đắc, chuẩn bị đổi đời đi đệ!",
+        "Quẻ này cực tốt, đệ sắp có tin vui về đường con cái hoặc tiền bạc.",
+        "Sức khỏe vô biên, đấm phát chết hổ, ngủ phát tới trưa vẫn khỏe.",
+        "Số đào hoa nhất vùng, trai gái gì cũng mê đệ như điếu đổ.",
+        "Mọi việc hanh thông, vạn sự như ý, tỷ sự như mơ.",
+        "Đệ sắp nhặt được của rơi, mà của này giá trị lắm nhé.",
+        "Thông minh có thừa, sắp tới có phát minh vĩ đại.",
+        "Số hưởng phúc đức từ ông bà, làm gì cũng có người cứu.",
+        "Tiền tiêu không hết, chỉ sợ không có sức mà xài thôi.",
+        "Đệ có số làm ngôi sao, tỏa sáng rực rỡ nhất đêm nay.",
+        "Mệnh quý tộc, ăn mặc giản dị nhưng khí chất ngời ngời.",
+        "Sắp tới có người phương xa mang tiền đến cho đệ.",
+        "Số này đại cát đại lợi, mua đất đất tăng giá, mua vàng vàng lên.",
+        "Tình duyên viên mãn, lấy được vợ hiền dâu thảo (hoặc chồng giàu).",
+        "Vạn sự khởi đầu nan, nhưng đệ khởi đầu là giàu luôn.",
+        "Hào quang chính nghĩa đang bao phủ lấy đệ.",
+        "Đệ sắp được thăng chức, tăng lương, tăng cả độ đẹp trai.",
+        "Số này sống thọ trăm tuổi, tiền bạc đầy kho, con cháu đầy đàn.",
+        "Mọi khó khăn sắp qua đi, mùa xuân tiền bạc đang tới.",
+        "Đệ có mắt nhìn người, sắp tới tìm được cộng sự vàng.",
+        "Mệnh này là mệnh sướng, chỉ việc ăn và chơi cũng ra tiền.",
+        "Chúc mừng đệ, quẻ này là 'Vô Tiền Khoáng Hậu' - giàu nhất vùng!",
+        "Số hưởng lộc trời cho, ra đường là thấy tiền rơi.",
+        "Tương lai đệ sáng hơn tiền đồ của chị Dậu nhiều.",
+        "Sắp tới có quý nhân là nữ giới giúp đỡ đại sự.",
+        "Đệ có căn tu hành... nhưng mà là tu hú, vẫn giàu nứt đố đổ tường.",
+        "Nói chung là: GIÀU - SANG - SƯỚNG!"
+    ];
+
+    function batQue() {
+        const input = document.getElementById('targetName');
+        const out = document.getElementById('output');
+        const box = document.getElementById('mainBox');
+        const name = input.value.trim();
+
+        if (!name) {
+            out.innerHTML = "<p class='warning'>>>> Nhập tên vào mới gọi được hồn chứ đệ!</p>";
+            return;
         }
-    }
 
-    function addMsg(t, c) {
-        const d = document.createElement('div');
-        d.className = `msg ${c}`; d.innerText = t;
-        const chat = document.getElementById('chat');
-        chat.appendChild(d);
-        chat.scrollTop = chat.scrollHeight;
-    }
+        const nLower = name.toLowerCase();
 
-    function reset() {
-        localStorage.removeItem('ngvn_key');
-        location.reload();
+        // CHỐNG NHÂY
+        if (history[nLower]) {
+            out.innerHTML = `<p class='warning' style='color:red'>🦖 T-REX X GẦM:</p>
+                             <p>Móa thằng <b>${name.toUpperCase()}</b>! Tao phán cho mày rồi, quẻ linh chỉ hiện một lần. Định thử lòng thầy à? CÚT!</p>`;
+            box.style.borderColor = "yellow";
+            return;
+        }
+
+        history[nLower] = true;
+        out.innerHTML = "<p class='smoke'>>>> Đang quét bát tự... Đang xem chỉ tay qua vệ tinh...</p>";
+
+        setTimeout(() => {
+            // Thuật toán: (Độ dài tên * 17 + 9) % 100
+            let score = (name.length * 17 + 9) % 100;
+            let final = "";
+            let style = "";
+
+            if (score < 48) { // Tỉ lệ 48% xui
+                style = "bad";
+                final = listXui[Math.floor(Math.random() * listXui.length)];
+                box.style.borderColor = "red";
+                box.style.boxShadow = "0 0 40px red";
+            } else {
+                style = "good";
+                final = listHen[Math.floor(Math.random() * listHen.length)];
+                box.style.borderColor = "#00ff00";
+                box.style.boxShadow = "0 0 40px #00ff00";
+            }
+
+            out.innerHTML = `
+                <p style="color:yellow">>>> KẾT QUẢ CHO: ${name.toUpperCase()}</p>
+                <p>CĂN CƠ: <b class="${style}">${score}/100 - ${score < 48 ? 'ĐẠI HẠN' : 'ĐẠI CÁT'}</b></p>
+                <p class="${style}"><b>LỜI PHÁN:</b> ${final}</p>
+                <p style="font-size:10px; color:#444">--------------------------</p>
+                <p style="font-size:11px; color:red">Lưu ý: Quẻ đã chốt, cấm cãi thầy!</p>
+            `;
+        }, 1000);
     }
 </script>
+
 </body>
 </html>
