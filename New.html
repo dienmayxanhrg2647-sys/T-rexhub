@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Pro Encrypt Tool</title>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif}
+
+body{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:linear-gradient(135deg,#667eea,#764ba2);
+
+}
+
+.container{
+
+    width:450px;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,0.1);
+
+    backdrop-filter:blur(12px);
+
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+
+    color:white;
+
+}
+
+h2{text-align:center;margin-bottom:15px}
+
+textarea{
+
+    width:100%;
+
+    height:90px;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:10px;
+
+    resize:none;
+
+    margin-bottom:10px;
+
+}
+
+select,input,button{
+
+    width:100%;
+
+    padding:10px;
+
+    border-radius:10px;
+
+    border:none;
+
+    margin-bottom:10px;
+
+}
+
+button{
+
+    background:#ffffff22;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:0.2s;
+
+}
+
+button:hover{background:#ffffff44}
+
+.result{
+
+    background:rgba(255,255,255,0.15);
+
+    padding:10px;
+
+    border-radius:10px;
+
+    min-height:60px;
+
+    word-wrap:break-word;
+
+}
+
+.copy-msg{
+
+    text-align:center;
+
+    font-size:14px;
+
+    opacity:0;
+
+    transition:0.3s;
+
+}
+
+.show{opacity:1}
+
+.hidden{display:none}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🔐 Encrypt / Decrypt PRO</h2>
+
+<textarea id="inputText" placeholder="Nhập chữ hoặc số..."></textarea>
+
+<select id="method">
+
+<option value="aes">AES-256 (Bảo mật cao)</option>
+
+<option value="base64">Base64</option>
+
+<option value="caesar">Caesar Cipher</option>
+
+<option value="reverse">Đảo Ngược</option>
+
+</select>
+
+<input type="password" id="password" placeholder="Nhập mật khẩu (AES)">
+
+<input type="number" id="shift" value="3" class="hidden">
+
+<button onclick="encrypt()">Mã Hoá</button>
+
+<button onclick="decrypt()">Giải Mã</button>
+
+<div class="result" id="output"></div>
+
+<div class="copy-msg" id="copyMsg">✅ Đã copy vào clipboard</div>
+
+</div>
+
+<script>
+
+const input = document.getElementById("inputText");
+
+const method = document.getElementById("method");
+
+const password = document.getElementById("password");
+
+const shiftInput = document.getElementById("shift");
+
+const output = document.getElementById("output");
+
+const copyMsg = document.getElementById("copyMsg");
+
+// Ẩn/hiện input theo loại mã hoá
+
+method.addEventListener("change",()=>{
+
+    password.classList.add("hidden");
+
+    shiftInput.classList.add("hidden");
+
+    if(method.value==="aes") password.classList.remove("hidden");
+
+    if(method.value==="caesar") shiftInput.classList.remove("hidden");
+
+});
+
+// ========== BASE64 Unicode ==========
+
+function encodeBase64(str){
+
+    return btoa(new TextEncoder().encode(str)
+
+        .reduce((data, byte)=>data+String.fromCharCode(byte),''));
+
+}
+
+function decodeBase64(str){
+
+    const bytes = Uint8Array.from(atob(str), c=>c.charCodeAt(0));
+
+    return new TextDecoder().decode(bytes);
+
+}
+
+// ========== Caesar ==========
+
+function caesar(str,shift){
+
+    return str.replace(/[a-z]/gi,char=>{
+
+        const start = char <= 'Z' ? 65 : 97;
+
+        return String.fromCharCode((char.charCodeAt(0)-start+shift+26)%26+start);
+
+    });
+
+}
+
+// ========== AES-256 ==========
+
+async function getKey(pass){
+
+    const enc = new TextEncoder();
+
+    const keyMaterial = await crypto.subtle.importKey(
+
+        "raw", enc.encode(pass), {name:"PBKDF2"}, false, ["deriveKey"]
+
+    );
+
+    return crypto.subtle.deriveKey(
+
+        {name:"PBKDF2",salt:enc.encode("salt"),iterations:100000,hash:"SHA-256"},
+
+        keyMaterial,
+
+        {name:"AES-GCM",length:256},
+
+        false,
+
+        ["encrypt","decrypt"]
+
+    );
+
+}
+
+async function aesEncrypt(text,pass){
+
+    const enc = new TextEncoder();
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    const key = await getKey(pass);
+
+    const encrypted = await crypto.subtle.encrypt(
+
+        {name:"AES-GCM",iv}, key, enc.encode(text)
+
+    );
+
+    return btoa(String.fromCharCode(...iv,...new Uint8Array(encrypted)));
+
+}
+
+async function aesDecrypt(text,pass){
+
+    try{
+
+        const data = Uint8Array.from(atob(text),c=>c.charCodeAt(0));
+
+        const iv = data.slice(0,12);
+
+        const encrypted = data.slice(12);
+
+        const key = await getKey(pass);
+
+        const decrypted = await crypto.subtle.decrypt(
+
+            {name:"AES-GCM",iv}, key, encrypted
+
+        );
+
+        return new TextDecoder().decode(decrypted);
+
+    }catch{
+
+        return "Sai mật khẩu hoặc dữ liệu!";
+
+    }
+
+}
+
+// ========== MAIN ==========
+
+async function encrypt(){
+
+    let text=input.value;
+
+    if(!text) return;
+
+    let result="";
+
+    if(method.value==="aes"){
+
+        if(!password.value) return alert("Nhập mật khẩu!");
+
+        result=await aesEncrypt(text,password.value);
+
+    }
+
+    else if(method.value==="base64"){
+
+        result=encodeBase64(text);
+
+    }
+
+    else if(method.value==="caesar"){
+
+        result=caesar(text,parseInt(shiftInput.value)||0);
+
+    }
+
+    else{
+
+        result=text.split("").reverse().join("");
+
+    }
+
+    showResult(result);
+
+}
+
+async function decrypt(){
+
+    let text=input.value;
+
+    if(!text) return;
+
+    let result="";
+
+    if(method.value==="aes"){
+
+        if(!password.value) return alert("Nhập mật khẩu!");
+
+        result=await aesDecrypt(text,password.value);
+
+    }
+
+    else if(method.value==="base64"){
+
+        try{ result=decodeBase64(text); }
+
+        catch{ result="Sai định dạng Base64!"; }
+
+    }
+
+    else if(method.value==="caesar"){
+
+        result=caesar(text,-(parseInt(shiftInput.value)||0));
+
+    }
+
+    else{
+
+        result=text.split("").reverse().join("");
+
+    }
+
+    showResult(result);
+
+}
+
+// ========== COPY fallback ==========
+
+function copyText(text){
+
+    if(navigator.clipboard){
+
+        navigator.clipboard.writeText(text);
+
+    }else{
+
+        const textarea=document.createElement("textarea");
+
+        textarea.value=text;
+
+        document.body.appendChild(textarea);
+
+        textarea.select();
+
+        document.execCommand("copy");
+
+        document.body.removeChild(textarea);
+
+    }
+
+}
+
+function showResult(text){
+
+    output.innerText=text;
+
+    copyText(text);
+
+    copyMsg.classList.add("show");
+
+    setTimeout(()=>copyMsg.classList.remove("show"),1500);
+
+}
+
+</script>
+
+</body>
+
+                                    </html>
