@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AzureBin — Script Host</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #f0f4ff;
+    --surface: #ffffff;
+    --border: #d0deff;
+    --accent: #1a6eff;
+    --accent2: #0044cc;
+    --text: #0a1a3a;
+    --muted: #6b80aa;
+    --code-bg: #eef2ff;
+    --success: #0aad6a;
+    --shadow: 0 2px 16px rgba(26,110,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: 'Syne', sans-serif;
+    color: var(--text);
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(26,110,255,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 100% 100%, rgba(0,68,204,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* HEADER */
+  header {
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 12px rgba(26,110,255,0.06);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    box-shadow: 0 3px 10px rgba(26,110,255,0.3);
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .logo-badge {
+    font-size: 10px;
+    background: rgba(26,110,255,0.1);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(26,110,255,0.2);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-chip {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-chip span {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* CONFIG BANNER */
+  .config-banner {
+    background: linear-gradient(135deg, #fff8e1, #fffde7);
+    border: 1px solid #ffd54f;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #7a5500;
+  }
+
+  .config-banner.hidden { display: none; }
+
+  /* MAIN */
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 28px 16px;
+  }
+
+  /* SETUP CARD */
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .setup-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .setup-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .setup-field {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .setup-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .setup-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .setup-input:focus { border-color: var(--accent); }
+
+  .btn-save-config {
+    padding: 9px 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-save-config:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.2s;
+  }
+
+  .card:focus-within { border-color: rgba(26,110,255,0.4); }
+
+  .card-top {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8faff;
+  }
+
+  .card-top-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .card-filename {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: 4px;
+  }
+
+  .lang-tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(26,110,255,0.08);
+    color: var(--accent);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(26,110,255,0.15);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    outline: none;
+    background: var(--surface);
+    color: #1a3a6e;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    padding: 16px 18px;
+    resize: vertical;
+  }
+
+  textarea::placeholder { color: #b0bcd8; }
+  textarea::-webkit-scrollbar { width: 4px; }
+  textarea::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* OPTIONS */
+  .options-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .input-group { flex: 1; min-width: 140px; }
+
+  .input-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: var(--accent); }
+  select.input-field { cursor: pointer; }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-clear {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-clear:hover { border-color: #ff5f57; color: #ff5f57; }
+
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 4px 14px rgba(26,110,255,0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(26,110,255,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* LOADING */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESULT */
+  .result-card {
+    display: none;
+    animation: slideUp 0.3s ease;
+  }
+
+  .result-card.show { display: block; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-inner {
+    background: var(--surface);
+    border: 1.5px solid rgba(26,110,255,0.3);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(26,110,255,0.1);
+  }
+
+  .result-header {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(26,110,255,0.06), rgba(0,44,204,0.04));
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .result-header-icon { font-size: 16px; }
+
+  .result-header-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .result-row {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .result-row:last-child { border-bottom: none; }
+
+  .result-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 70px;
+    text-transform: uppercase;
+  }
+
+  .result-value {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    background: var(--code-bg);
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(26,110,255,0.12);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .copy-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .copy-btn.copied {
+    color: var(--success);
+    border-color: rgba(10,173,106,0.3);
+    background: rgba(10,173,106,0.06);
+  }
+
+  .loadstring-section {
+    padding: 14px 16px;
+    background: #f0f8ff;
+    border-top: 1px solid var(--border);
+  }
+
+  .loadstring-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .loadstring-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #1a3a6e;
+    background: var(--surface);
+    border: 1.5px solid rgba(26,110,255,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    word-break: break-all;
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+
+  .loadstring-code .kw { color: var(--accent); font-weight: 600; }
+  .loadstring-code .str { color: #0aad6a; }
+
+  /* RECENT */
+  .recent-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .recent-empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow);
+  }
+
+  .recent-item:hover {
+    border-color: rgba(26,110,255,0.3);
+    box-shadow: 0 4px 16px rgba(26,110,255,0.1);
+    transform: translateY(-1px);
+  }
+
+  .recent-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .recent-name { flex: 1; font-size: 14px; font-weight: 600; }
+
+  .recent-id {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .recent-copy {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .recent-copy:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 9999;
+    pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--success); }
+  .toast.error { background: #e53935; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">AzureBin</div>
+    </div>
+    <span class="logo-badge">v2.0</span>
+  </div>
+  <div class="header-right">
+    <span class="stat-chip">Pastes: <span id="totalCount">0</span></span>
+  </div>
+</header>
+
+<main>
+
+
+
+  <!-- EDITOR -->
+  <div class="section-label">New Paste</div>
+
+  <div class="card">
+    <div class="card-top">
+      <div class="card-top-left">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="card-filename">script.lua</span>
+      </div>
+      <span class="lang-tag">Lua / Luau</span>
+    </div>
+    <textarea id="scriptInput" placeholder="-- Nhập Lua script vào đây...
+-- Ví dụ:
+-- local players = game:GetService('Players')
+-- print(players.LocalPlayer.Name)"></textarea>
+  </div>
+
+  <div class="options-row">
+    <div class="input-group">
+      <div class="input-label">PASTE NAME</div>
+      <input class="input-field" id="pasteName" type="text" placeholder="Untitled Script">
+    </div>
+    <div class="input-group">
+      <div class="input-label">EXPIRY</div>
+      <select class="input-field" id="expiry">
+        <option value="never">Never</option>
+        <option value="1d">1 Day</option>
+        <option value="7d">7 Days</option>
+        <option value="30d">30 Days</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-clear" onclick="clearAll()">Clear</button>
+    <button class="btn btn-primary" id="createBtn" onclick="createPaste()">⚡ Create Paste</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard">
+    <div class="section-label">Generated Links</div>
+    <div class="result-inner">
+      <div class="result-header">
+        <span class="result-header-icon">✅</span>
+        <span class="result-header-text">Paste Created Successfully</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Raw URL</span>
+        <span class="result-value" id="rawUrl"></span>
+        <button class="copy-btn" onclick="copyVal('rawUrl', this)">Copy</button>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Page URL</span>
+        <span class="result-value" id="pageUrl"></span>
+        <button class="copy-btn" onclick="copyVal('pageUrl', this)">Copy</button>
+      </div>
+      <div class="loadstring-section">
+        <div class="loadstring-label">Loadstring — dán thẳng vào executor</div>
+        <div class="loadstring-code" id="loadstringDisplay"></div>
+        <button class="copy-btn" id="copyLsBtn" onclick="copyLoadstring(this)">Copy Loadstring</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT -->
+  <div class="section-label" style="margin-top:28px">Recent Pastes</div>
+  <div class="recent-list" id="recentList">
+    <div class="recent-empty">Chưa có paste nào — tạo một cái ở trên!</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── CONFIG — Đệ điền URL và KEY vào đây ──
+  let SUPABASE_URL = 'https://buyvbxsnegqaahxxuzps.supabase.co'; // URL của đệ
+  let SUPABASE_KEY = 'sb_publishable_HP4gn1lzrGfL9wNQ8h4Szg_EEgVFf_I'; // Publishable key của đệ
+  let configured = SUPABASE_KEY !== 'sb_publishable_HP4gn1lzrGfL9wNQ8h4Szg_EEgVFf_I';
+  let pastes = [];
+  let currentLoadstring = '';
+
+
+
+  // ── SUPABASE HELPERS ──
+  async function dbInsert(data) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/pastes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+    return res.json();
+  }
+
+  async function dbSelect(limit = 10) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/pastes?select=*&order=created_at.desc&limit=${limit}`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json();
+  }
+
+  async function dbGetById(id) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/pastes?id=eq.${id}&select=*`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error('Not found');
+    const rows = await res.json();
+    return rows[0] || null;
+  }
+
+  // ── RAW ENDPOINT (via URL hash) ──
+  async function handleRawRequest() {
+    const hash = window.location.hash;
+    if (!hash.startsWith('#raw/')) return;
+    const id = hash.slice(5);
+    if (!id || !configured) return;
+    try {
+      const paste = await dbGetById(id);
+      if (!paste) { document.body.innerHTML = '-- Paste not found'; return; }
+      document.body.innerHTML = `<pre style="font-family:monospace;white-space:pre-wrap;padding:16px">${escapeHtml(paste.content)}</pre>`;
+    } catch(e) {
+      document.body.innerHTML = '-- Error loading paste';
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── GENERATE ID ──
+  function genId() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(5)))
+      .map(b => b.toString(36)).join('').slice(0,8);
+  }
+
+  // ── CREATE PASTE ──
+  async function createPaste() {
+    const script = document.getElementById('scriptInput').value.trim();
+    if (!script) { showToast('⚠ Script trống!', 'error'); return; }
+
+    const name = document.getElementById('pasteName').value.trim() || 'Untitled Script';
+    const id = genId();
+    const btn = document.getElementById('createBtn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creating...';
+
+    try {
+      if (configured) {
+        await dbInsert({ id, name, content: script });
+        await loadRecentFromDB();
+      } else {
+        pastes.unshift({ id, name, content: script, created_at: new Date().toISOString() });
+        renderRecent(pastes);
+      }
+
+      const pageBase = window.location.href.split('#')[0];
+      const rawUrl = `${pageBase}#raw/${id}`;
+      const pageUrlVal = `${pageBase}#paste/${id}`;
+      const ls = `loadstring(game:HttpGet("${rawUrl}"))()`;
+
+      document.getElementById('rawUrl').textContent = rawUrl;
+      document.getElementById('pageUrl').textContent = pageUrlVal;
+      document.getElementById('loadstringDisplay').innerHTML =
+        `<span class="kw">loadstring</span>(game:<span class="kw">HttpGet</span>(<span class="str">"${rawUrl}"</span>))()`;
+      currentLoadstring = ls;
+
+      document.getElementById('totalCount').textContent =
+        parseInt(document.getElementById('totalCount').textContent) + 1;
+
+      document.getElementById('resultCard').classList.add('show');
+      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast('✓ Paste đã tạo!', 'success');
+
+    } catch(e) {
+      showToast('✗ Lỗi: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '⚡ Create Paste';
+    }
+  }
+
+  async function loadRecentFromDB() {
+    if (!configured) return;
+    try {
+      const rows = await dbSelect(8);
+      document.getElementById('totalCount').textContent = rows.length;
+      renderRecent(rows);
+    } catch(e) {}
+  }
+
+  function renderRecent(list) {
+    const el = document.getElementById('recentList');
+    if (!list || list.length === 0) {
+      el.innerHTML = '<div class="recent-empty">Chưa có paste nào!</div>';
+      return;
+    }
+    el.innerHTML = list.map(p => {
+      const pageBase = window.location.href.split('#')[0];
+      const rawUrl = `${pageBase}#raw/${p.id}`;
+      const ls = `loadstring(game:HttpGet("${rawUrl}"))()`;
+      return `
+        <div class="recent-item">
+          <div class="recent-dot"></div>
+          <div class="recent-name">${p.name || 'Untitled'}</div>
+          <div class="recent-id">${p.id}</div>
+          <button class="recent-copy" onclick="copyText('${ls}', this)">Copy LS</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── COPY HELPERS ──
+  function copyVal(id, btn) {
+    const text = document.getElementById(id).textContent;
+    copyText(text, btn);
+  }
+
+  function copyLoadstring(btn) {
+    copyText(currentLoadstring, btn);
+  }
+
+  function copyText(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = '✓ Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+        }
+        showToast('✓ Đã copy!', 'success');
+      });
+    } else {
+      // Fallback mobile
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+      }
+      showToast('✓ Đã copy!', 'success');
+    }
+  }
+
+  function clearAll() {
+    document.getElementById('scriptInput').value = '';
+    document.getElementById('pasteName').value = '';
+    document.getElementById('resultCard').classList.remove('show');
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = 'toast'; }, 2500);
+  }
+
+  // ── INIT ──
+  window.addEventListener('load', () => {
+    handleRawRequest();
+    if (configured) loadRecentFromDB();
+  });
+</script>
+</body>
+</html>
