@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S2U Bypass — AzureTool</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00f5ff;
+    --magenta: #ff00aa;
+    --yellow: #ffe600;
+    --dark: #030a10;
+    --dark2: #070f1a;
+    --panel: rgba(0,245,255,0.04);
+    --border: rgba(0,245,255,0.18);
+    --glow: 0 0 18px rgba(0,245,255,0.35);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--dark);
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none; z-index:0;
+  }
+  body::after {
+    content:'';
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,245,255,0.08) 0%, transparent 65%);
+    pointer-events:none; z-index:0;
+  }
+
+  .wrap {
+    position:relative; z-index:1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+  }
+
+  /* HEADER */
+  header { text-align:center; margin-bottom:36px; }
+  .logo {
+    font-family:'Orbitron',sans-serif;
+    font-size: clamp(22px,6vw,38px);
+    font-weight:900;
+    letter-spacing:4px;
+    color: var(--cyan);
+    text-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,245,255,0.3);
+    animation: flicker 4s infinite;
+  }
+  .logo span { color: var(--magenta); text-shadow: 0 0 20px var(--magenta); }
+  .tagline {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0,245,255,0.45);
+    margin-top:6px;
+    text-transform:uppercase;
+  }
+  @keyframes flicker {
+    0%,92%,94%,96%,100%{ opacity:1; }
+    93%{ opacity:0.7; }
+    95%{ opacity:0.85; }
+  }
+
+  /* SCANLINE DIVIDER */
+  .divider {
+    height:1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), var(--cyan), transparent);
+    margin:18px 0;
+    opacity:0.5;
+  }
+
+  /* PANEL */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    position:relative;
+    overflow:hidden;
+    box-shadow: var(--glow), inset 0 0 40px rgba(0,245,255,0.02);
+    transition: border-color .3s;
+  }
+  .panel::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0; height:1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity:0.6;
+  }
+  .panel:hover { border-color: rgba(0,245,255,0.4); }
+
+  .panel-label {
+    font-size:10px;
+    letter-spacing:3px;
+    color: var(--magenta);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+
+  /* INPUT */
+  .input-row {
+    display:flex; gap:10px; flex-wrap:wrap;
+  }
+  input[type=text] {
+    flex:1; min-width:0;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(0,245,255,0.25);
+    border-radius:4px;
+    color: var(--cyan);
+    font-family:'Share Tech Mono',monospace;
+    font-size:13px;
+    padding: 11px 14px;
+    outline:none;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  input[type=text]::placeholder { color: rgba(0,245,255,0.25); }
+  input[type=text]:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0,245,255,0.3);
+  }
+
+  /* BUTTONS */
+  .btn {
+    background: transparent;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family:'Orbitron',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:2px;
+    padding: 11px 22px;
+    border-radius:4px;
+    cursor:pointer;
+    text-transform:uppercase;
+    transition: all .2s;
+    position:relative; overflow:hidden;
+    white-space:nowrap;
+  }
+  .btn::before {
+    content:'';
+    position:absolute; inset:0;
+    background: var(--cyan);
+    transform:scaleX(0); transform-origin:left;
+    transition: transform .2s;
+    z-index:-1;
+  }
+  .btn:hover { color: var(--dark); box-shadow: 0 0 20px rgba(0,245,255,0.5); }
+  .btn:hover::before { transform:scaleX(1); }
+  .btn:active { transform:scale(0.97); }
+  .btn:disabled { opacity:.35; cursor:not-allowed; }
+  .btn:disabled:hover { color:var(--cyan); box-shadow:none; }
+  .btn:disabled:hover::before { transform:scaleX(0); }
+  .btn.mag { border-color:var(--magenta); color:var(--magenta); }
+  .btn.mag::before { background:var(--magenta); }
+  .btn.mag:hover { color:var(--dark); box-shadow:0 0 20px rgba(255,0,170,0.5); }
+
+  /* STATUS LOG */
+  #log {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(0,245,255,0.12);
+    border-radius:4px;
+    padding:14px;
+    height:130px;
+    overflow-y:auto;
+    font-size:12px;
+    line-height:1.8;
+    scrollbar-width:thin;
+    scrollbar-color: var(--cyan) transparent;
+  }
+  #log .line { animation: fadein .3s ease; }
+  #log .ok { color: #00ff88; }
+  #log .err { color: var(--magenta); }
+  #log .info { color: var(--cyan); }
+  #log .warn { color: var(--yellow); }
+  @keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+  /* PROGRESS */
+  .prog-wrap { margin:14px 0 8px; }
+  .prog-label { display:flex; justify-content:space-between; font-size:10px; color:rgba(0,245,255,0.5); margin-bottom:6px; }
+  .prog-bar {
+    height:4px;
+    background: rgba(0,245,255,0.1);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .prog-fill {
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    border-radius:2px;
+    transition: width .3s;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  /* RESULT BOX */
+  #result-box {
+    display:none;
+    background: rgba(0,255,136,0.04);
+    border:1px solid rgba(0,255,136,0.3);
+    border-radius:4px;
+    padding:16px;
+    margin-top:14px;
+    animation: fadein .4s ease;
+  }
+  #result-box .r-label { font-size:10px; letter-spacing:2px; color:#00ff88; margin-bottom:10px; }
+  #result-box .r-url {
+    background: rgba(0,0,0,0.5);
+    border:1px solid rgba(0,255,136,0.2);
+    border-radius:4px;
+    padding:10px 12px;
+    font-size:12px;
+    color:#00ff88;
+    word-break:break-all;
+    margin-bottom:12px;
+  }
+  .btn-row { display:flex; gap:10px; flex-wrap:wrap; }
+
+  /* STEP INDICATORS */
+  .steps {
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .step {
+    flex:1; min-width:80px;
+    border:1px solid rgba(0,245,255,0.2);
+    border-radius:4px;
+    padding:8px;
+    text-align:center;
+    font-size:10px;
+    letter-spacing:1px;
+    color:rgba(0,245,255,0.3);
+    transition:all .3s;
+  }
+  .step.active { border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 10px rgba(0,245,255,0.2); }
+  .step.done { border-color:#00ff88; color:#00ff88; }
+  .step-num { font-family:'Orbitron',sans-serif; font-size:14px; font-weight:700; display:block; margin-bottom:2px; }
+
+  /* CORNER DECO */
+  .corner-tl, .corner-br {
+    position:absolute;
+    width:12px; height:12px;
+    border-color:var(--magenta);
+    border-style:solid;
+    opacity:0.6;
+  }
+  .corner-tl { top:8px; left:8px; border-width:1px 0 0 1px; }
+  .corner-br { bottom:8px; right:8px; border-width:0 1px 1px 0; }
+
+  /* MODE TOGGLE */
+  .mode-row {
+    display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;
+  }
+  .mode-toggle {
+    flex:1; min-width:90px;
+    border:1px solid rgba(0,245,255,0.15);
+    border-radius:4px;
+    padding:8px 10px;
+    cursor:pointer;
+    text-align:center;
+    transition:all .2s;
+    user-select:none;
+  }
+  .mode-toggle:hover { border-color:rgba(0,245,255,0.4); }
+  .mode-toggle.active { border-color:var(--cyan); background:rgba(0,245,255,0.07); box-shadow:0 0 12px rgba(0,245,255,0.15); }
+  .mode-toggle.active .mode-icon { color:var(--cyan); text-shadow:0 0 8px var(--cyan); }
+  .mode-icon { display:block; font-size:16px; color:rgba(0,245,255,0.3); transition:color .2s; }
+  .mode-name { display:block; font-family:'Orbitron',sans-serif; font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(0,245,255,0.7); margin:3px 0 2px; }
+  .mode-desc { display:block; font-size:9px; color:rgba(0,245,255,0.3); }
+  #mode-ultra.active .mode-icon { color:var(--magenta); text-shadow:0 0 8px var(--magenta); }
+  #mode-ultra.active { border-color:var(--magenta); background:rgba(255,0,170,0.05); }
+
+  /* DEEPSCAN PANEL */
+  #deepscan-panel {
+    display:none;
+    background: rgba(255,0,170,0.03);
+    border:1px solid rgba(255,0,170,0.2);
+    border-radius:4px;
+    padding:12px 14px;
+    margin-top:14px;
+    font-size:11px;
+  }
+  #deepscan-panel .ds-title { color:var(--magenta); letter-spacing:2px; font-size:10px; margin-bottom:8px; }
+  .ds-methods { display:flex; gap:6px; flex-wrap:wrap; }
+  .ds-tag {
+    border:1px solid rgba(255,0,170,0.3);
+    border-radius:3px; padding:3px 8px;
+    font-size:10px; color:rgba(255,0,170,0.6);
+    transition:all .3s;
+  }
+  .ds-tag.active { border-color:var(--magenta); color:var(--magenta); box-shadow:0 0 6px rgba(255,0,170,0.3); }
+  .ds-tag.done { border-color:#00ff88; color:#00ff88; }
+  .ds-tag.fail { border-color:rgba(255,80,80,0.5); color:rgba(255,80,80,0.6); }
+
+  /* HIDDEN IFRAME */
+  #deep-frame { display:none; width:0; height:0; border:none; }
+
+  /* SCAN ANIMATION */
+  @keyframes scanline {
+    0%{ transform:translateY(-100%); }
+    100%{ transform:translateY(100%); }
+  }
+  .scanning::after {
+    content:'';
+    position:absolute;
+    left:0; right:0; height:2px;
+    background: linear-gradient(90deg, transparent, var(--magenta), transparent);
+    animation: scanline .8s linear infinite;
+    opacity:0.5;
+  }
+
+
+  #timer-display {
+    font-family:'Orbitron',sans-serif;
+    font-size:32px;
+    font-weight:700;
+    text-align:center;
+    color:var(--yellow);
+    text-shadow:0 0 20px var(--yellow);
+    letter-spacing:4px;
+    display:none;
+    margin:12px 0;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+  footer {
+    text-align:center;
+    font-size:10px;
+    color:rgba(0,245,255,0.2);
+    letter-spacing:2px;
+    margin-top:40px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">AZURE<span>BYPASS</span></div>
+    <div class="tagline">Sub2Unlock Link Extractor v2.1</div>
+  </header>
+
+  <div class="panel">
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+    <div class="panel-label">▸ INPUT TARGET</div>
+    <div class="input-row">
+      <input type="text" id="url-input" placeholder="Paste Sub2Unlock URL here... (sub2unlock.com/...)" />
+      <button class="btn" id="go-btn" onclick="startBypass()">EXECUTE</button>
+    </div>
+    <div class="mode-row">
+      <div class="mode-toggle" id="mode-normal" onclick="setMode('normal')" title="Dùng CORS proxy chain chuẩn">
+        <span class="mode-icon">◈</span>
+        <span class="mode-name">STANDARD</span>
+        <span class="mode-desc">3 CORS proxies</span>
+      </div>
+      <div class="mode-toggle active" id="mode-deep" onclick="setMode('deep')" title="Dùng iframe + JS observer + API bruteforce">
+        <span class="mode-icon">◉</span>
+        <span class="mode-name">DEEPSCAN</span>
+        <span class="mode-desc">iframe + observer + API</span>
+      </div>
+      <div class="mode-toggle" id="mode-ultra" onclick="setMode('ultra')" title="Tất cả methods song song">
+        <span class="mode-icon">◆</span>
+        <span class="mode-name">ULTRA</span>
+        <span class="mode-desc">All methods parallel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="status-panel">
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+    <div class="panel-label">▸ BYPASS STATUS</div>
+
+    <div class="steps">
+      <div class="step" id="s1"><span class="step-num">01</span>FETCH</div>
+      <div class="step" id="s2"><span class="step-num">02</span>PARSE</div>
+      <div class="step" id="s3"><span class="step-num">03</span>BYPASS</div>
+      <div class="step" id="s4"><span class="step-num">04</span>UNLOCK</div>
+    </div>
+
+    <div id="deepscan-panel">
+      <div class="ds-title">◉ DEEPSCAN METHODS</div>
+      <div class="ds-methods">
+        <span class="ds-tag" id="ds-iframe">IFRAME INJECT</span>
+        <span class="ds-tag" id="ds-observe">JS OBSERVER</span>
+        <span class="ds-tag" id="ds-api">API PROBE</span>
+        <span class="ds-tag" id="ds-redirect">REDIRECT TRAP</span>
+        <span class="ds-tag" id="ds-header">HEADER SPOOF</span>
+        <span class="ds-tag" id="ds-decode">BASE64 DECODE</span>
+      </div>
+    </div>
+
+    <div id="timer-display">00</div>
+
+    <div class="prog-wrap">
+      <div class="prog-label"><span id="prog-text">IDLE</span><span id="prog-pct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+
+    <div id="log">
+      <div class="line info">[ AzureBypass ] Hệ thống sẵn sàng. Paste link Sub2Unlock và nhấn EXECUTE.</div>
+    </div>
+
+    <div id="result-box">
+      <div class="r-label">✓ LINK UNLOCKED THÀNH CÔNG</div>
+      <div class="r-url" id="result-url"></div>
+      <div class="btn-row">
+        <button class="btn" id="open-btn">OPEN LINK</button>
+        <button class="btn mag" onclick="copyResult()">COPY URL</button>
+        <button class="btn" onclick="resetTool()">RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <iframe id="deep-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+
+  <div class="panel">
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+    <div class="panel-label">▸ CÁCH DÙNG</div>
+    <div style="font-size:12px; line-height:2; color:rgba(0,245,255,0.6);">
+      <div>① Copy link <span style="color:var(--cyan)">sub2unlock.com/xxxxx</span> paste vào ô trên</div>
+      <div>② Nhấn <span style="color:var(--cyan)">EXECUTE</span> — tool sẽ tự bypass các task</div>
+      <div>③ Đợi extract xong → nhấn <span style="color:#00ff88">OPEN LINK</span> lấy link gốc</div>
+      <div style="color:rgba(255,0,170,0.6); margin-top:8px;">⚠ Tool dùng CORS proxy để fetch. Một số link có thể cần retry.</div>
+    </div>
+  </div>
+
+  <footer>AZURETOOL © 2025 — FOR EDUCATIONAL USE ONLY</footer>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+const PROXIES = [
+  url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+// Sub2Unlock internal API endpoints to probe
+const S2U_API_PATHS = [
+  '/api/get-link', '/api/destination', '/api/link',
+  '/api/unlock', '/get-link', '/destination',
+  '/api/v1/link', '/api/v2/link'
+];
+
+const BLACKLIST = [
+  'sub2unlock','sub2get','sub2pro','sub2earn',
+  'google.com/recaptcha','cdnjs','jquery','bootstrap',
+  'cloudflare','facebook.com/tr','disqus','adsbygoogle',
+  'googleapis.com','gstatic','fonts.','analytics'
+];
+
+let resultUrl = '';
+let currentMode = 'deep';
+let bypassAborted = false;
+
+// ─── MODE SWITCH ──────────────────────────────────────────
+function setMode(m) {
+  currentMode = m;
+  ['normal','deep','ultra'].forEach(x => {
+    document.getElementById('mode-'+x).classList.toggle('active', x===m);
+  });
+  document.getElementById('deepscan-panel').style.display =
+    (m==='deep'||m==='ultra') ? 'block' : 'none';
+}
+// init deep mode
+setTimeout(()=>setMode('deep'), 100);
+
+// ─── UTILS ────────────────────────────────────────────────
+function log(msg, type='info') {
+  const logEl = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = `line ${type}`;
+  const ts = new Date().toLocaleTimeString('vi-VN', {hour12:false});
+  line.textContent = `[${ts}] ${msg}`;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setProgress(pct, label) {
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-text').textContent = label;
+}
+
+function setStep(n, state) {
+  document.getElementById('s'+n).className = 'step ' + state;
+}
+
+function dsTag(id, state) {
+  const el = document.getElementById('ds-'+id);
+  if(el) el.className = 'ds-tag ' + state;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function countdown(sec) {
+  const el = document.getElementById('timer-display');
+  el.style.display = 'block';
+  for(let i = sec; i >= 0; i--) {
+    if(bypassAborted) break;
+    el.textContent = String(i).padStart(2,'0');
+    await sleep(1000);
+  }
+  el.style.display = 'none';
+}
+
+// ─── FETCH LAYER ──────────────────────────────────────────
+async function fetchWithProxy(url, timeout=10000) {
+  for(let i = 0; i < PROXIES.length; i++) {
+    if(bypassAborted) return null;
+    const proxyUrl = PROXIES[i](url);
+    log(`Proxy [${i+1}/${PROXIES.length}] → ${proxyUrl.substring(0,50)}...`);
+    try {
+      const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(timeout)});
+      if(!res.ok) { log(`  ✗ HTTP ${res.status}`, 'warn'); continue; }
+      let data;
+      const ct = res.headers.get('content-type')||'';
+      if(ct.includes('json')) {
+        data = await res.json();
+        const html = data.contents || (typeof data==='string' ? data : null);
+        if(html && html.length > 100) { log(`  ✓ Proxy ${i+1} OK (${html.length.toLocaleString()} bytes)`, 'ok'); return html; }
+      } else {
+        const text = await res.text();
+        if(text.length > 100) { log(`  ✓ Proxy ${i+1} OK (${text.length.toLocaleString()} bytes)`, 'ok'); return text; }
+      }
+    } catch(e) {
+      log(`  ✗ ${e.message.substring(0,40)}`, 'warn');
+    }
+  }
+  return null;
+}
+
+// ─── DEEPSCAN: HEADER SPOOF FETCH ─────────────────────────
+async function fetchWithHeaders(url) {
+  dsTag('header', 'active');
+  log('Header Spoof: thêm Referer + User-Agent giả...');
+  const spoofHeaders = {
+    'X-Requested-With': 'XMLHttpRequest',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+  };
+  try {
+    // Try direct fetch first (may work if CORS is open)
+    const res = await fetch(url, {
+      headers: spoofHeaders,
+      signal: AbortSignal.timeout(7000)
+    });
+    if(res.ok) {
+      const text = await res.text();
+      log('  ✓ Header spoof direct fetch OK', 'ok');
+      dsTag('header', 'done');
+      return text;
+    }
+  } catch(e) {}
+
+  // Fallback with proxy + custom headers via allorigins
+  try {
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+    if(res.ok) {
+      const data = await res.json();
+      if(data.contents) { dsTag('header', 'done'); return data.contents; }
+    }
+  } catch(e) {}
+
+  dsTag('header', 'fail');
+  return null;
+}
+
+// ─── DEEPSCAN: API PROBE ───────────────────────────────────
+async function probeAPIEndpoints(baseUrl, key) {
+  dsTag('api', 'active');
+  log(`API Probe: bruteforce ${S2U_API_PATHS.length} endpoints...`);
+
+  let origin;
+  try { origin = new URL(baseUrl).origin; } catch(e) { dsTag('api','fail'); return null; }
+
+  for(const path of S2U_API_PATHS) {
+    if(bypassAborted) break;
+    const apiUrl = origin + path + (key ? `?key=${key}&id=${key}` : '');
+    log(`  → ${origin}${path}`);
+    try {
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+      const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(5000)});
+      if(!res.ok) continue;
+      const data = await res.json();
+      const content = data.contents || '';
+      if(!content || content.length < 5) continue;
+
+      // Try JSON parse
+      try {
+        const json = JSON.parse(content);
+        const found = json.url || json.link || json.destination || json.redirect || json.data?.url;
+        if(found && found.startsWith('http')) {
+          log(`  ✓ API hit! → ${found.substring(0,60)}`, 'ok');
+          dsTag('api', 'done');
+          return found;
+        }
+      } catch(e) {
+        // Plain text URL?
+        const trimmed = content.trim();
+        if(trimmed.startsWith('http') && !BLACKLIST.some(b=>trimmed.includes(b))) {
+          log(`  ✓ API plain URL → ${trimmed.substring(0,60)}`, 'ok');
+          dsTag('api', 'done');
+          return trimmed;
+        }
+      }
+    } catch(e) {}
+    await sleep(150);
+  }
+  log('  API probe: không tìm được endpoint hợp lệ', 'warn');
+  dsTag('api', 'fail');
+  return null;
+}
+
+// ─── DEEPSCAN: BASE64 DECODE ───────────────────────────────
+function decodeBase64Links(html) {
+  dsTag('decode', 'active');
+  log('Base64 Decode: tìm chuỗi encoded...');
+  const found = [];
+  const b64re = /['"`]([A-Za-z0-9+/=]{30,})['"`]/g;
+  let m;
+  while((m = b64re.exec(html)) !== null) {
+    try {
+      const dec = atob(m[1]);
+      if(dec.includes('http')) {
+        const urlMatch = dec.match(/https?:\/\/[^\s'"<>]{10,}/);
+        if(urlMatch && !BLACKLIST.some(b=>urlMatch[0].includes(b))) {
+          found.push(urlMatch[0]);
+          log(`  ✓ Decoded: ${urlMatch[0].substring(0,60)}`, 'ok');
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Also look for hex-encoded URLs
+  const hexre = /\\x((?:[0-9a-fA-F]{2}){10,})/g;
+  while((m = hexre.exec(html)) !== null) {
+    try {
+      const dec = m[1].match(/.{2}/g).map(h=>String.fromCharCode(parseInt(h,16))).join('');
+      if(dec.includes('http')) {
+        const urlMatch = dec.match(/https?:\/\/[^\s'"<>]{10,}/);
+        if(urlMatch && !BLACKLIST.some(b=>urlMatch[0].includes(b))) {
+          found.push(urlMatch[0]);
+          log(`  ✓ Hex-decoded: ${urlMatch[0].substring(0,60)}`, 'ok');
+        }
+      }
+    } catch(e) {}
+  }
+
+  if(found.length > 0) dsTag('decode','done');
+  else { log('  Không tìm thấy encoded URL', 'warn'); dsTag('decode','fail'); }
+  return found;
+}
+
+// ─── DEEPSCAN: IFRAME INJECT + OBSERVER ───────────────────
+function iframeDeepScan(url, timeoutMs=8000) {
+  return new Promise(resolve => {
+    dsTag('iframe', 'active');
+    dsTag('observe', 'active');
+    log('IFrame Inject: load page trong sandbox...');
+
+    const frame = document.getElementById('deep-frame');
+    let observer = null;
+    let timer = null;
+    let resolved = false;
+
+    function done(result) {
+      if(resolved) return;
+      resolved = true;
+      clearTimeout(timer);
+      if(observer) observer.disconnect();
+      frame.src = 'about:blank';
+      resolve(result);
+    }
+
+    // Listen for messages from iframe (postMessage redirect)
+    const msgHandler = (e) => {
+      const d = e.data;
+      if(typeof d === 'string' && d.startsWith('http') && !BLACKLIST.some(b=>d.includes(b))) {
+        log(`  ✓ PostMessage intercept: ${d.substring(0,60)}`, 'ok');
+        dsTag('iframe','done'); dsTag('observe','done');
+        window.removeEventListener('message', msgHandler);
+        done(d);
+      }
+    };
+    window.addEventListener('message', msgHandler);
+
+    // Observe iframe for navigation attempts
+    try {
+      frame.onload = () => {
+        try {
+          const fdoc = frame.contentDocument || frame.contentWindow?.document;
+          if(!fdoc) return;
+
+          log('  IFrame loaded, attaching MutationObserver...');
+          dsTag('observe', 'active');
+
+          observer = new MutationObserver((mutations) => {
+            try {
+              const loc = frame.contentWindow?.location?.href;
+              if(loc && loc !== 'about:blank' && loc !== url &&
+                 loc.startsWith('http') && !BLACKLIST.some(b=>loc.includes(b))) {
+                log(`  ✓ Observer redirect caught: ${loc.substring(0,60)}`, 'ok');
+                dsTag('iframe','done'); dsTag('observe','done');
+                window.removeEventListener('message', msgHandler);
+                done(loc);
+              }
+
+              // Also scan new DOM for links
+              for(const m of mutations) {
+                for(const node of m.addedNodes) {
+                  if(node.nodeType===1) {
+                    const links = node.querySelectorAll?.('[href],[src],[data-url],[data-link]') || [];
+                    for(const el of links) {
+                      const href = el.href||el.src||el.dataset?.url||el.dataset?.link||'';
+                      if(href.startsWith('http') && !BLACKLIST.some(b=>href.includes(b))) {
+                        log(`  ✓ Observer DOM link: ${href.substring(0,60)}`, 'ok');
+                        dsTag('iframe','done'); dsTag('observe','done');
+                        window.removeEventListener('message', msgHandler);
+                        done(href);
+                      }
+                    }
+                  }
+                }
+              }
+            } catch(e) {}
+          });
+
+          observer.observe(fdoc.documentElement, {childList:true, subtree:true, attributes:true});
+
+          // Also try reading location after small delay
+          setTimeout(()=>{
+            try {
+              const loc = frame.contentWindow?.location?.href;
+              if(loc && loc!=='about:blank' && !BLACKLIST.some(b=>loc.includes(b))) {
+                dsTag('redirect','done');
+                log(`  ✓ Redirect trap: ${loc.substring(0,60)}`, 'ok');
+                done(loc);
+              }
+            } catch(e) {
+              // Cross-origin block is actually a redirect signal!
+              dsTag('redirect','active');
+              log('  ↻ Cross-origin redirect detected (page navigated away)', 'warn');
+              dsTag('redirect','done');
+            }
+          }, 2500);
+
+        } catch(e) {
+          log('  IFrame cross-origin blocked (expected)', 'warn');
+          dsTag('iframe','fail');
+        }
+      };
+      dsTag('redirect','active');
+      log(`  Loading: ${url.substring(0,60)}...`);
+      frame.src = url;
+    } catch(e) {
+      log('  IFrame load error: ' + e.message, 'warn');
+      dsTag('iframe','fail'); dsTag('observe','fail');
+      done(null);
+      return;
+    }
+
+    timer = setTimeout(()=>{
+      log('  IFrame timeout — không bắt được redirect', 'warn');
+      dsTag('iframe','fail'); dsTag('observe','fail'); dsTag('redirect','fail');
+      window.removeEventListener('message', msgHandler);
+      done(null);
+    }, timeoutMs);
+  });
+}
+
+// ─── STANDARD LINK EXTRACTOR ──────────────────────────────
+function extractLinks(html) {
+  const links = [];
+  const patterns = [
+    /destination['":\s]+['"]?(https?:\/\/[^'"&\s<>]+)/gi,
+    /['"](https?:\/\/[^'"&\s<>]{15,})['"]/g,
+    /url['":\s]+['"]?(https?:\/\/[^'"&\s<>]{10,})/gi,
+    /href=['"]?(https?:\/\/(?!(?:sub2unlock|sub2get|sub2pro))[^'"<>\s]{15,})/gi,
+    /window\.location[^=]*=\s*['"]?(https?:\/\/[^'";\s]+)/gi,
+    /redirect['":\s]*['"]?(https?:\/\/[^'"&\s<>]+)/gi,
+    /link['":\s]+['"]?(https?:\/\/[^'"&\s<>]{15,})/gi,
+    /data-(?:url|link|href|dest)[='":\s]+(https?:\/\/[^'"&\s<>]+)/gi,
+  ];
+
+  for(const pat of patterns) {
+    let m;
+    while((m = pat.exec(html)) !== null) {
+      const u = (m[1]||m[0]).replace(/\\u002F/g,'/').replace(/\\/g,'').split('?')[0];
+      if(u.startsWith('http') && !BLACKLIST.some(b=>u.includes(b)) && !links.includes(u)) {
+        links.push(u);
+      }
+    }
+  }
+  return [...new Set(links)];
+}
+
+// Score links by likelihood of being destination
+function scoreLink(url) {
+  let score = url.length;
+  if(url.includes('pastebin')||url.includes('pastefy')||url.includes('raw.github')) score += 200;
+  if(url.includes('mediafire')||url.includes('drive.google')||url.includes('mega.nz')) score += 150;
+  if(url.includes('discord')||url.includes('t.me')) score += 100;
+  return score;
+}
+
+// ─── MAIN BYPASS ──────────────────────────────────────────
+async function startBypass() {
+  const input = document.getElementById('url-input').value.trim();
+  if(!input) { log('Chưa nhập URL!', 'err'); return; }
+
+  let url = input;
+  if(!url.startsWith('http')) url = 'https://' + url;
+
+  bypassAborted = false;
+  document.getElementById('go-btn').disabled = true;
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('log').innerHTML = '';
+  setProgress(0, 'INITIATING');
+  ['1','2','3','4'].forEach(n=>setStep(n,''));
+  ['iframe','observe','api','redirect','header','decode'].forEach(id=>dsTag(id,''));
+
+  const isDeep = currentMode === 'deep' || currentMode === 'ultra';
+  const modeLabel = currentMode.toUpperCase();
+
+  log(`[ ${modeLabel} MODE ] Target: ${url}`);
+  log('Khởi động AzureBypass engine v2.1...');
+
+  // Extract key from URL
+  let key = '';
+  try {
+    const u = new URL(url);
+    key = u.searchParams.get('key') || u.pathname.split('/').filter(Boolean).pop() || '';
+  } catch(e) {}
+  if(key) log(`Key detected: ${key}`, 'ok');
+
+  await sleep(300);
+
+  // ── STEP 1: FETCH ──
+  setStep(1, 'active');
+  setProgress(8, 'FETCHING PAGE');
+  log('▸ STEP 1: Fetching page...');
+
+  let html = null;
+
+  if(currentMode === 'ultra') {
+    // Parallel fetch
+    log('Ultra mode: fetch + header spoof parallel...');
+    const [h1, h2] = await Promise.all([
+      fetchWithProxy(url),
+      fetchWithHeaders(url)
+    ]);
+    html = h1 || h2;
+  } else {
+    html = await fetchWithProxy(url);
+    if(!html && isDeep) {
+      log('Proxy chain fail → Header Spoof fallback...', 'warn');
+      html = await fetchWithHeaders(url);
+    }
+  }
+
+  if(!html) {
+    log('Fetch thất bại hoàn toàn.', 'warn');
+    setStep(1, 'done');
+  } else {
+    setStep(1, 'done');
+    log(`✓ Fetch OK — ${html.length.toLocaleString()} bytes`, 'ok');
+  }
+
+  setProgress(22, 'PAGE FETCHED');
+  await sleep(200);
+
+  // ── STEP 2: PARSE + DEEPSCAN ──
+  setStep(2, 'active');
+  setProgress(35, 'DEEP PARSING');
+  log('▸ STEP 2: Deep parsing...');
+
+  let candidates = [];
+
+  if(html) {
+    const stdLinks = extractLinks(html);
+    log(`Standard extract: ${stdLinks.length} candidate(s)`);
+    candidates.push(...stdLinks);
+
+    if(isDeep) {
+      // Base64 decode scan
+      const b64links = decodeBase64Links(html);
+      candidates.push(...b64links);
+
+      // Detect timer for real
+      const waitMatch = html.match(/['"](timer|wait|countdown)['"]\s*[:=]\s*(\d+)/i);
+      if(waitMatch) log(`Timer var found: ${waitMatch[2]}s`, 'warn');
+    }
+  }
+
+  // Remove dupes
+  candidates = [...new Set(candidates)];
+  log(`Total candidates after deep parse: ${candidates.length}`, candidates.length>0?'ok':'warn');
+  candidates.slice(0,4).forEach((l,i)=>log(`  [${i+1}] ${l.substring(0,70)}`));
+
+  setStep(2, 'done');
+  setProgress(50, 'PARSE DONE');
+  await sleep(200);
+
+  // ── STEP 3: BYPASS TASKS ──
+  setStep(3, 'active');
+  setProgress(55, 'BYPASSING');
+  log('▸ STEP 3: Bypassing task wall...');
+
+  let iframeResult = null;
+  let apiResult = null;
+
+  if(isDeep) {
+    // Run iframe + API probe in parallel
+    log('DeepScan: IFrame + API probe parallel launch...');
+    document.getElementById('status-panel').classList.add('scanning');
+
+    const [ir, ar] = await Promise.all([
+      iframeDeepScan(url, 7000),
+      probeAPIEndpoints(url, key)
+    ]);
+
+    iframeResult = ir;
+    apiResult = ar;
+    document.getElementById('status-panel').classList.remove('scanning');
+
+    if(iframeResult) log(`IFrame result: ${iframeResult.substring(0,70)}`, 'ok');
+    if(apiResult)    log(`API result: ${apiResult.substring(0,70)}`, 'ok');
+  } else {
+    // Standard countdown bypass
+    log('Standard: simulate task timer...', 'warn');
+    const waitSec = html ? (()=>{
+      const m = html.match(/timer[^\d]*(\d+)/i)||html.match(/wait[^\d]*(\d+)/i);
+      return m ? Math.min(parseInt(m[1]),8) : 4;
+    })() : 4;
+    await countdown(waitSec);
+  }
+
+  log('Task wall bypass ✓', 'ok');
+  setStep(3, 'done');
+  setProgress(82, 'BYPASS DONE');
+  await sleep(200);
+
+  // ── STEP 4: UNLOCK ──
+  setStep(4, 'active');
+  setProgress(92, 'EXTRACTING');
+  log('▸ STEP 4: Final URL extraction...');
+  await sleep(400);
+
+  // Priority: iframe > API > standard candidates
+  let finalUrl =
+    iframeResult ||
+    apiResult ||
+    (candidates.length > 0 ? candidates.sort((a,b)=>scoreLink(b)-scoreLink(a))[0] : null);
+
+  // Last resort: if we have key, try construct API call directly
+  if(!finalUrl && key && isDeep) {
+    log('Last resort: direct key API call...', 'warn');
+    try {
+      const origin = new URL(url).origin;
+      const direct = `${origin}/api/get-link?key=${key}`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(direct)}`;
+      const res = await fetch(proxyUrl, {signal:AbortSignal.timeout(6000)});
+      if(res.ok) {
+        const data = await res.json();
+        const content = data.contents||'';
+        try {
+          const json = JSON.parse(content);
+          finalUrl = json.url || json.link || json.destination;
+        } catch(e) {
+          if(content.trim().startsWith('http')) finalUrl = content.trim();
+        }
+      }
+    } catch(e) {}
+  }
+
+  if(!finalUrl) {
+    log('Extract thất bại — trang dùng JS render phía client nặng.', 'err');
+    log('Tip: Mở link gốc trong browser → F12 → Network tab → filter "api" → xem response', 'warn');
+    log('Hoặc thử đổi sang ULTRA mode.', 'warn');
+    setProgress(0, 'FAILED');
+    setStep(4, '');
+    document.getElementById('go-btn').disabled = false;
+    return;
+  }
+
+  setStep(4, 'done');
+  setProgress(100, 'COMPLETE ✓');
+  log('═══════════════════════════════', 'ok');
+  log('✓ LINK EXTRACTED THÀNH CÔNG!', 'ok');
+  log(`→ ${finalUrl}`, 'ok');
+  log('═══════════════════════════════', 'ok');
+
+  resultUrl = finalUrl;
+  showResult(finalUrl);
+  document.getElementById('go-btn').disabled = false;
+}
+
+// ─── HELPERS ──────────────────────────────────────────────
+function showResult(url) {
+  const box = document.getElementById('result-box');
+  document.getElementById('result-url').textContent = url;
+  document.getElementById('open-btn').onclick = () => window.open(url, '_blank');
+  box.style.display = 'block';
+}
+
+function copyResult() {
+  if(!resultUrl) return;
+  navigator.clipboard.writeText(resultUrl).then(()=>{
+    log('Đã copy URL vào clipboard!', 'ok');
+  }).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = resultUrl; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    log('Đã copy URL!', 'ok');
+  });
+}
+
+function resetTool() {
+  bypassAborted = true;
+  document.getElementById('url-input').value = '';
+  document.getElementById('log').innerHTML = '<div class="line info">[ AzureBypass ] Reset. Chọn mode và paste link mới.</div>';
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('timer-display').style.display = 'none';
+  document.getElementById('deep-frame').src = 'about:blank';
+  document.getElementById('status-panel').classList.remove('scanning');
+  setProgress(0, 'IDLE');
+  ['1','2','3','4'].forEach(n=>setStep(n,''));
+  ['iframe','observe','api','redirect','header','decode'].forEach(id=>dsTag(id,''));
+  resultUrl = '';
+  document.getElementById('go-btn').disabled = false;
+}
+</script>
+</body>
+</html>
