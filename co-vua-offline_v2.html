@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cờ Vua Offline</title>
+<style>
+:root{
+  --bg:#0e1420; --panel:#172131; --line:#26344a; --text:#e8edf5; --muted:#8996ab;
+  --light:#dbe2ea; --dark:#6b84a2; --amber:#f2b84b; --red:#ef4b4b;
+  --board:min(94vw, 72vh, 600px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif}
+body{background:radial-gradient(900px 500px at 50% -80px,#1b2a44 0,var(--bg) 70%) no-repeat var(--bg)}
+.app{max-width:640px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) 10px max(24px,env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;align-items:center;gap:10px}
+h1{margin:6px 0 2px;font:600 1.5rem/1.1 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;letter-spacing:.01em}
+.sub{margin:0;color:var(--muted);font-size:.82rem}
+
+.seg{display:flex;gap:6px;width:var(--board)}
+.seg button{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px}
+.seg button b{font-size:.92rem;font-weight:600}
+.seg button small{font-size:.72rem;color:var(--muted)}
+.seg button.on{border-color:var(--amber);background:#22304a;box-shadow:inset 0 0 0 1px var(--amber)}
+.seg button.on small{color:var(--amber)}
+
+.bar{width:var(--board);display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:34px}
+.who{display:flex;align-items:baseline;gap:8px;min-width:0}
+.who b{font:600 1rem/1 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.who small{color:var(--muted);font-size:.78rem;white-space:nowrap}
+.caps{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:1.05rem;line-height:1;
+  font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif;color:#0b0f17;
+  text-shadow:0 0 1px rgba(255,255,255,.6);min-height:20px}
+.caps.wc{color:#fff;text-shadow:0 0 1px #000,0 0 2px #000}
+.caps i{font-style:normal;font-family:inherit}
+.caps em{font-style:normal;font-size:.78rem;color:var(--muted);margin-left:6px;font-family:system-ui,sans-serif;text-shadow:none}
+
+.board{width:var(--board);height:var(--board);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));
+  border-radius:6px;overflow:hidden;box-shadow:0 0 0 2px #2c3d58,0 18px 40px rgba(0,0,0,.5);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;min-width:0;min-height:0;width:100%;height:100%;overflow:hidden}
+.sq.light{background:var(--light)}
+.sq.dark{background:var(--dark)}
+.sq::before{content:"";position:absolute;inset:0;pointer-events:none}
+.sq.last::before{background:rgba(242,184,75,.5)}
+.sq.sel::before{background:rgba(242,184,75,.85)}
+.sq.check::before{background:radial-gradient(circle,rgba(239,75,75,.95) 0,rgba(239,75,75,.55) 45%,rgba(239,75,75,0) 75%)}
+.sq.tgt::after{content:"";position:absolute;width:28%;height:28%;border-radius:50%;background:rgba(14,20,32,.32);z-index:3;pointer-events:none}
+.sq.cap::after{content:"";position:absolute;inset:3%;border-radius:50%;border:calc(var(--board)/8*.09) solid rgba(14,20,32,.32);z-index:3;pointer-events:none}
+.pc{position:relative;z-index:2;pointer-events:none;line-height:1;display:block;max-width:100%;max-height:100%;font-size:calc(var(--board)/8*.82);transform:translateY(-4%);
+  font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Noto Sans Symbols","Apple Symbols","DejaVu Sans","Arial Unicode MS",sans-serif}
+.pc.w{color:#fff;-webkit-text-stroke:calc(var(--board)/8*.028) #131a26;paint-order:stroke fill;text-shadow:0 2px 3px rgba(0,0,0,.35)}
+.pc.b{color:#131a26;text-shadow:0 1px 0 rgba(255,255,255,.25)}
+.coord{position:absolute;z-index:1;font-size:calc(var(--board)/8*.19);font-weight:700;pointer-events:none;opacity:.8}
+.coord.rk{top:3%;left:5%}
+.coord.fl{bottom:2%;right:6%}
+.sq.light .coord{color:var(--dark)}
+.sq.dark .coord{color:var(--light)}
+
+.status{width:var(--board);text-align:center;padding:10px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:.95rem;min-height:42px}
+.status.warn{border-color:var(--red);color:#ffb4b4}
+.status.end{border-color:var(--amber);color:var(--amber);font-weight:600}
+.dots::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1s steps(4,end) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+
+.row{width:var(--board);display:flex;gap:8px}
+.btn{flex:1;padding:11px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;font-size:.92rem;cursor:pointer}
+.btn:hover{border-color:#3a4e6d}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:#1b1305;font-weight:700}
+select{flex:1.2;padding:11px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;font-size:.92rem}
+.btn:focus-visible,select:focus-visible,.seg button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+.moves{width:var(--board);max-height:6.4em;overflow-y:auto;padding:9px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);
+  font-size:.86rem;line-height:1.7;color:var(--muted)}
+.moves span.n{color:#5f6d84;margin-right:3px}
+.moves span.m{color:var(--text);margin-right:8px}
+.moves .empty{color:#5f6d84}
+.foot{width:var(--board);color:#5f6d84;font-size:.75rem;text-align:center;line-height:1.5}
+
+.modal{position:fixed;inset:0;background:rgba(6,9,15,.72);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal[hidden]{display:none}
+.card{background:var(--panel);border:1px solid #33456388;border-radius:16px;padding:22px 20px;width:min(340px,100%);text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.card h2{margin:0 0 6px;font:600 1.35rem/1.2 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.card p{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+.card .row{width:100%}
+.promo{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.promo button{width:64px;height:64px;border-radius:12px;border:1px solid var(--line);background:var(--dark);cursor:pointer;
+  font-size:2.6rem;line-height:1;padding:0;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif}
+.promo button.w{color:#fff;-webkit-text-stroke:1px #131a26;paint-order:stroke fill}
+.promo button.b{color:#131a26}
+.promo button:hover{outline:2px solid var(--amber)}
+@media (prefers-reduced-motion:reduce){.dots::after{animation:none;content:"…"}}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Cờ Vua Offline</h1>
+  <p class="sub">Đấu với máy, không cần mạng</p>
+
+  <div class="seg" id="levels">
+    <button data-lv="easy"><b>Thường</b><small>≈ 400 Elo</small></button>
+    <button data-lv="medium"><b>Trung bình</b><small>≈ 700 Elo</small></button>
+    <button data-lv="hard"><b>Khó</b><small>≈ 1000 Elo</small></button>
+  </div>
+
+  <div class="bar"><div class="who"><b id="topName"></b><small id="topSub"></small></div><div class="caps" id="topCaps"></div></div>
+  <div class="board" id="board" role="grid" aria-label="Bàn cờ"></div>
+  <div class="bar"><div class="who"><b id="botName"></b><small id="botSub"></small></div><div class="caps" id="botCaps"></div></div>
+
+  <div class="status" id="status"></div>
+
+  <div class="row">
+    <button class="btn" id="undoBtn">Đi lại</button>
+    <button class="btn" id="flipBtn">Xoay bàn</button>
+  </div>
+  <div class="row">
+    <select id="side" aria-label="Chọn quân">
+      <option value="w">Cầm quân Trắng</option>
+      <option value="b">Cầm quân Đen</option>
+      <option value="r">Ngẫu nhiên</option>
+    </select>
+    <button class="btn primary" id="newBtn">Ván mới</button>
+  </div>
+
+  <div class="moves" id="moves"></div>
+  <div class="foot">Elo chỉ là ước lượng tương đối. Toàn bộ chạy trên máy bạn, có thể mở file này khi không có mạng.</div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="card" id="modalCard"></div></div>
+
+<script id="engine">
+/* ================= ENGINE ================= */
+const P=1,N=2,B=3,R=4,Q=5,K=6;
+const VAL=[0,100,320,330,500,900,0];
+const MATE=100000, INF=1e6;
+const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+const KN=[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+const KG=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const BD=[[-1,-1],[-1,1],[1,-1],[1,1]];
+const RD=[[-1,0],[1,0],[0,-1],[0,1]];
+const QD=BD.concat(RD);
+
+/* Piece-square tables (góc nhìn Trắng, ô 0 = a8) */
+const PST=[null,
+[0,0,0,0,0,0,0,0, 50,50,50,50,50,50,50,50, 10,10,20,30,30,20,10,10, 5,5,10,25,25,10,5,5, 0,0,0,20,20,0,0,0, 5,-5,-10,0,0,-10,-5,5, 5,10,10,-20,-20,10,10,5, 0,0,0,0,0,0,0,0],
+[-50,-40,-30,-30,-30,-30,-40,-50, -40,-20,0,0,0,0,-20,-40, -30,0,10,15,15,10,0,-30, -30,5,15,20,20,15,5,-30, -30,0,15,20,20,15,0,-30, -30,5,10,15,15,10,5,-30, -40,-20,0,5,5,0,-20,-40, -50,-40,-30,-30,-30,-30,-40,-50],
+[-20,-10,-10,-10,-10,-10,-10,-20, -10,0,0,0,0,0,0,-10, -10,0,5,10,10,5,0,-10, -10,5,5,10,10,5,5,-10, -10,0,10,10,10,10,0,-10, -10,10,10,10,10,10,10,-10, -10,5,0,0,0,0,5,-10, -20,-10,-10,-10,-10,-10,-10,-20],
+[0,0,0,0,0,0,0,0, 5,10,10,10,10,10,10,5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, -5,0,0,0,0,0,0,-5, 0,0,0,5,5,0,0,0],
+[-20,-10,-10,-5,-5,-10,-10,-20, -10,0,0,0,0,0,0,-10, -10,0,5,5,5,5,0,-10, -5,0,5,5,5,5,0,-5, 0,0,5,5,5,5,0,-5, -10,5,5,5,5,5,0,-10, -10,0,5,0,0,0,0,-10, -20,-10,-10,-5,-5,-10,-10,-20],
+[-30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30, -20,-30,-30,-40,-40,-30,-30,-20, -10,-20,-20,-20,-20,-20,-20,-10, 20,20,0,0,0,0,20,20, 20,30,10,0,0,10,30,20]
+];
+const KING_END=[-50,-40,-30,-20,-20,-30,-40,-50, -30,-20,-10,0,0,-10,-20,-30, -30,-10,20,30,30,20,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,20,30,30,20,-10,-30, -30,-30,0,0,0,0,-30,-30, -50,-30,-30,-30,-30,-30,-30,-50];
+
+function parseFEN(fen){
+  const f=fen.split(' ');
+  const b=new Int8Array(64); let i=0;
+  for(const ch of f[0]){
+    if(ch==='/') continue;
+    if(ch>='1'&&ch<='8'){ i+=+ch; continue; }
+    const lo=ch.toLowerCase(), t='pnbrqk'.indexOf(lo)+1;
+    b[i++]= ch===lo ? -t : t;
+  }
+  let c=0; const cs=f[2]||'-';
+  if(cs.includes('K'))c|=1; if(cs.includes('Q'))c|=2; if(cs.includes('k'))c|=4; if(cs.includes('q'))c|=8;
+  const ep=(f[3]&&f[3]!=='-') ? (8-(+f[3][1]))*8+(f[3].charCodeAt(0)-97) : -1;
+  return {b, t:f[1]==='b'?-1:1, c, ep, hm:+(f[4]||0), fm:+(f[5]||1)};
+}
+
+function attacked(b,sq,by){
+  const r=sq>>3, c=sq&7;
+  const pr=r+(by===1?1:-1);
+  if(pr>=0&&pr<8){
+    if(c>0 && b[pr*8+c-1]===by*P) return true;
+    if(c<7 && b[pr*8+c+1]===by*P) return true;
+  }
+  for(let i=0;i<8;i++){
+    let rr=r+KN[i][0], cc=c+KN[i][1];
+    if(rr>=0&&rr<8&&cc>=0&&cc<8 && b[rr*8+cc]===by*N) return true;
+    rr=r+KG[i][0]; cc=c+KG[i][1];
+    if(rr>=0&&rr<8&&cc>=0&&cc<8 && b[rr*8+cc]===by*K) return true;
+  }
+  for(let i=0;i<4;i++){
+    let rr=r+BD[i][0], cc=c+BD[i][1];
+    while(rr>=0&&rr<8&&cc>=0&&cc<8){
+      const p=b[rr*8+cc];
+      if(p){ if(p===by*B||p===by*Q) return true; break; }
+      rr+=BD[i][0]; cc+=BD[i][1];
+    }
+    rr=r+RD[i][0]; cc=c+RD[i][1];
+    while(rr>=0&&rr<8&&cc>=0&&cc<8){
+      const p=b[rr*8+cc];
+      if(p){ if(p===by*R||p===by*Q) return true; break; }
+      rr+=RD[i][0]; cc+=RD[i][1];
+    }
+  }
+  return false;
+}
+
+function pseudo(s,capsOnly){
+  const b=s.b, t=s.t, mv=[];
+  for(let sq=0;sq<64;sq++){
+    const p=b[sq];
+    if(!p || (p>0?1:-1)!==t) continue;
+    const type=p*t, r=sq>>3, c=sq&7;
+    if(type===P){
+      const dr=-t, nr=r+dr, promoRow=t===1?0:7, startRow=t===1?6:1;
+      if(nr<0||nr>7) continue;
+      const f1=nr*8+c;
+      if(!b[f1]){
+        if(nr===promoRow){ for(let pt=Q;pt>=N;pt--) mv.push({f:sq,t:f1,p:pt}); }
+        else if(!capsOnly){
+          mv.push({f:sq,t:f1});
+          if(r===startRow && !b[f1+dr*8]) mv.push({f:sq,t:f1+dr*8});
+        }
+      }
+      for(let dc=-1;dc<=1;dc+=2){
+        const nc=c+dc; if(nc<0||nc>7) continue;
+        const to=nr*8+nc, q=b[to];
+        if(q && (q>0?1:-1)===-t){
+          if(nr===promoRow){ for(let pt=Q;pt>=N;pt--) mv.push({f:sq,t:to,p:pt}); }
+          else mv.push({f:sq,t:to});
+        } else if(!q && to===s.ep) mv.push({f:sq,t:to,e:1});
+      }
+    } else if(type===N||type===K){
+      const D=type===N?KN:KG;
+      for(let i=0;i<8;i++){
+        const rr=r+D[i][0], cc=c+D[i][1];
+        if(rr<0||rr>7||cc<0||cc>7) continue;
+        const to=rr*8+cc, q=b[to];
+        if(!q){ if(!capsOnly) mv.push({f:sq,t:to}); }
+        else if((q>0?1:-1)!==t) mv.push({f:sq,t:to});
+      }
+      if(type===K && !capsOnly){
+        const row=t===1?56:0;
+        if(sq===row+4){
+          const kb=t===1?1:4, qb=t===1?2:8;
+          if((s.c&kb) && !b[row+5] && !b[row+6] && b[row+7]===t*R &&
+             !attacked(b,row+4,-t) && !attacked(b,row+5,-t) && !attacked(b,row+6,-t))
+            mv.push({f:sq,t:row+6,c:1});
+          if((s.c&qb) && !b[row+1] && !b[row+2] && !b[row+3] && b[row]===t*R &&
+             !attacked(b,row+4,-t) && !attacked(b,row+3,-t) && !attacked(b,row+2,-t))
+            mv.push({f:sq,t:row+2,c:2});
+        }
+      }
+    } else {
+      const D=type===B?BD:type===R?RD:QD;
+      for(let i=0;i<D.length;i++){
+        let rr=r+D[i][0], cc=c+D[i][1];
+        while(rr>=0&&rr<8&&cc>=0&&cc<8){
+          const to=rr*8+cc, q=b[to];
+          if(!q){ if(!capsOnly) mv.push({f:sq,t:to}); }
+          else { if((q>0?1:-1)!==t) mv.push({f:sq,t:to}); break; }
+          rr+=D[i][0]; cc+=D[i][1];
+        }
+      }
+    }
+  }
+  return mv;
+}
+
+function make(s,m){
+  const b=s.b.slice(), t=s.t, pc=b[m.f];
+  let cap=b[m.t], c=s.c, ep=-1, hm=s.hm+1;
+  b[m.f]=0;
+  b[m.t]=m.p ? t*m.p : pc;
+  if(m.e){ const ci=(m.f&56)+(m.t&7); cap=b[ci]; b[ci]=0; }
+  if(m.c){
+    const row=m.f&56;
+    if(m.c===1){ b[row+5]=b[row+7]; b[row+7]=0; }
+    else { b[row+3]=b[row]; b[row]=0; }
+  }
+  const type=pc*t;
+  if(type===P){ hm=0; if(Math.abs(m.t-m.f)===16) ep=(m.f+m.t)>>1; }
+  if(cap) hm=0;
+  if(type===K) c&= t===1 ? ~3 : ~12;
+  if(m.f===0||m.t===0) c&=~8;
+  if(m.f===7||m.t===7) c&=~4;
+  if(m.f===56||m.t===56) c&=~2;
+  if(m.f===63||m.t===63) c&=~1;
+  return {b, t:-t, c, ep, hm, fm:s.fm+(t===-1?1:0)};
+}
+
+function inCheck(s){ return attacked(s.b, s.b.indexOf(s.t*K), -s.t); }
+
+function legal(s,capsOnly){
+  const out=[], ms=pseudo(s,capsOnly);
+  for(let i=0;i<ms.length;i++){
+    const n=make(s,ms[i]);
+    if(!attacked(n.b, n.b.indexOf(s.t*K), -s.t)) out.push(ms[i]);
+  }
+  return out;
+}
+
+function insufficient(s){
+  let minors=0;
+  for(let i=0;i<64;i++){
+    const p=Math.abs(s.b[i]);
+    if(p===P||p===R||p===Q) return false;
+    if(p===N||p===B) minors++;
+  }
+  return minors<=1;
+}
+
+/* ---------- Đánh giá ---------- */
+function evaluate(s){
+  const b=s.b; let nonPawn=0;
+  for(let i=0;i<64;i++){ const p=b[i]; if(!p) continue; const ty=p>0?p:-p; if(ty>1&&ty<6) nonPawn+=VAL[ty]; }
+  const endg=nonPawn<=2200;
+  let score=0, mat=0, wk=-1, bk=-1;
+  for(let i=0;i<64;i++){
+    const p=b[i]; if(!p) continue;
+    const ty=p>0?p:-p, w=p>0, idx=w?i:i^56;
+    let v=VAL[ty];
+    if(ty===K){
+      v= endg ? KING_END[idx] : PST[6][idx];
+      if(w) wk=i; else bk=i;
+    } else { v+=PST[ty][idx]; mat+= w?VAL[ty]:-VAL[ty]; }
+    score+= w?v:-v;
+  }
+  if(endg && Math.abs(mat)>=200 && wk>=0 && bk>=0){
+    const win=mat>0?1:-1, lk=win===1?bk:wk, wkk=win===1?wk:bk;
+    const lr=lk>>3, lc=lk&7;
+    const cd=Math.max(3-lr,lr-4)+Math.max(3-lc,lc-4);
+    const dist=Math.abs(lr-(wkk>>3))+Math.abs(lc-(wkk&7));
+    score+=win*(cd*10+(14-dist)*4);
+  }
+  return s.t===1?score:-score;
+}
+
+function orderScore(s,m){
+  let sc=0;
+  const v=s.b[m.t];
+  if(v) sc+=10*VAL[Math.abs(v)]-VAL[Math.abs(s.b[m.f])]/10;
+  else if(m.e) sc+=900;
+  if(m.p) sc+=VAL[m.p]*10;
+  return sc;
+}
+function ordered(s,ms){
+  const sc=new Map();
+  for(const m of ms) sc.set(m,orderScore(s,m));
+  return ms.sort((a,b)=>sc.get(b)-sc.get(a));
+}
+
+function qsearch(s,alpha,beta,qd){
+  const stand=evaluate(s);
+  if(qd<=0) return stand;
+  if(stand>=beta) return beta;
+  if(stand>alpha) alpha=stand;
+  const ms=ordered(s,legal(s,true));
+  for(const m of ms){
+    const sc=-qsearch(make(s,m),-beta,-alpha,qd-1);
+    if(sc>=beta) return beta;
+    if(sc>alpha) alpha=sc;
+  }
+  return alpha;
+}
+
+function search(s,depth,alpha,beta,ply,useQ){
+  if(s.hm>=100) return 0;
+  if(depth<=0) return useQ ? qsearch(s,alpha,beta,4) : evaluate(s);
+  const ms=legal(s,false);
+  if(!ms.length) return inCheck(s) ? -MATE+ply : 0;
+  ordered(s,ms);
+  for(const m of ms){
+    const sc=-search(make(s,m),depth-1,-beta,-alpha,ply+1,useQ);
+    if(sc>=beta) return beta;
+    if(sc>alpha) alpha=sc;
+  }
+  return alpha;
+}
+
+/* ---------- Ba cấp độ ---------- */
+const LEVELS={
+  easy:  {depth:1, q:false, noise:190, rand:0.35},  // hay bỏ quân, nhìn 1 nước
+  medium:{depth:2, q:false, noise:70,  rand:0.14},  // thấy đòn đánh lại, thỉnh thoảng lỡ tay
+  hard:  {depth:3, q:true,  noise:28,  rand:0.05}   // nhìn 3 nước + ăn quân sâu hơn
+};
+
+function pickMove(s,level){
+  const L=LEVELS[level], ms=legal(s,false);
+  if(!ms.length) return null;
+  if(ms.length===1) return ms[0];
+  if(level==='easy' && Math.random()<L.rand) return ms[(Math.random()*ms.length)|0];
+  const scored=ms.map(m=>({m, raw:-search(make(s,m),L.depth-1,-INF,INF,1,L.q)}));
+  scored.forEach(o=>{ o.sc=o.raw+(Math.random()*2-1)*L.noise; });
+  scored.sort((a,b)=>b.sc-a.sc);
+  if(level!=='easy'){
+    const top=scored.slice().sort((a,b)=>b.raw-a.raw)[0];
+    if(top.raw>MATE-50) return top.m;                       // luôn chiếu hết nếu thấy
+    if(Math.random()<L.rand){ return scored[(Math.random()*Math.min(3,scored.length))|0].m; }
+  }
+  return scored[0].m;
+}
+
+const FILES='abcdefgh';
+const sqName=i=>FILES[i&7]+(8-(i>>3));
+const LETTER=['','','N','B','R','Q','K'];
+function toSAN(s,m){
+  const pc=Math.abs(s.b[m.f]);
+  let str;
+  if(m.c) str=m.c===1?'O-O':'O-O-O';
+  else {
+    const cap=!!(s.b[m.t]||m.e);
+    if(pc===P){
+      str=(cap?FILES[m.f&7]+'x':'')+sqName(m.t);
+      if(m.p) str+='='+LETTER[m.p];
+    } else {
+      let dis='';
+      const others=legal(s).filter(o=>o!==m && s.b[o.f]===s.b[m.f] && o.t===m.t);
+      if(others.length){
+        const sf=others.some(o=>(o.f&7)===(m.f&7)), sr=others.some(o=>(o.f>>3)===(m.f>>3));
+        if(!sf) dis=FILES[m.f&7]; else if(!sr) dis=String(8-(m.f>>3)); else dis=sqName(m.f);
+      }
+      str=LETTER[pc]+dis+(cap?'x':'')+sqName(m.t);
+    }
+  }
+  const n=make(s,m);
+  if(inCheck(n)) str+= legal(n).length?'+':'#';
+  return str;
+}
+</script>
+
+<script>
+/* ================= GIAO DIỆN ================= */
+const GLYPH=['','♟','♞','♝','♜','♛','♚'];
+const TXT='\uFE0E';
+const LV_NAME={easy:'Thường',medium:'Trung bình',hard:'Khó'};
+const LV_ELO={easy:'≈400',medium:'≈700',hard:'≈1000'};
+
+const $=id=>document.getElementById(id);
+const boardEl=$('board');
+
+let start=parseFEN(START_FEN), hist=[], player=1, level='medium', flipped=false;
+let sel=-1, targets=new Map(), last=null, thinking=false, over=null, gameId=0, promoOpen=false;
+
+try{
+  const lv=localStorage.getItem('cv_level'); if(LEVELS[lv]) level=lv;
+  const sd=localStorage.getItem('cv_side'); if(['w','b','r'].includes(sd)) $('side').value=sd;
+}catch(e){}
+
+const cur=()=>hist.length?hist[hist.length-1].after:start;
+const keyOf=s=>Array.prototype.join.call(s.b,',')+'|'+s.t+'|'+s.c+'|'+s.ep;
+
+function gameResult(s){
+  if(!legal(s).length) return inCheck(s)?{type:'mate',winner:-s.t}:{type:'stale'};
+  if(insufficient(s)) return {type:'insuff'};
+  if(s.hm>=100) return {type:'fifty'};
+  const k=keyOf(s); let n=(keyOf(start)===k)?1:0;
+  for(const h of hist) if(keyOf(h.after)===k) n++;
+  if(n>=3) return {type:'rep'};
+  return null;
+}
+
+function newGame(){
+  gameId++;
+  const sd=$('side').value;
+  try{ localStorage.setItem('cv_side',sd); }catch(e){}
+  player= sd==='w'?1 : sd==='b'?-1 : (Math.random()<.5?1:-1);
+  flipped= player===-1;
+  start=parseFEN(START_FEN); hist=[]; sel=-1; targets=new Map(); last=null; over=null; thinking=false; promoOpen=false;
+  closeModal(); render();
+  if(cur().t!==player) engineTurn();
+}
+
+function doMove(m){
+  const s=cur(), san=toSAN(s,m), after=make(s,m);
+  hist.push({m,san,after});
+  last=m; sel=-1; targets=new Map();
+  over=gameResult(after);
+  render();
+  if(over){ setTimeout(showEnd,450); return; }
+  if(after.t!==player) engineTurn();
+}
+
+function engineTurn(){
+  const id=gameId; thinking=true; render();
+  const t0=Date.now();
+  setTimeout(()=>{
+    if(id!==gameId) return;
+    const m=pickMove(cur(),level);
+    const wait=Math.max(0,420-(Date.now()-t0));
+    setTimeout(()=>{
+      if(id!==gameId) return;
+      thinking=false;
+      if(m) doMove(m); else render();
+    },wait);
+  },30);
+}
+
+function undo(){
+  if(thinking||promoOpen||!hist.length) return;
+  gameId++; over=null; closeModal();
+  hist.pop();
+  if(hist.length && cur().t!==player) hist.pop();
+  const l=hist.length?hist[hist.length-1].m:null; last=l;
+  sel=-1; targets=new Map();
+  render();
+  if(cur().t!==player) engineTurn();
+}
+
+function onSquare(sq){
+  if(thinking||over||promoOpen) return;
+  const s=cur(); if(s.t!==player) return;
+  if(sel>=0 && targets.has(sq)){
+    const c=legal(s).filter(m=>m.f===sel&&m.t===sq);
+    if(c.length>1 && c[0].p){ askPromo(c); return; }
+    doMove(c[0]); return;
+  }
+  const p=s.b[sq];
+  if(p && (p>0?1:-1)===s.t && sq!==sel){
+    sel=sq; targets=new Map();
+    legal(s).filter(m=>m.f===sq).forEach(m=>targets.set(m.t,!!(s.b[m.t]||m.e)));
+  } else { sel=-1; targets=new Map(); }
+  render();
+}
+
+/* ---------- Hộp thoại ---------- */
+function openModal(html){ $('modalCard').innerHTML=html; $('modal').hidden=false; }
+function closeModal(){ $('modal').hidden=true; promoOpen=false; }
+
+function askPromo(cands){
+  promoOpen=true;
+  const cls=player===1?'w':'b';
+  const opts=[Q,R,B,N].map(t=>`<button class="${cls}" data-p="${t}" aria-label="Phong ${LETTER[t]}">${GLYPH[t]}${TXT}</button>`).join('');
+  openModal(`<h2>Phong cấp</h2><p>Chọn quân để tốt biến thành</p><div class="promo">${opts}</div>`);
+  $('modalCard').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const pt=+b.dataset.p; const m=cands.find(x=>x.p===pt);
+    closeModal(); doMove(m);
+  });
+}
+
+function endText(r){
+  if(r.type==='mate') return r.winner===player
+    ? ['Chiếu hết! Bạn thắng','Đánh hay lắm. Thử nâng cấp độ nếu muốn thử thách hơn.']
+    : ['Chiếu hết. Máy thắng','Xem lại ván ở bảng nước đi, rồi thử lại.'];
+  if(r.type==='stale') return ['Hòa cờ (hết nước đi)','Bên đến lượt không bị chiếu nhưng không còn nước hợp lệ.'];
+  if(r.type==='insuff') return ['Hòa (không đủ quân chiếu hết)','Hai bên không còn đủ lực lượng để chiếu hết.'];
+  if(r.type==='fifty') return ['Hòa (luật 50 nước)','50 nước liên tiếp không có ăn quân hay đi tốt.'];
+  return ['Hòa (lặp thế cờ 3 lần)','Cùng một thế cờ xuất hiện 3 lần.'];
+}
+function showEnd(){
+  if(!over) return;
+  const [h,p]=endText(over);
+  openModal(`<h2>${h}</h2><p>${p}</p><div class="row"><button class="btn" id="mView">Xem bàn cờ</button><button class="btn primary" id="mNew">Ván mới</button></div>`);
+  $('mView').onclick=closeModal; $('mNew').onclick=newGame;
+}
+
+/* ---------- Vẽ giao diện ---------- */
+const INIT=[0,8,2,2,2,1], PV=[0,1,3,3,5,9];
+function capInfo(s){
+  const cw=[0,0,0,0,0,0,0], cb=[0,0,0,0,0,0,0]; let mw=0, mb=0;
+  for(let i=0;i<64;i++){ const p=s.b[i]; if(!p) continue; const ty=Math.abs(p);
+    if(p>0){cw[ty]++; if(ty<6) mw+=PV[ty];} else {cb[ty]++; if(ty<6) mb+=PV[ty];} }
+  const lostB=[], lostW=[];
+  for(let ty=5;ty>=1;ty--){
+    for(let k=0;k<Math.max(0,INIT[ty]-cb[ty]);k++) lostB.push(ty);
+    for(let k=0;k<Math.max(0,INIT[ty]-cw[ty]);k++) lostW.push(ty);
+  }
+  return {lostB,lostW,diff:mw-mb};
+}
+function renderBar(color,pre,info){
+  const isMe=color===player;
+  $(pre+'Name').textContent= isMe?'Bạn':'Máy';
+  $(pre+'Sub').textContent = isMe ? (color===1?'Quân Trắng':'Quân Đen') : `${LV_NAME[level]} ${LV_ELO[level]}`;
+  const lost = color===1 ? info.lostB : info.lostW;          // quân đối phương mà bên này đã ăn
+  const lead = color===1 ? info.diff : -info.diff;
+  const el=$(pre+'Caps');
+  el.className='caps'+(color===-1?' wc':'');                  // quân bị ăn của bên Trắng hiện màu trắng
+  el.innerHTML=lost.map(t=>`<i>${GLYPH[t]}${TXT}</i>`).join('')+(lead>0?`<em>+${lead}</em>`:'');
+}
+
+function render(){
+  const s=cur(), chk=inCheck(s), ksq=chk?s.b.indexOf(s.t*K):-1;
+  boardEl.innerHTML='';
+  for(let i=0;i<64;i++){
+    const sq=flipped?63-i:i, r=sq>>3, c=sq&7;
+    const d=document.createElement('div');
+    d.className='sq '+(((r+c)&1)?'dark':'light');
+    d.dataset.sq=sq;
+    if(last&&(sq===last.f||sq===last.t)) d.classList.add('last');
+    if(sq===sel) d.classList.add('sel');
+    if(sq===ksq) d.classList.add('check');
+    if(targets.has(sq)) d.classList.add(targets.get(sq)?'cap':'tgt');
+    const p=s.b[sq];
+    if(p){ const sp=document.createElement('span'); sp.className='pc '+(p>0?'w':'b'); sp.textContent=GLYPH[Math.abs(p)]+TXT; d.appendChild(sp); }
+    if(i%8===0){ const l=document.createElement('span'); l.className='coord rk'; l.textContent=8-r; d.appendChild(l); }
+    if(i>=56){ const l=document.createElement('span'); l.className='coord fl'; l.textContent=FILES[c]; d.appendChild(l); }
+    boardEl.appendChild(d);
+  }
+
+  const info=capInfo(s), bottom=flipped?-1:1;
+  renderBar(-bottom,'top',info); renderBar(bottom,'bot',info);
+
+  const st=$('status'); st.className='status'; st.textContent='';
+  if(over){
+    st.classList.add('end'); st.textContent=endText(over)[0];
+  } else if(thinking){
+    st.innerHTML='Máy đang nghĩ<span class="dots"></span>';
+  } else {
+    if(chk){ st.classList.add('warn'); st.textContent= s.t===player?'Bạn đang bị chiếu!':'Máy bị chiếu'; }
+    else st.textContent='Đến lượt bạn';
+  }
+
+  const mv=$('moves');
+  if(!hist.length) mv.innerHTML='<span class="empty">Chưa có nước đi nào</span>';
+  else {
+    let h='';
+    hist.forEach((x,i)=>{
+      const prevT=(i===0?start:hist[i-1].after).t;
+      if(prevT===1) h+=`<span class="n">${(i>>1)+1}.</span>`;
+      else if(i===0) h+=`<span class="n">1…</span>`;
+      h+=`<span class="m">${x.san}</span>`;
+    });
+    mv.innerHTML=h; mv.scrollTop=mv.scrollHeight;
+  }
+
+  $('undoBtn').disabled= thinking||!hist.length;
+  document.querySelectorAll('#levels button').forEach(b=>b.classList.toggle('on',b.dataset.lv===level));
+}
+
+/* ---------- Sự kiện ---------- */
+boardEl.addEventListener('click',e=>{
+  const d=e.target.closest('.sq'); if(d) onSquare(+d.dataset.sq);
+});
+$('levels').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  level=b.dataset.lv;
+  try{ localStorage.setItem('cv_level',level); }catch(err){}
+  render();
+});
+$('newBtn').onclick=newGame;
+$('undoBtn').onclick=undo;
+$('flipBtn').onclick=()=>{ flipped=!flipped; render(); };
+
+newGame();
+</script>
+</body>
+</html>
