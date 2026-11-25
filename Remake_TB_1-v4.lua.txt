@@ -1,0 +1,559 @@
+-- Remake TB 1 v4 | WindUI (Delta Compatible - Auto Persist On Death/Respawn)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- 1. Load WindUI
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+local Window = WindUI:CreateWindow({
+    Title = "Remake TB 1",
+    Icon = "sparkles",
+    Author = "Remake TB",
+    Folder = "RemakeTB1_WindUI",
+    Size = UDim2.fromOffset(520, 410),
+    Theme = "Dark",
+    ToggleKey = Enum.KeyCode.RightControl,
+})
+
+local MainTab = Window:Tab({
+    Title = "Main",
+    Icon = "home",
+})
+
+-- ==========================================
+-- CHỨC NĂNG 1: FULL BRIGHT
+-- ==========================================
+local FullBrightEnabled = false
+local OriginalLighting = {
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    FogEnd = Lighting.FogEnd,
+    GlobalShadows = Lighting.GlobalShadows,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+}
+local LightingConn = nil
+local RespawnBrightConn = nil
+local LightingAddedConn = nil
+
+local function ApplyFullBright()
+    Lighting.Brightness = 2
+    Lighting.ClockTime = 14
+    Lighting.FogEnd = 100000
+    Lighting.GlobalShadows = false
+    Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+end
+
+local function RestoreLighting()
+    Lighting.Brightness = OriginalLighting.Brightness
+    Lighting.ClockTime = OriginalLighting.ClockTime
+    Lighting.FogEnd = OriginalLighting.FogEnd
+    Lighting.GlobalShadows = OriginalLighting.GlobalShadows
+    Lighting.Ambient = OriginalLighting.Ambient
+    Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient
+end
+
+local function EnableFullBright()
+    if LightingConn then LightingConn:Disconnect() end
+    if RespawnBrightConn then RespawnBrightConn:Disconnect() end
+    if LightingAddedConn then LightingAddedConn:Disconnect() end
+
+    ApplyFullBright()
+
+    LightingConn = RunService.RenderStepped:Connect(function()
+        if FullBrightEnabled then
+            ApplyFullBright()
+        end
+    end)
+
+    RespawnBrightConn = LocalPlayer.CharacterAdded:Connect(function()
+        if FullBrightEnabled then
+            task.wait(0.1)
+            ApplyFullBright()
+        end
+    end)
+
+    LightingAddedConn = Lighting.DescendantAdded:Connect(function(obj)
+        if FullBrightEnabled and (obj:IsA("PostEffect") or obj:IsA("Atmosphere")) then
+            pcall(function()
+                if obj:IsA("PostEffect") then
+                    obj.Enabled = false
+                elseif obj:IsA("Atmosphere") then
+                    obj.Density = 0
+                    obj.Haze = 0
+                end
+            end)
+        end
+    end)
+end
+
+local function DisableFullBright()
+    if LightingConn then LightingConn:Disconnect() LightingConn = nil end
+    if RespawnBrightConn then RespawnBrightConn:Disconnect() RespawnBrightConn = nil end
+    if LightingAddedConn then LightingAddedConn:Disconnect() LightingAddedConn = nil end
+    RestoreLighting()
+end
+
+MainTab:Toggle({
+    Title = "Full Bright",
+    Value = false,
+    Callback = function(state)
+        FullBrightEnabled = state
+        if FullBrightEnabled then
+            EnableFullBright()
+        else
+            DisableFullBright()
+        end
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 2: ESP PLAYER
+-- ==========================================
+local ESPEnabled = false
+local ESPObjects = {}
+local ESPConn = nil
+local RespawnESPConn = nil
+
+local function RemovePlayerESP(player)
+    local data = ESPObjects[player]
+    if data then
+        if data.Highlight then pcall(function() data.Highlight:Destroy() end) end
+        if data.Billboard then pcall(function() data.Billboard:Destroy() end) end
+        ESPObjects[player] = nil
+    end
+end
+
+local function CreatePlayerESP(player)
+    if player == LocalPlayer then return end
+    RemovePlayerESP(player)
+
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local head = char:FindFirstChild("Head") or hrp
+    if not hrp or not head then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "TB1_ESP_Highlight"
+    highlight.FillColor = Color3.fromRGB(255, 65, 65)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.55
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Adornee = char
+    highlight.Parent = char
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "TB1_ESP_Tag"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 180, 0, 42)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextStrokeTransparency = 0.2
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 13
+    label.Text = player.DisplayName .. " [0m]"
+    label.Parent = billboard
+
+    billboard.Parent = head
+
+    ESPObjects[player] = {
+        Highlight = highlight,
+        Billboard = billboard,
+        Label = label,
+        HRP = hrp,
+        Char = char
+    }
+end
+
+local function ClearAllESP()
+    for player in pairs(ESPObjects) do
+        RemovePlayerESP(player)
+    end
+end
+
+local function UpdateESP()
+    local myChar = LocalPlayer.Character
+    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if char and hrp then
+                local existing = ESPObjects[player]
+                if not existing
+                    or existing.Char ~= char
+                    or existing.HRP ~= hrp
+                    or not existing.Highlight.Parent
+                    or not existing.Billboard.Parent then
+                    CreatePlayerESP(player)
+                    existing = ESPObjects[player]
+                end
+
+                if existing and existing.Label and myHRP and myHRP.Parent then
+                    local distStuds = (myHRP.Position - hrp.Position).Magnitude
+                    local meters = math.floor(distStuds + 0.5)
+                    existing.Label.Text = string.format("%s [%dm]", player.DisplayName, meters)
+                end
+            else
+                RemovePlayerESP(player)
+            end
+        end
+    end
+end
+
+Players.PlayerRemoving:Connect(function(player)
+    RemovePlayerESP(player)
+end)
+
+local function EnableESP()
+    if ESPConn then ESPConn:Disconnect() end
+    if RespawnESPConn then RespawnESPConn:Disconnect() end
+
+    UpdateESP()
+
+    ESPConn = RunService.RenderStepped:Connect(function()
+        if ESPEnabled then
+            UpdateESP()
+        end
+    end)
+
+    RespawnESPConn = LocalPlayer.CharacterAdded:Connect(function()
+        if ESPEnabled then
+            task.wait(0.2)
+            UpdateESP()
+        end
+    end)
+end
+
+local function DisableESP()
+    if ESPConn then ESPConn:Disconnect() ESPConn = nil end
+    if RespawnESPConn then RespawnESPConn:Disconnect() RespawnESPConn = nil end
+    ClearAllESP()
+end
+
+MainTab:Toggle({
+    Title = "ESP Player",
+    Value = false,
+    Callback = function(state)
+        ESPEnabled = state
+        if ESPEnabled then
+            EnableESP()
+        else
+            DisableESP()
+        end
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 3: FIX LAG
+-- ==========================================
+local AutoCleanEnabled = false
+local NewEffectConn = nil
+local RespawnCleanConn = nil
+
+local function IsCharacterPart(obj)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Character and obj:IsDescendantOf(plr.Character) then
+            return true
+        end
+    end
+    return false
+end
+
+local function CleanEffects(instance)
+    if IsCharacterPart(instance) then return end
+
+    if instance:IsA("ParticleEmitter")
+        or instance:IsA("Trail")
+        or instance:IsA("Beam")
+        or instance:IsA("Fire")
+        or instance:IsA("Smoke")
+        or instance:IsA("Sparkles")
+        or instance:IsA("Explosion") then
+        instance.Enabled = false
+        pcall(function() instance:Destroy() end)
+    elseif instance:IsA("BloomEffect")
+        or instance:IsA("BlurEffect")
+        or instance:IsA("DepthOfFieldEffect")
+        or instance:IsA("SunRaysEffect")
+        or instance:IsA("ColorCorrectionEffect") then
+        instance.Enabled = false
+    elseif instance:IsA("BasePart") then
+        instance.Material = Enum.Material.SmoothPlastic
+        instance.Reflectance = 0
+        if instance:IsA("MeshPart") then
+            instance.TextureID = ""
+        end
+    elseif instance:IsA("Decal") or instance:IsA("Texture") then
+        instance.Transparency = 1
+    end
+end
+
+local function RunFixLagScan(showNotify)
+    local cleanedCount = 0
+
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        local before = cleanedCount
+        pcall(function()
+            CleanEffects(obj)
+            cleanedCount += 1
+        end)
+        if cleanedCount - before > 0 and cleanedCount % 250 == 0 then
+            task.wait()
+        end
+    end
+
+    for _, effect in ipairs(Lighting:GetChildren()) do
+        if effect:IsA("PostEffect") then
+            effect.Enabled = false
+        end
+    end
+
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    end)
+
+    if showNotify then
+        WindUI:Notify({
+            Title = "Remake TB 1 - Fix Lag",
+            Content = "Đã tối ưu hiệu ứng dư thừa (" .. tostring(cleanedCount) .. " đối tượng).",
+            Duration = 4,
+        })
+    end
+end
+
+MainTab:Button({
+    Title = "Fix Lag",
+    Callback = function()
+        AutoCleanEnabled = true
+
+        if not NewEffectConn then
+            NewEffectConn = Workspace.DescendantAdded:Connect(function(desc)
+                if AutoCleanEnabled then
+                    task.defer(function()
+                        pcall(function()
+                            CleanEffects(desc)
+                        end)
+                    end)
+                end
+            end)
+        end
+
+        if not RespawnCleanConn then
+            RespawnCleanConn = LocalPlayer.CharacterAdded:Connect(function()
+                if AutoCleanEnabled then
+                    task.wait(0.3)
+                    pcall(function()
+                        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+                    end)
+                end
+            end)
+        end
+
+        RunFixLagScan(true)
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 4: FLY
+-- ==========================================
+MainTab:Button({
+    Title = "Fly",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/Wl27KrUV/raw"))()
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 5: SPEED (SAFE CFRAME + VELOCITY BYPASS, MAX 150)
+-- ==========================================
+local SpeedEnabled = false
+local TargetSpeed = 50
+local SpeedConn = nil
+local RespawnSpeedConn = nil
+
+local function StopSpeedPhysics()
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        local lv = hrp:FindFirstChild("TB1_SafeSpeed_LV")
+        local att = hrp:FindFirstChild("TB1_SafeSpeed_Att")
+        if lv then pcall(function() lv:Destroy() end) end
+        if att then pcall(function() att:Destroy() end) end
+    end
+end
+
+local function StartSafeSpeed()
+    if SpeedConn then SpeedConn:Disconnect() end
+    if RespawnSpeedConn then RespawnSpeedConn:Disconnect() end
+
+    -- Sử dụng phương pháp dịch chuyển CFrame theo MoveDirection kết hợp giữ WalkSpeed gốc
+    -- Giúp tránh bị Anti-Cheat phát hiện sửa thuộc tính Humanoid.WalkSpeed và hạn chế kẹt tường/chết oan
+    SpeedConn = RunService.Heartbeat:Connect(function(dt)
+        if not SpeedEnabled then return end
+
+        local char = LocalPlayer.Character
+        if not char then return end
+
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+
+        if hum and hrp and hum.Health > 0 then
+            local moveDir = hum.MoveDirection
+            if moveDir.Magnitude > 0.01 then
+                local baseWalk = hum.WalkSpeed > 0 and hum.WalkSpeed or 16
+                local extraSpeed = math.max(0, TargetSpeed - baseWalk)
+
+                if extraSpeed > 0 then
+                    local step = moveDir.Unit * extraSpeed * math.min(dt, 0.05)
+
+                    -- Raycast kiểm tra vật cản phía trước để tránh xuyên tường gây kill-brick/void
+                    local rayParams = RaycastParams.new()
+                    rayParams.FilterDescendantsInstances = { char }
+                    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+                    local hit = Workspace:Raycast(hrp.Position, step + moveDir.Unit * 1.5, rayParams)
+                    if not hit then
+                        hrp.CFrame = hrp.CFrame + step
+                    end
+                end
+            end
+        end
+    end)
+
+    RespawnSpeedConn = LocalPlayer.CharacterAdded:Connect(function()
+        if SpeedEnabled then
+            task.wait(0.2)
+        end
+    end)
+end
+
+local function DisableSafeSpeed()
+    if SpeedConn then SpeedConn:Disconnect() SpeedConn = nil end
+    if RespawnSpeedConn then RespawnSpeedConn:Disconnect() RespawnSpeedConn = nil end
+    StopSpeedPhysics()
+end
+
+MainTab:Toggle({
+    Title = "Speed",
+    Value = false,
+    Callback = function(state)
+        SpeedEnabled = state
+        if SpeedEnabled then
+            StartSafeSpeed()
+        else
+            DisableSafeSpeed()
+        end
+    end
+})
+
+MainTab:Slider({
+    Title = "Speed Value",
+    Step = 1,
+    Value = {
+        Min = 16,
+        Max = 150,
+        Default = 50,
+    },
+    Callback = function(value)
+        TargetSpeed = math.clamp(tonumber(value) or 50, 16, 150)
+    end
+})
+
+-- ==========================================
+-- TAB: SCRIPT (TỔNG HỢP SCRIPT)
+-- ==========================================
+local ScriptTab = Window:Tab({
+    Title = "Script",
+    Icon = "code",
+})
+
+ScriptTab:Section({
+    Title = "Tổng hợp script",
+})
+
+-- 1: 99 night in the forest
+ScriptTab:Section({
+    Title = "1: 99 night in the forest",
+})
+
+ScriptTab:Button({
+    Title = "Foxnamehub",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameHub.lua"))()
+    end
+})
+
+ScriptTab:Button({
+    Title = "H4x(key or keyless)",
+    Callback = function()
+        loadstring(game:HttpGet("https://H4xScripts.xyz/loader"))()
+    end
+})
+
+ScriptTab:Button({
+    Title = "NO LAG script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/nouralddin-abdullah/99-night/refs/heads/main/main-en.lua"))()
+    end
+})
+
+ScriptTab:Button({
+    Title = "Kixdev",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kixdev/99NITF/main/script", true))()
+    end
+})
+
+ScriptTab:Button({
+    Title = "VapeVoidware (keyless)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VWExtra/main/NightsInTheForest.lua", true))()
+    end
+})
+
+-- 2: blox fruit
+ScriptTab:Section({
+    Title = "2: blox fruit",
+})
+
+ScriptTab:Button({
+    Title = "Quantum",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
+    end
+})
+
+ScriptTab:Button({
+    Title = "NO LAG",
+    Callback = function()
+        loadstring(game:HttpGet("https://nolag.wtf/script.lua"))()
+    end
+})
+
+-- 3: dead rail
+ScriptTab:Section({
+    Title = "3: dead rail",
+})
+
+ScriptTab:Button({
+    Title = "Gumanba",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/refs/heads/main/DeadRails", true))()
+    end
+})
