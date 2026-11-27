@@ -1,0 +1,1172 @@
+-- Remake TB 1 v10 | WindUI (Delta Compatible - Auto Persist On Death/Respawn + Aimbot)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+-- ==========================================
+-- HỆ THỐNG ĐA NGÔN NGỮ (EN / VI / RU / FR)
+-- ==========================================
+local CurrentLanguage = "Tiếng Việt"
+
+local Translations = {
+    ["English"] = {
+        MainTab = "Main",
+        ScriptTab = "Script",
+        SettingTab = "Settings",
+        FullBright = "Full Bright",
+        ESPPlayer = "ESP Player",
+        FixLag = "Fix Lag",
+        Fly = "Fly",
+        Speed = "Speed",
+        SpeedValue = "Speed Value",
+        Noclip = "Noclip",
+        Aimbot = "Aimbot (Camera Lock)",
+        AimbotPart = "Aimbot Target Part",
+        AimbotFOV = "Aimbot FOV Radius",
+        AimbotSmooth = "Aimbot Smoothness",
+        AimbotTeamCheck = "Aimbot Team Check",
+        AimbotWallCheck = "Aimbot Wall Check",
+        AimbotShowFOV = "Show FOV Circle",
+        Language = "Language",
+        LanguageDesc = "Select interface language",
+        ScriptCollection = "Script Collection",
+        Sec1 = "1: 99 night in the forest",
+        Sec2 = "2: blox fruit",
+        Sec3 = "3: dead rail",
+        Sec4 = "4: meme sea",
+        ErrTitle = "Script Load Error",
+        ErrContent = "%s failed or link is unresponsive.",
+        FixLagTitle = "Remake TB 1 - Fix Lag",
+        FixLagContent = "Optimized redundant effects (%s objects).",
+        LangChangedTitle = "Language Updated",
+        LangChangedContent = "Language set to English (re-open or toggle elements to refresh labels).",
+    },
+    ["Tiếng Việt"] = {
+        MainTab = "Main",
+        ScriptTab = "Script",
+        SettingTab = "Cài đặt",
+        FullBright = "Full Bright (Sáng toàn bộ)",
+        ESPPlayer = "ESP Player (Định vị người chơi)",
+        FixLag = "Fix Lag (Giảm giật lag)",
+        Fly = "Fly (Bay)",
+        Speed = "Speed (Tăng tốc)",
+        SpeedValue = "Tốc độ chạy",
+        Noclip = "Noclip (Xuyên tường)",
+        Aimbot = "Aimbot (Khóa mục tiêu)",
+        AimbotPart = "Bộ phận ngắm (Aim Part)",
+        AimbotFOV = "Bán kính vòng FOV",
+        AimbotSmooth = "Độ mượt Aimbot",
+        AimbotTeamCheck = "Aimbot Bỏ qua đồng đội",
+        AimbotWallCheck = "Aimbot Kiểm tra tường",
+        AimbotShowFOV = "Hiển thị vòng tròn FOV",
+        Language = "Ngôn ngữ (Language)",
+        LanguageDesc = "Chọn ngôn ngữ hiển thị",
+        ScriptCollection = "Tổng hợp script",
+        Sec1 = "1: 99 night in the forest",
+        Sec2 = "2: blox fruit",
+        Sec3 = "3: dead rail",
+        Sec4 = "4: meme sea",
+        ErrTitle = "Lỗi tải Script",
+        ErrContent = "%s gặp lỗi hoặc link không phản hồi.",
+        FixLagTitle = "Remake TB 1 - Fix Lag",
+        FixLagContent = "Đã tối ưu hiệu ứng dư thừa (%s đối tượng).",
+        LangChangedTitle = "Đã đổi ngôn ngữ",
+        LangChangedContent = "Ngôn ngữ hiện tại: Tiếng Việt.",
+    },
+    ["Русский"] = {
+        MainTab = "Главная",
+        ScriptTab = "Скрипты",
+        SettingTab = "Настройки",
+        FullBright = "Полная яркость",
+        ESPPlayer = "ESP Игроков",
+        FixLag = "Убрать лаги",
+        Fly = "Полёт",
+        Speed = "Скорость",
+        SpeedValue = "Значение скорости",
+        Noclip = "Ноуклип",
+        Aimbot = "Аимбот (Автонаведение)",
+        AimbotPart = "Часть тела для аима",
+        AimbotFOV = "Радиус FOV Аимбота",
+        AimbotSmooth = "Плавность Аимбота",
+        AimbotTeamCheck = "Проверка команды",
+        AimbotWallCheck = "Проверка стен",
+        AimbotShowFOV = "Показать круг FOV",
+        Language = "Язык (Language)",
+        LanguageDesc = "Выберите язык интерфейса",
+        ScriptCollection = "Сборник скриптов",
+        Sec1 = "1: 99 night in the forest",
+        Sec2 = "2: blox fruit",
+        Sec3 = "3: dead rail",
+        Sec4 = "4: meme sea",
+        ErrTitle = "Ошибка загрузки скрипта",
+        ErrContent = "Ошибка %s или ссылка не отвечает.",
+        FixLagTitle = "Remake TB 1 - Fix Lag",
+        FixLagContent = "Оптимизированы лишние эффекты (%s объектов).",
+        LangChangedTitle = "Язык изменён",
+        LangChangedContent = "Выбран русский язык.",
+    },
+    ["Français"] = {
+        MainTab = "Principal",
+        ScriptTab = "Scripts",
+        SettingTab = "Paramètres",
+        FullBright = "Pleine luminosité",
+        ESPPlayer = "ESP Joueurs",
+        FixLag = "Réduire le lag",
+        Fly = "Voler",
+        Speed = "Vitesse",
+        SpeedValue = "Valeur de vitesse",
+        Noclip = "Noclip",
+        Aimbot = "Aimbot (Verrouillage cible)",
+        AimbotPart = "Partie ciblée (Aimbot)",
+        AimbotFOV = "Rayon FOV Aimbot",
+        AimbotSmooth = "Fluidité Aimbot",
+        AimbotTeamCheck = "Ignorer les alliés",
+        AimbotWallCheck = "Vérification des murs",
+        AimbotShowFOV = "Afficher le cercle FOV",
+        Language = "Langue (Language)",
+        LanguageDesc = "Choisir la langue de l'interface",
+        ScriptCollection = "Collection de scripts",
+        Sec1 = "1: 99 night in the forest",
+        Sec2 = "2: blox fruit",
+        Sec3 = "3: dead rail",
+        Sec4 = "4: meme sea",
+        ErrTitle = "Erreur de chargement",
+        ErrContent = "%s a échoué ou le lien ne répond pas.",
+        FixLagTitle = "Remake TB 1 - Fix Lag",
+        FixLagContent = "Effets inutiles optimisés (%s objets).",
+        LangChangedTitle = "Langue modifiée",
+        LangChangedContent = "Langue définie sur Français.",
+    },
+}
+
+local function T(key)
+    local pack = Translations[CurrentLanguage] or Translations["English"]
+    return pack[key] or Translations["English"][key] or key
+end
+
+-- Hàm hỗ trợ chạy script an toàn, tránh crash UI nếu link chết hoặc lỗi syntax
+local WindUI = nil
+
+local function SafeLoadScript(scriptName, url, extraArg)
+    task.spawn(function()
+        local success, err = pcall(function()
+            local source = game:HttpGet(url, true)
+            local fn, loadErr = loadstring(source)
+            if not fn then
+                error(loadErr or "Không thể biên dịch script")
+            end
+            if extraArg ~= nil then
+                fn(extraArg)
+            else
+                fn()
+            end
+        end)
+
+        if not success then
+            warn("[Remake TB 1] Lỗi khi chạy " .. tostring(scriptName) .. ": " .. tostring(err))
+            if WindUI then
+                pcall(function()
+                    WindUI:Notify({
+                        Title = T("ErrTitle"),
+                        Content = string.format(T("ErrContent"), tostring(scriptName)),
+                        Duration = 4,
+                    })
+                end)
+            end
+        end
+    end)
+end
+
+-- 1. Load WindUI
+WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua", true))()
+
+local Window = WindUI:CreateWindow({
+    Title = "Remake TB 1",
+    Icon = "sparkles",
+    Author = "Remake TB",
+    Folder = "RemakeTB1_WindUI",
+    Size = UDim2.fromOffset(520, 410),
+    Theme = "Dark",
+    ToggleKey = Enum.KeyCode.RightControl,
+})
+
+local MainTab = Window:Tab({
+    Title = "Main",
+    Icon = "home",
+})
+
+-- ==========================================
+-- CHỨC NĂNG 1: FULL BRIGHT
+-- ==========================================
+local FullBrightEnabled = false
+local OriginalLighting = {
+    Brightness = Lighting.Brightness,
+    ClockTime = Lighting.ClockTime,
+    FogEnd = Lighting.FogEnd,
+    GlobalShadows = Lighting.GlobalShadows,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+}
+local LightingConn = nil
+local RespawnBrightConn = nil
+local LightingAddedConn = nil
+
+local function ApplyFullBright()
+    Lighting.Brightness = 2
+    Lighting.ClockTime = 14
+    Lighting.FogEnd = 100000
+    Lighting.GlobalShadows = false
+    Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+end
+
+local function RestoreLighting()
+    Lighting.Brightness = OriginalLighting.Brightness
+    Lighting.ClockTime = OriginalLighting.ClockTime
+    Lighting.FogEnd = OriginalLighting.FogEnd
+    Lighting.GlobalShadows = OriginalLighting.GlobalShadows
+    Lighting.Ambient = OriginalLighting.Ambient
+    Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient
+end
+
+local function EnableFullBright()
+    if LightingConn then LightingConn:Disconnect() end
+    if RespawnBrightConn then RespawnBrightConn:Disconnect() end
+    if LightingAddedConn then LightingAddedConn:Disconnect() end
+
+    ApplyFullBright()
+
+    LightingConn = RunService.RenderStepped:Connect(function()
+        if FullBrightEnabled then
+            ApplyFullBright()
+        end
+    end)
+
+    RespawnBrightConn = LocalPlayer.CharacterAdded:Connect(function()
+        if FullBrightEnabled then
+            task.wait(0.1)
+            ApplyFullBright()
+        end
+    end)
+
+    LightingAddedConn = Lighting.DescendantAdded:Connect(function(obj)
+        if FullBrightEnabled and (obj:IsA("PostEffect") or obj:IsA("Atmosphere")) then
+            pcall(function()
+                if obj:IsA("PostEffect") then
+                    obj.Enabled = false
+                elseif obj:IsA("Atmosphere") then
+                    obj.Density = 0
+                    obj.Haze = 0
+                end
+            end)
+        end
+    end)
+end
+
+local function DisableFullBright()
+    if LightingConn then LightingConn:Disconnect() LightingConn = nil end
+    if RespawnBrightConn then RespawnBrightConn:Disconnect() RespawnBrightConn = nil end
+    if LightingAddedConn then LightingAddedConn:Disconnect() LightingAddedConn = nil end
+    RestoreLighting()
+end
+
+local FullBrightToggle = MainTab:Toggle({
+    Title = T("FullBright"),
+    Value = false,
+    Callback = function(state)
+        FullBrightEnabled = state
+        if FullBrightEnabled then
+            EnableFullBright()
+        else
+            DisableFullBright()
+        end
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 2: ESP PLAYER
+-- ==========================================
+local ESPEnabled = false
+local ESPObjects = {}
+local ESPConn = nil
+local RespawnESPConn = nil
+
+local function RemovePlayerESP(player)
+    local data = ESPObjects[player]
+    if data then
+        if data.Highlight then pcall(function() data.Highlight:Destroy() end) end
+        if data.Billboard then pcall(function() data.Billboard:Destroy() end) end
+        ESPObjects[player] = nil
+    end
+end
+
+local function CreatePlayerESP(player)
+    if player == LocalPlayer then return end
+    RemovePlayerESP(player)
+
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local head = char:FindFirstChild("Head") or hrp
+    if not hrp or not head then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "TB1_ESP_Highlight"
+    highlight.FillColor = Color3.fromRGB(255, 65, 65)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.55
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Adornee = char
+    highlight.Parent = char
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "TB1_ESP_Tag"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 180, 0, 42)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextStrokeTransparency = 0.2
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 13
+    label.Text = player.DisplayName .. " [0m]"
+    label.Parent = billboard
+
+    billboard.Parent = head
+
+    ESPObjects[player] = {
+        Highlight = highlight,
+        Billboard = billboard,
+        Label = label,
+        HRP = hrp,
+        Char = char
+    }
+end
+
+local function ClearAllESP()
+    for player in pairs(ESPObjects) do
+        RemovePlayerESP(player)
+    end
+end
+
+local function UpdateESP()
+    local myChar = LocalPlayer.Character
+    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if char and hrp then
+                local existing = ESPObjects[player]
+                if not existing
+                    or existing.Char ~= char
+                    or existing.HRP ~= hrp
+                    or not existing.Highlight.Parent
+                    or not existing.Billboard.Parent then
+                    CreatePlayerESP(player)
+                    existing = ESPObjects[player]
+                end
+
+                if existing and existing.Label and myHRP and myHRP.Parent then
+                    local distStuds = (myHRP.Position - hrp.Position).Magnitude
+                    local meters = math.floor(distStuds + 0.5)
+                    existing.Label.Text = string.format("%s [%dm]", player.DisplayName, meters)
+                end
+            else
+                RemovePlayerESP(player)
+            end
+        end
+    end
+end
+
+Players.PlayerRemoving:Connect(function(player)
+    RemovePlayerESP(player)
+end)
+
+local function EnableESP()
+    if ESPConn then ESPConn:Disconnect() end
+    if RespawnESPConn then RespawnESPConn:Disconnect() end
+
+    UpdateESP()
+
+    ESPConn = RunService.RenderStepped:Connect(function()
+        if ESPEnabled then
+            UpdateESP()
+        end
+    end)
+
+    RespawnESPConn = LocalPlayer.CharacterAdded:Connect(function()
+        if ESPEnabled then
+            task.wait(0.2)
+            UpdateESP()
+        end
+    end)
+end
+
+local function DisableESP()
+    if ESPConn then ESPConn:Disconnect() ESPConn = nil end
+    if RespawnESPConn then RespawnESPConn:Disconnect() RespawnESPConn = nil end
+    ClearAllESP()
+end
+
+local ESPToggle = MainTab:Toggle({
+    Title = T("ESPPlayer"),
+    Value = false,
+    Callback = function(state)
+        ESPEnabled = state
+        if ESPEnabled then
+            EnableESP()
+        else
+            DisableESP()
+        end
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 3: FIX LAG
+-- ==========================================
+local AutoCleanEnabled = false
+local NewEffectConn = nil
+local RespawnCleanConn = nil
+
+local function IsCharacterPart(obj)
+    local model = obj:FindFirstAncestorOfClass("Model")
+    while model do
+        if Players:GetPlayerFromCharacter(model) then
+            return true
+        end
+        model = model:FindFirstAncestorOfClass("Model")
+    end
+    return false
+end
+
+local function CleanEffects(instance)
+    if IsCharacterPart(instance) then return end
+
+    if instance:IsA("ParticleEmitter")
+        or instance:IsA("Trail")
+        or instance:IsA("Beam")
+        or instance:IsA("Fire")
+        or instance:IsA("Smoke")
+        or instance:IsA("Sparkles")
+        or instance:IsA("Explosion") then
+        instance.Enabled = false
+        pcall(function() instance:Destroy() end)
+    elseif instance:IsA("BloomEffect")
+        or instance:IsA("BlurEffect")
+        or instance:IsA("DepthOfFieldEffect")
+        or instance:IsA("SunRaysEffect")
+        or instance:IsA("ColorCorrectionEffect") then
+        instance.Enabled = false
+    elseif instance:IsA("BasePart") then
+        instance.Material = Enum.Material.SmoothPlastic
+        instance.Reflectance = 0
+        if instance:IsA("MeshPart") then
+            instance.TextureID = ""
+        end
+    elseif instance:IsA("Decal") or instance:IsA("Texture") then
+        instance.Transparency = 1
+    end
+end
+
+local function RunFixLagScan(showNotify)
+    local cleanedCount = 0
+
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        local before = cleanedCount
+        pcall(function()
+            CleanEffects(obj)
+            cleanedCount += 1
+        end)
+        if cleanedCount - before > 0 and cleanedCount % 250 == 0 then
+            task.wait()
+        end
+    end
+
+    for _, effect in ipairs(Lighting:GetChildren()) do
+        if effect:IsA("PostEffect") then
+            effect.Enabled = false
+        end
+    end
+
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    end)
+
+    if showNotify then
+        WindUI:Notify({
+            Title = T("FixLagTitle"),
+            Content = string.format(T("FixLagContent"), tostring(cleanedCount)),
+            Duration = 4,
+        })
+    end
+end
+
+local FixLagButton = MainTab:Button({
+    Title = T("FixLag"),
+    Callback = function()
+        AutoCleanEnabled = true
+
+        if not NewEffectConn then
+            NewEffectConn = Workspace.DescendantAdded:Connect(function(desc)
+                if AutoCleanEnabled then
+                    task.defer(function()
+                        pcall(function()
+                            CleanEffects(desc)
+                        end)
+                    end)
+                end
+            end)
+        end
+
+        if not RespawnCleanConn then
+            RespawnCleanConn = LocalPlayer.CharacterAdded:Connect(function()
+                if AutoCleanEnabled then
+                    task.wait(0.3)
+                    pcall(function()
+                        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+                    end)
+                end
+            end)
+        end
+
+        RunFixLagScan(true)
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 4: FLY
+-- ==========================================
+local FlyButton = MainTab:Button({
+    Title = T("Fly"),
+    Callback = function()
+        SafeLoadScript("Fly", "https://pastefy.app/Wl27KrUV/raw")
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 5: SPEED (SAFE CFRAME + RAYCAST, MAX 150)
+-- ==========================================
+local SpeedEnabled = false
+local TargetSpeed = 50
+local SpeedConn = nil
+local RespawnSpeedConn = nil
+
+local function StartSafeSpeed()
+    if SpeedConn then SpeedConn:Disconnect() end
+    if RespawnSpeedConn then RespawnSpeedConn:Disconnect() end
+
+    -- Dịch chuyển CFrame theo MoveDirection kết hợp giữ WalkSpeed gốc và Raycast chống kẹt tường
+    SpeedConn = RunService.Heartbeat:Connect(function(dt)
+        if not SpeedEnabled then return end
+
+        local char = LocalPlayer.Character
+        if not char then return end
+
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+
+        if hum and hrp and hum.Health > 0 then
+            local moveDir = hum.MoveDirection
+            if moveDir.Magnitude > 0.01 then
+                local baseWalk = hum.WalkSpeed > 0 and hum.WalkSpeed or 16
+                local extraSpeed = math.max(0, TargetSpeed - baseWalk)
+
+                if extraSpeed > 0 then
+                    local step = moveDir.Unit * extraSpeed * math.min(dt, 0.05)
+
+                    local rayParams = RaycastParams.new()
+                    rayParams.FilterDescendantsInstances = { char }
+                    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+                    local hit = Workspace:Raycast(hrp.Position, step + moveDir.Unit * 1.5, rayParams)
+                    if not hit then
+                        hrp.CFrame = hrp.CFrame + step
+                    end
+                end
+            end
+        end
+    end)
+
+    RespawnSpeedConn = LocalPlayer.CharacterAdded:Connect(function()
+        if SpeedEnabled then
+            task.wait(0.2)
+        end
+    end)
+end
+
+local function DisableSafeSpeed()
+    if SpeedConn then SpeedConn:Disconnect() SpeedConn = nil end
+    if RespawnSpeedConn then RespawnSpeedConn:Disconnect() RespawnSpeedConn = nil end
+end
+
+local SpeedToggle = MainTab:Toggle({
+    Title = T("Speed"),
+    Value = false,
+    Callback = function(state)
+        SpeedEnabled = state
+        if SpeedEnabled then
+            StartSafeSpeed()
+        else
+            DisableSafeSpeed()
+        end
+    end
+})
+
+local SpeedSlider = MainTab:Slider({
+    Title = T("SpeedValue"),
+    Step = 1,
+    Value = {
+        Min = 16,
+        Max = 150,
+        Default = 50,
+    },
+    Callback = function(value)
+        TargetSpeed = math.clamp(tonumber(value) or 50, 16, 150)
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 6: NOCLIP (TỐI ƯU CACHE PARTS & KHÔI PHỤC VA CHẠM)
+-- ==========================================
+local NoclipEnabled = false
+local NoclipConn = nil
+local NoclipCharConn = nil
+local NoclipDescConn = nil
+local CachedNoclipParts = {}
+local OriginalCollideStates = {}
+
+local function RebuildNoclipCache(char)
+    table.clear(CachedNoclipParts)
+    table.clear(OriginalCollideStates)
+
+    if NoclipDescConn then
+        NoclipDescConn:Disconnect()
+        NoclipDescConn = nil
+    end
+
+    if not char then return end
+
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            OriginalCollideStates[part] = part.CanCollide
+            table.insert(CachedNoclipParts, part)
+        end
+    end
+
+    -- Tự động cập nhật nếu có phụ kiện/vũ khí mới gắn vào nhân vật
+    NoclipDescConn = char.DescendantAdded:Connect(function(desc)
+        if desc:IsA("BasePart") then
+            OriginalCollideStates[desc] = desc.CanCollide
+            table.insert(CachedNoclipParts, desc)
+        end
+    end)
+end
+
+local function EnableNoclip()
+    if NoclipConn then NoclipConn:Disconnect() end
+    if NoclipCharConn then NoclipCharConn:Disconnect() end
+
+    RebuildNoclipCache(LocalPlayer.Character)
+
+    NoclipConn = RunService.Stepped:Connect(function()
+        if not NoclipEnabled then return end
+        for i = #CachedNoclipParts, 1, -1 do
+            local part = CachedNoclipParts[i]
+            if part and part.Parent then
+                if part.CanCollide then
+                    part.CanCollide = false
+                end
+            else
+                table.remove(CachedNoclipParts, i)
+            end
+        end
+    end)
+
+    -- Tự giữ Noclip khi nhân vật chết / hồi sinh
+    NoclipCharConn = LocalPlayer.CharacterAdded:Connect(function(newChar)
+        if NoclipEnabled then
+            task.wait(0.1)
+            RebuildNoclipCache(newChar)
+        end
+    end)
+end
+
+local function DisableNoclip()
+    if NoclipConn then NoclipConn:Disconnect() NoclipConn = nil end
+    if NoclipCharConn then NoclipCharConn:Disconnect() NoclipCharConn = nil end
+    if NoclipDescConn then NoclipDescConn:Disconnect() NoclipDescConn = nil end
+
+    -- Khôi phục lại trạng thái CanCollide ban đầu cho nhân vật
+    for _, part in ipairs(CachedNoclipParts) do
+        if part and part.Parent then
+            local orig = OriginalCollideStates[part]
+            if orig ~= nil then
+                part.CanCollide = orig
+            end
+        end
+    end
+
+    table.clear(CachedNoclipParts)
+    table.clear(OriginalCollideStates)
+end
+
+local NoclipToggle = MainTab:Toggle({
+    Title = T("Noclip"),
+    Value = false,
+    Callback = function(state)
+        NoclipEnabled = state
+        if NoclipEnabled then
+            EnableNoclip()
+        else
+            DisableNoclip()
+        end
+    end
+})
+
+-- ==========================================
+-- CHỨC NĂNG 7: AIMBOT (DELTA & MOBILE/PC COMPATIBLE)
+-- ==========================================
+local AimbotEnabled = false
+local AimbotPartName = "Head"
+local AimbotFOV = 150
+local AimbotSmoothness = 0.25
+local AimbotTeamCheck = false
+local AimbotWallCheck = false
+local AimbotShowFOV = false
+
+local AimbotConn = nil
+local FOVCircle = nil
+local FOVGui = nil
+local FOVStroke = nil
+
+-- Hỗ trợ vẽ vòng FOV tương thích cả Drawing API lẫn ScreenGui fallback trên Delta Mobile
+local function InitFOVVisual()
+    if FOVCircle or FOVGui then return end
+
+    local okDrawing = pcall(function()
+        if Drawing and Drawing.new then
+            local circle = Drawing.new("Circle")
+            circle.Thickness = 1.5
+            circle.NumSides = 64
+            circle.Radius = AimbotFOV
+            circle.Filled = false
+            circle.Color = Color3.fromRGB(255, 85, 85)
+            circle.Transparency = 0.85
+            circle.Visible = false
+            FOVCircle = circle
+        end
+    end)
+
+    if not okDrawing or not FOVCircle then
+        local playerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+        local gui = Instance.new("ScreenGui")
+        gui.Name = "TB1_Aimbot_FOV"
+        gui.IgnoreGuiInset = true
+        gui.ResetOnSpawn = false
+        gui.Parent = playerGui
+
+        local frame = Instance.new("Frame")
+        frame.Name = "FOVRing"
+        frame.AnchorPoint = Vector2.new(0.5, 0.5)
+        frame.Position = UDim2.fromScale(0.5, 0.5)
+        frame.Size = UDim2.fromOffset(AimbotFOV * 2, AimbotFOV * 2)
+        frame.BackgroundTransparency = 1
+        frame.Visible = false
+        frame.Parent = gui
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(1, 0)
+        corner.Parent = frame
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = Color3.fromRGB(255, 85, 85)
+        stroke.Thickness = 1.5
+        stroke.Transparency = 0.15
+        stroke.Parent = frame
+
+        FOVGui = gui
+        FOVStroke = frame
+    end
+end
+
+local function UpdateFOVVisual()
+    local cam = Workspace.CurrentCamera
+    if not cam then return end
+    local center = cam.ViewportSize / 2
+    local shouldShow = AimbotEnabled and AimbotShowFOV
+
+    if FOVCircle then
+        FOVCircle.Position = Vector2.new(center.X, center.Y)
+        FOVCircle.Radius = AimbotFOV
+        FOVCircle.Visible = shouldShow
+    elseif FOVStroke then
+        FOVStroke.Position = UDim2.fromOffset(center.X, center.Y)
+        FOVStroke.Size = UDim2.fromOffset(AimbotFOV * 2, AimbotFOV * 2)
+        FOVStroke.Visible = shouldShow
+    end
+end
+
+local function IsSameTeam(player)
+    if not AimbotTeamCheck then return false end
+    if LocalPlayer.Team ~= nil and player.Team ~= nil then
+        return LocalPlayer.Team == player.Team
+    end
+    if LocalPlayer.TeamColor ~= nil and player.TeamColor ~= nil then
+        return LocalPlayer.TeamColor == player.TeamColor
+    end
+    return false
+end
+
+local function HasLineOfSight(targetPart, targetChar)
+    if not AimbotWallCheck then return true end
+    local cam = Workspace.CurrentCamera
+    if not cam then return false end
+
+    local origin = cam.CFrame.Position
+    local direction = targetPart.Position - origin
+
+    local rayParams = RaycastParams.new()
+    local ignoreList = { cam }
+    if LocalPlayer.Character then
+        table.insert(ignoreList, LocalPlayer.Character)
+    end
+    rayParams.FilterDescendantsInstances = ignoreList
+    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+    rayParams.IgnoreWater = true
+
+    local result = Workspace:Raycast(origin, direction, rayParams)
+    if not result then
+        return true
+    end
+    return result.Instance:IsDescendantOf(targetChar)
+end
+
+local function GetClosestAimbotTarget()
+    local cam = Workspace.CurrentCamera
+    if not cam then return nil end
+
+    local screenCenter = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y / 2)
+    local bestPart = nil
+    local shortestDist = AimbotFOV
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and not IsSameTeam(player) then
+            local char = player.Character
+            if char then
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 and not char:FindFirstChildOfClass("ForceField") then
+                    local targetPart = char:FindFirstChild(AimbotPartName)
+                        or char:FindFirstChild("HumanoidRootPart")
+                        or char:FindFirstChild("Head")
+
+                    if targetPart and targetPart:IsA("BasePart") then
+                        local screenPos, onScreen = cam:WorldToViewportPoint(targetPart.Position)
+                        if onScreen and screenPos.Z > 0 then
+                            local distFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - screenCenter).Magnitude
+                            if distFromCenter <= shortestDist then
+                                if HasLineOfSight(targetPart, char) then
+                                    shortestDist = distFromCenter
+                                    bestPart = targetPart
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return bestPart
+end
+
+local function StartAimbot()
+    InitFOVVisual()
+    if AimbotConn then AimbotConn:Disconnect() end
+
+    AimbotConn = RunService.RenderStepped:Connect(function(dt)
+        UpdateFOVVisual()
+        if not AimbotEnabled then return end
+
+        local cam = Workspace.CurrentCamera
+        if not cam then return end
+
+        local targetPart = GetClosestAimbotTarget()
+        if targetPart then
+            local camPos = cam.CFrame.Position
+            local goalCFrame = CFrame.new(camPos, targetPart.Position)
+            local alpha = math.clamp(AimbotSmoothness * (dt * 60), 0.05, 1)
+            cam.CFrame = cam.CFrame:Lerp(goalCFrame, alpha)
+        end
+    end)
+end
+
+local function StopAimbot()
+    if AimbotConn then
+        AimbotConn:Disconnect()
+        AimbotConn = nil
+    end
+    if FOVCircle then
+        FOVCircle.Visible = false
+    end
+    if FOVStroke then
+        FOVStroke.Visible = false
+    end
+end
+
+local AimbotToggle = MainTab:Toggle({
+    Title = T("Aimbot"),
+    Value = false,
+    Callback = function(state)
+        AimbotEnabled = state
+        if AimbotEnabled then
+            StartAimbot()
+        else
+            StopAimbot()
+        end
+    end
+})
+
+local AimbotPartDropdown = MainTab:Dropdown({
+    Title = T("AimbotPart"),
+    Values = { "Head", "HumanoidRootPart", "UpperTorso" },
+    Value = "Head",
+    Callback = function(selected)
+        AimbotPartName = tostring(selected or "Head")
+    end
+})
+
+local AimbotFOVSlider = MainTab:Slider({
+    Title = T("AimbotFOV"),
+    Step = 5,
+    Value = {
+        Min = 30,
+        Max = 500,
+        Default = 150,
+    },
+    Callback = function(value)
+        AimbotFOV = math.clamp(tonumber(value) or 150, 30, 500)
+        UpdateFOVVisual()
+    end
+})
+
+local AimbotSmoothSlider = MainTab:Slider({
+    Title = T("AimbotSmooth"),
+    Step = 0.05,
+    Value = {
+        Min = 0.05,
+        Max = 1,
+        Default = 0.25,
+    },
+    Callback = function(value)
+        AimbotSmoothness = math.clamp(tonumber(value) or 0.25, 0.05, 1)
+    end
+})
+
+local AimbotTeamToggle = MainTab:Toggle({
+    Title = T("AimbotTeamCheck"),
+    Value = false,
+    Callback = function(state)
+        AimbotTeamCheck = state
+    end
+})
+
+local AimbotWallToggle = MainTab:Toggle({
+    Title = T("AimbotWallCheck"),
+    Value = false,
+    Callback = function(state)
+        AimbotWallCheck = state
+    end
+})
+
+local AimbotFOVToggle = MainTab:Toggle({
+    Title = T("AimbotShowFOV"),
+    Value = false,
+    Callback = function(state)
+        AimbotShowFOV = state
+        UpdateFOVVisual()
+    end
+})
+
+-- ==========================================
+-- TAB: SCRIPT (TỔNG HỢP SCRIPT)
+-- ==========================================
+local ScriptTab = Window:Tab({
+    Title = "Script",
+    Icon = "code",
+})
+
+local ScriptCollectionSection = ScriptTab:Section({
+    Title = T("ScriptCollection"),
+})
+
+-- 1: 99 night in the forest
+ScriptTab:Section({
+    Title = "1: 99 night in the forest",
+})
+
+ScriptTab:Button({
+    Title = "Foxnamehub",
+    Callback = function()
+        SafeLoadScript("Foxnamehub", "https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameHub.lua")
+    end
+})
+
+ScriptTab:Button({
+    Title = "H4x(key or keyless)",
+    Callback = function()
+        SafeLoadScript("H4x(key or keyless)", "https://H4xScripts.xyz/loader")
+    end
+})
+
+ScriptTab:Button({
+    Title = "NO LAG script",
+    Callback = function()
+        SafeLoadScript("NO LAG script", "https://raw.githubusercontent.com/nouralddin-abdullah/99-night/refs/heads/main/main-en.lua")
+    end
+})
+
+ScriptTab:Button({
+    Title = "Kixdev",
+    Callback = function()
+        SafeLoadScript("Kixdev", "https://raw.githubusercontent.com/Kixdev/99NITF/main/script")
+    end
+})
+
+ScriptTab:Button({
+    Title = "VapeVoidware (keyless)",
+    Callback = function()
+        SafeLoadScript("VapeVoidware (keyless)", "https://raw.githubusercontent.com/VapeVoidware/VWExtra/main/NightsInTheForest.lua")
+    end
+})
+
+-- 2: blox fruit
+ScriptTab:Section({
+    Title = "2: blox fruit",
+})
+
+ScriptTab:Button({
+    Title = "Quantum",
+    Callback = function()
+        SafeLoadScript("Quantum", "https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua")
+    end
+})
+
+ScriptTab:Button({
+    Title = "NO LAG",
+    Callback = function()
+        SafeLoadScript("NO LAG", "https://nolag.wtf/script.lua")
+    end
+})
+
+-- 3: dead rail
+ScriptTab:Section({
+    Title = "3: dead rail",
+})
+
+ScriptTab:Button({
+    Title = "Skull Hub (No Key)",
+    Callback = function()
+        SafeLoadScript("Skull Hub (No Key)", "https://raw.githubusercontent.com/hungquan99/SkullHub/main/loader.lua")
+    end
+})
+
+ScriptTab:Button({
+    Title = "Lunor Hub",
+    Callback = function()
+        SafeLoadScript("Lunor Hub", "https://lunor.dev/loader")
+    end
+})
+
+ScriptTab:Button({
+    Title = "NULL FIRE HUB",
+    Callback = function()
+        SafeLoadScript("NULL FIRE HUB", "https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader", "DingaScripts")
+    end
+})
+
+ScriptTab:Button({
+    Title = "Tora Hub (No Key)",
+    Callback = function()
+        SafeLoadScript("Tora Hub (No Key)", "https://raw.githubusercontent.com/gumanba/Scripts/main/DeadRails")
+    end
+})
+
+-- 4: meme sea
+ScriptTab:Section({
+    Title = "4: meme sea",
+})
+
+ScriptTab:Button({
+    Title = "Tlredz",
+    Callback = function()
+        SafeLoadScript("Tlredz", "https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau", Settings)
+    end
+})
+
+ScriptTab:Button({
+    Title = "Omgshit hub",
+    Callback = function()
+        SafeLoadScript("Omgshit hub", "https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua")
+    end
+})
+
+-- ==========================================
+-- TAB: SETTING (CÀI ĐẶT & NGÔN NGỮ)
+-- ==========================================
+local SettingTab = Window:Tab({
+    Title = "Setting",
+    Icon = "settings",
+})
+
+local function RefreshLanguageUI()
+    pcall(function()
+        if FullBrightToggle and FullBrightToggle.SetTitle then FullBrightToggle:SetTitle(T("FullBright")) end
+        if ESPToggle and ESPToggle.SetTitle then ESPToggle:SetTitle(T("ESPPlayer")) end
+        if FixLagButton and FixLagButton.SetTitle then FixLagButton:SetTitle(T("FixLag")) end
+        if FlyButton and FlyButton.SetTitle then FlyButton:SetTitle(T("Fly")) end
+        if SpeedToggle and SpeedToggle.SetTitle then SpeedToggle:SetTitle(T("Speed")) end
+        if SpeedSlider and SpeedSlider.SetTitle then SpeedSlider:SetTitle(T("SpeedValue")) end
+        if NoclipToggle and NoclipToggle.SetTitle then NoclipToggle:SetTitle(T("Noclip")) end
+        if AimbotToggle and AimbotToggle.SetTitle then AimbotToggle:SetTitle(T("Aimbot")) end
+        if AimbotPartDropdown and AimbotPartDropdown.SetTitle then AimbotPartDropdown:SetTitle(T("AimbotPart")) end
+        if AimbotFOVSlider and AimbotFOVSlider.SetTitle then AimbotFOVSlider:SetTitle(T("AimbotFOV")) end
+        if AimbotSmoothSlider and AimbotSmoothSlider.SetTitle then AimbotSmoothSlider:SetTitle(T("AimbotSmooth")) end
+        if AimbotTeamToggle and AimbotTeamToggle.SetTitle then AimbotTeamToggle:SetTitle(T("AimbotTeamCheck")) end
+        if AimbotWallToggle and AimbotWallToggle.SetTitle then AimbotWallToggle:SetTitle(T("AimbotWallCheck")) end
+        if AimbotFOVToggle and AimbotFOVToggle.SetTitle then AimbotFOVToggle:SetTitle(T("AimbotShowFOV")) end
+        if ScriptCollectionSection and ScriptCollectionSection.SetTitle then
+            ScriptCollectionSection:SetTitle(T("ScriptCollection"))
+        end
+    end)
+end
+
+-- Chức năng 1: Language (4 ngôn ngữ: Anh, Việt, Nga, Pháp)
+SettingTab:Dropdown({
+    Title = "Language",
+    Desc = "English / Tiếng Việt / Русский / Français",
+    Values = { "English", "Tiếng Việt", "Русский", "Français" },
+    Value = CurrentLanguage,
+    Callback = function(selected)
+        CurrentLanguage = selected
+        RefreshLanguageUI()
+        WindUI:Notify({
+            Title = T("LangChangedTitle"),
+            Content = T("LangChangedContent"),
+            Duration = 3,
+        })
+    end
+})
